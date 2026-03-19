@@ -12,7 +12,8 @@
       "wss://relay.ditto.pub",
       "wss://relay.primal.net",
       "wss://relay.minibits.cash",
-      "wss://relay.coinos.io"
+      "wss://relay.coinos.io",
+      "wss://relay.nostrcheck.me"
     ]
   }
 }
