@@ -1,0 +1,23 @@
+{
+  "names": {
+    "_": "e838abfbfc64cc9182b7987ead991b880a5f46a9d147a13d6a190e596808bfe8"
+  },
+  "relays": {
+    "e838abfbfc64cc9182b7987ead991b880a5f46a9d147a13d6a190e596808bfe8": [
+      "wss://nos.lol",
+      "wss://relay.momostr.pink/",
+      "wss://relay.mostr.pub",
+      "wss://relay.divine.video/",
+      "wss://purplepag.es",
+      "wss://antiprimal.net",
+      "wss://relay.walletofsatoshi.com",
+      "wss://relay.ditto.pub",
+      "wss://relay.0xchat.com",
+      "wss://relay.plebstr.com",
+      "wss://relay.zapstore.dev",
+      "wss://relay.minibits.cash",
+      "wss://relay.coinos.io",
+      "wss://relay.minds.com/nostr/v1/ws"
+    ]
+  }
+}
