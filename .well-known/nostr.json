@@ -40,7 +40,8 @@
       "wss://search.nos.today",
       "wss://relay.nostr.band",
       "wss://nostr.wine",
-      "wss://relay.nostr.hu"
+      "wss://relay.nostr.hu",
+      "wss://multiplexer.huszonegy.world"
     ]
   }
 }
