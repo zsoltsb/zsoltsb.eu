@@ -18,7 +18,8 @@
       "wss://purplepag.es",
       "wss://relay.nos.social",
       "wss://relay.0xchat.com",
-      "wss://relay.damus.io"
+      "wss://relay.damus.io",
+      "wss://relay.nsec.app"
     ]
   }
 }
