@@ -35,7 +35,10 @@
       "wss://relay.agora.social",
       "wss://relay.fountain.fm",
       "wss://relay.nostromo.social",
-      "wss://relay.noswhere.com"
+      "wss://relay.noswhere.com",
+      "wss://auth.nostr1.com",
+      "wss://search.nos.today",
+      "wss://relay.nostr.band"
     ]
   }
 }
