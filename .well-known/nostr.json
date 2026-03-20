@@ -33,7 +33,9 @@
       "wss://bitcoiner.social",
       "wss://nostr.bitcoiner.social",
       "wss://relay.agora.social",
-      "wss://relay.fountain.fm"
+      "wss://relay.fountain.fm",
+      "wss://relay.nostromo.social",
+      "wss://relay.noswhere.com"
     ]
   }
 }
