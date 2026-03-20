@@ -39,7 +39,8 @@
       "wss://auth.nostr1.com",
       "wss://search.nos.today",
       "wss://relay.nostr.band",
-      "wss://nostr.wine"
+      "wss://nostr.wine",
+      "wss://relay.nostr.hu"
     ]
   }
 }
