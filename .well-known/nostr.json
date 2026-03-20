@@ -31,7 +31,8 @@
       "wss://indexer.nostrarchives.com",
       "wss://relay.snort.social",
       "wss://bitcoiner.social",
-      "wss://nostr.bitcoiner.social"
+      "wss://nostr.bitcoiner.social",
+      "wss://relay.agora.social"
     ]
   }
 }
