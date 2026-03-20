@@ -21,7 +21,8 @@
       "wss://relay.damus.io",
       "wss://relay.nsec.app",
       "wss://cache1.primal.net",
-      "wss://wot.nostr.party"
+      "wss://wot.nostr.party",
+      "wss://primus.nostr1.com"
     ]
   }
 }
