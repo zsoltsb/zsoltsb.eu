@@ -19,7 +19,9 @@
       "wss://relay.nos.social",
       "wss://relay.0xchat.com",
       "wss://relay.damus.io",
-      "wss://relay.nsec.app"
+      "wss://relay.nsec.app",
+      "wss://cache1.primal.net",
+      "wss://wot.nostr.party"
     ]
   }
 }
