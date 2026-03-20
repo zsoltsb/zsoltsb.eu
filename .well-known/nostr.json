@@ -25,7 +25,10 @@
       "wss://nip85.nostr1.com",
       "wss://ribo.eu.nostria.app",
       "wss://ribo.us.nostria.app",
-      "wss://indexer.coracle.social"
+      "wss://indexer.coracle.social",
+      "wss://relay.nostr.info",
+      "wss://nos.mom",
+      "wss://indexer.nostrarchives.com"
     ]
   }
 }
