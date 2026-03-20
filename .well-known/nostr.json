@@ -22,7 +22,10 @@
       "wss://relay.nsec.app",
       "wss://wot.nostr.party",
       "wss://primus.nostr1.com",
-      "wss://nip85.nostr1.com"
+      "wss://nip85.nostr1.com",
+      "wss://ribo.eu.nostria.app",
+      "wss://ribo.us.nostria.app",
+      "wss://indexer.coracle.social"
     ]
   }
 }
