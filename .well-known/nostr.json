@@ -28,7 +28,10 @@
       "wss://indexer.coracle.social",
       "wss://relay.nostr.info",
       "wss://nos.mom",
-      "wss://indexer.nostrarchives.com"
+      "wss://indexer.nostrarchives.com",
+      "wss://relay.snort.social",
+      "wss://bitcoiner.social",
+      "wss://nostr.bitcoiner.social"
     ]
   }
 }
