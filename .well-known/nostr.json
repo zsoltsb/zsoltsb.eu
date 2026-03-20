@@ -22,7 +22,8 @@
       "wss://relay.nsec.app",
       "wss://cache1.primal.net",
       "wss://wot.nostr.party",
-      "wss://primus.nostr1.com"
+      "wss://primus.nostr1.com",
+      "wss://nip85.nostr1.com"
     ]
   }
 }
