@@ -16,7 +16,8 @@
       "wss://relay.nostrcheck.me",
       "wss://relay.zapstore.dev",
       "wss://purplepag.es",
-      "wss://relay.nos.social"
+      "wss://relay.nos.social",
+      "wss://relay.0xchat.com"
     ]
   }
 }
