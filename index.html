@@ -5,49 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zsoltsb.eu</title>
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
-
-  <!-- Bunny Fonts -->
   <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
   <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
-
-  <!-- Font Awesome 6 Free via cdnjs -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
-    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
-
-  <!-- Simple Icons via cdnjs -->
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/11.14.0/simple-icons.min.css"
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
-
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:      #0f0f0f; --surface: #1a1a1a; --border: #2a2a2a;
-      --accent:  #8b5cf6; --accent2: #a78bfa; --text: #e8e8e8;
-      --muted:   #888;    --gold: #f59e0b;     --green: #34d399;
-      --r: 14px;
-      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+      --bg: #0f0f0f; --surface: #1a1a1a; --border: #2a2a2a;
+      --accent: #8b5cf6; --accent2: #a78bfa; --text: #e8e8e8;
+      --muted: #888; --gold: #f59e0b; --green: #34d399;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
     }
     body {
-      background: var(--bg); color: var(--text);
-      font-family: var(--font);
+      background: var(--bg); color: var(--text); font-family: var(--font);
       min-height: 100vh; display: flex; flex-direction: column;
       align-items: center; padding: 40px 16px 80px;
     }
     .card {
       width: 100%; max-width: 600px; background: var(--surface);
-      border: 1px solid var(--border); border-radius: var(--r); overflow: hidden;
+      border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
     }
-
-    /* ── Banner ── */
+    /* Banner */
     .banner {
       height: 160px; position: relative;
       background: linear-gradient(135deg,#1e1040 0%,#2d1b69 50%,#1a0f3d 100%);
@@ -65,25 +42,20 @@
       justify-content: center; font-size: 2.4rem; font-weight: 700; color: #fff;
     }
     .avatar-tick { position: absolute; bottom: 2px; right: 2px; }
-
-    /* ── Body ── */
+    /* Body */
     .body { padding: 62px 24px 28px; }
-    .display-name { font-size: 1.35rem; font-weight: 700; color: var(--text); }
-
-    /* ── Pill rows ── */
-    .pill-row {
-      display: flex; align-items: center; gap: 8px; margin-top: 10px;
-    }
+    .display-name { font-size: 1.35rem; font-weight: 700; }
+    /* Pill rows */
+    .pill-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
     .pill {
       display: inline-flex; align-items: center; gap: 7px;
       background: rgba(139,92,246,.10); border: 1px solid rgba(139,92,246,.28);
       border-radius: 20px; padding: 6px 14px; font-size: .8rem;
-      color: var(--accent2); text-decoration: none; font-family: inherit;
-      line-height: 1; transition: background .18s, border-color .18s; white-space: nowrap;
+      color: var(--accent2); text-decoration: none; line-height: 1;
+      transition: background .18s, border-color .18s; white-space: nowrap;
     }
     .pill:hover { background: rgba(139,92,246,.22); border-color: rgba(139,92,246,.55); }
-
-    /* ── Dropdown buttons ── */
+    /* Dropdowns */
     .dropdown { position: relative; margin-left: auto; flex-shrink: 0; }
     .dropdown-btn {
       display: inline-flex; align-items: center; gap: 6px;
@@ -94,7 +66,7 @@
       white-space: nowrap; user-select: none;
     }
     .dropdown-btn:hover { background: rgba(255,255,255,.09); border-color: #444; color: var(--text); }
-    .dropdown-btn .chevron { font-size: .6rem; transition: transform .2s; display: inline-block; }
+    .dropdown-btn .chevron { font-size: .6rem; transition: transform .2s; }
     .dropdown.open .chevron { transform: rotate(180deg); }
     .dropdown-menu {
       display: none; position: absolute; right: 0; top: calc(100% + 6px);
@@ -109,23 +81,23 @@
       text-decoration: none; transition: background .12s;
     }
     .dropdown-item:hover { background: rgba(139,92,246,.12); }
-    .dropdown-item .di-icon {
-      width: 22px; text-align: center; font-size: 1rem; color: var(--accent2); flex-shrink: 0;
+    .di-icon {
+      width: 20px; height: 20px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--accent2);
     }
-    .dropdown-item .di-label { flex: 1; }
-
-    /* ── Tick badges ── */
+    .di-icon svg { width: 18px; height: 18px; fill: currentColor; }
+    /* Ticks */
     .tick {
       display: inline-flex; align-items: center; justify-content: center;
       width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; cursor: help;
     }
     .tick svg { width: 9px; height: 9px; }
-    .tick.gold  { background: var(--gold); }
+    .tick.gold { background: var(--gold); }
     .tick.green { background: var(--green); }
-    .tick.lg    { width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--surface); }
+    .tick.lg { width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--surface); }
     .tick.lg svg { width: 11px; height: 11px; }
-
-    /* ── Social sections ── */
+    /* Social */
     .section-title {
       font-size: .68rem; font-weight: 600; text-transform: uppercase;
       letter-spacing: .09em; color: var(--muted); margin-top: 24px; margin-bottom: 10px;
@@ -135,15 +107,17 @@
       display: inline-flex; align-items: center; justify-content: center;
       width: 44px; height: 44px; border-radius: 10px;
       background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); text-decoration: none; font-size: 1.15rem;
+      color: var(--text); text-decoration: none;
       transition: background .15s, border-color .15s, color .15s, transform .1s;
     }
     .social-btn:hover {
       background: rgba(139,92,246,.10); border-color: var(--accent);
       color: var(--accent2); transform: translateY(-2px);
     }
-
-    /* ── Footer ── */
+    .social-btn svg { width: 22px; height: 22px; fill: currentColor; }
+    /* Btn icons */
+    .btn-icon { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+    /* Footer */
     .footer-link {
       display: block; text-align: center; margin-top: 26px; padding-top: 18px;
       border-top: 1px solid var(--border); font-size: .78rem;
@@ -151,8 +125,7 @@
     }
     .footer-link span { color: var(--accent2); }
     .footer-link:hover span { text-decoration: underline; }
-
-    /* ── Skeleton ── */
+    /* Skeleton */
     .sk {
       background: linear-gradient(90deg,var(--border) 25%,#2e2e2e 50%,var(--border) 75%);
       background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px;
@@ -179,9 +152,7 @@
 <script>
 void (async () => {
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // CONFIG
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ── CONFIG ────────────────────────────────────────────────────────────────
   const DOMAIN        = 'zsoltsb.eu';
   const DITTO_URL     = 'https://ditto.pub';
   const LN_USER       = 'wallet';
@@ -194,147 +165,145 @@ void (async () => {
     'wss://relay.primal.net','wss://nostr.wine','wss://relay.snort.social',
     'wss://purplepag.es','wss://relay.nos.social',
   ];
-  const EXTRA_RELAYS = [
-    'wss://nostr.mom','wss://relay.nostr.bg','wss://nostr.oxtr.dev',
-  ];
+  const EXTRA_RELAYS = ['wss://nostr.mom','wss://relay.nostr.bg','wss://nostr.oxtr.dev'];
   const DOH_RESOLVERS = [
     n => `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(n)}&type=TXT`,
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
 
-  // ── Service classification sets ──────────────────────────────────────────
-  // Messaging: shown only in "Drop me a line" dropdown
+  // Hardcoded social order: shortname → position (lower = earlier)
+  // Gravatar accounts not in this map are appended after in their original order
+  const SOCIAL_ORDER = { bluesky:0, mastodon:1, tumblr:2, threads:3, github:4, gitlab:5 };
+
+  // Hardcoded git fallbacks shown only if NOT already in Gravatar accounts
+  const GIT_FALLBACKS = [
+    { shortname:'github',  url:'https://github.com/zsoltsb',  name:'GitHub' },
+    { shortname:'gitlab',  url:'https://gitlab.com/zsoltsb',  name:'GitLab' },
+  ];
+
+  // Messaging shortnames → go into "Drop me a line" dropdown
   const MESSAGING_KEYS = new Set([
     'whatsapp','telegram','signal','messenger','wechat','line','viber',
-    'skype','discord','slack','matrix','xmpp','imessage','sms','kik',
-    'snapchat','kakaotalk','zalo','imo','threema','wire','session',
-    'element','rocketchat','mattermost','teams','hangouts','gchat',
+    'skype','discord','slack','matrix','imessage','sms','kik','snapchat',
+    'kakaotalk','zalo','imo','threema','wire','session','element',
+    'rocketchat','mattermost','teams','hangouts','gchat',
   ]);
 
-  // Payment: shown only in "Drop me a dime" dropdown
-  const PAYMENT_KEYS = new Set([
-    'paypal','venmo','cashapp','cash-app','cash app','patreon','ko-fi','kofi',
-    'buymeacoffee','buy-me-a-coffee','liberapay','opencollective','open-collective',
-    'bitcoin','ethereum','litecoin','dogecoin','monero','solana','cardano',
-    'stripe','gofundme','zelle','revolut','wise','transferwise',
-    'crypto','cryptocurrency','wallet',
-  ]);
+  // Hardcoded Telegram entry (always first in messaging dropdown)
+  const TELEGRAM_ENTRY = { shortname:'telegram', url:'https://t.me/zsoltsb', name:'Telegram' };
 
-  // ── Icon map ─────────────────────────────────────────────────────────────
-  const ICON_MAP = {
-    'twitter':          { fa: 'fa-brands fa-x-twitter',      si: 'x' },
-    'x':                { fa: 'fa-brands fa-x-twitter',      si: 'x' },
-    'x-twitter':        { fa: 'fa-brands fa-x-twitter',      si: 'x' },
-    'mastodon':         { fa: 'fa-brands fa-mastodon',        si: 'mastodon' },
-    'bluesky':          { fa: 'fa-brands fa-bluesky',         si: 'bluesky' },
-    'instagram':        { fa: 'fa-brands fa-instagram',       si: 'instagram' },
-    'threads':          { fa: 'fa-brands fa-threads',         si: 'threads' },
-    'facebook':         { fa: 'fa-brands fa-facebook',        si: 'facebook' },
-    'linkedin':         { fa: 'fa-brands fa-linkedin',        si: 'linkedin' },
-    'tumblr':           { fa: 'fa-brands fa-tumblr',          si: 'tumblr' },
-    'pinterest':        { fa: 'fa-brands fa-pinterest',       si: 'pinterest' },
-    'reddit':           { fa: 'fa-brands fa-reddit',          si: 'reddit' },
-    'tiktok':           { fa: 'fa-brands fa-tiktok',          si: 'tiktok' },
-    'vk':               { fa: 'fa-brands fa-vk',              si: 'vk' },
-    'github':           { fa: 'fa-brands fa-github',          si: 'github' },
-    'gitlab':           { fa: 'fa-brands fa-gitlab',          si: 'gitlab' },
-    'bitbucket':        { fa: 'fa-brands fa-bitbucket',       si: 'bitbucket' },
-    'codeberg':         { fa: null,                           si: 'codeberg' },
-    'sourcehut':        { fa: null,                           si: 'sourcehut' },
-    'stackoverflow':    { fa: 'fa-brands fa-stack-overflow',  si: 'stackoverflow' },
-    'hackernews':       { fa: 'fa-brands fa-hacker-news',     si: 'ycombinator' },
-    'dev':              { fa: 'fa-brands fa-dev',             si: 'devdotto' },
-    'devto':            { fa: 'fa-brands fa-dev',             si: 'devdotto' },
-    'codepen':          { fa: 'fa-brands fa-codepen',         si: 'codepen' },
-    'npm':              { fa: 'fa-brands fa-npm',             si: 'npm' },
-    'docker':           { fa: 'fa-brands fa-docker',          si: 'docker' },
-    'youtube':          { fa: 'fa-brands fa-youtube',         si: 'youtube' },
-    'twitch':           { fa: 'fa-brands fa-twitch',          si: 'twitch' },
-    'vimeo':            { fa: 'fa-brands fa-vimeo',           si: 'vimeo' },
-    'kick':             { fa: null,                           si: 'kick' },
-    'soundcloud':       { fa: 'fa-brands fa-soundcloud',      si: 'soundcloud' },
-    'spotify':          { fa: 'fa-brands fa-spotify',         si: 'spotify' },
-    'bandcamp':         { fa: 'fa-brands fa-bandcamp',        si: 'bandcamp' },
-    'lastfm':           { fa: 'fa-brands fa-lastfm',          si: 'lastfm' },
-    'applemusic':       { fa: null,                           si: 'applemusic' },
-    'medium':           { fa: 'fa-brands fa-medium',          si: 'medium' },
-    'substack':         { fa: null,                           si: 'substack' },
-    'wordpress':        { fa: 'fa-brands fa-wordpress',       si: 'wordpress' },
-    'ghost':            { fa: null,                           si: 'ghost' },
-    'hashnode':         { fa: null,                           si: 'hashnode' },
-    'goodreads':        { fa: 'fa-brands fa-goodreads',       si: 'goodreads' },
-    'behance':          { fa: 'fa-brands fa-behance',         si: 'behance' },
-    'dribbble':         { fa: 'fa-brands fa-dribbble',        si: 'dribbble' },
-    'flickr':           { fa: 'fa-brands fa-flickr',          si: 'flickr' },
-    'deviantart':       { fa: 'fa-brands fa-deviantart',      si: 'deviantart' },
-    '500px':            { fa: 'fa-brands fa-500px',           si: '500px' },
-    'artstation':       { fa: null,                           si: 'artstation' },
-    'unsplash':         { fa: null,                           si: 'unsplash' },
-    'farcaster':        { fa: null,                           si: 'farcaster' },
-    'nostr':            { fa: 'fa-solid fa-bolt',             si: null },
-    'strava':           { fa: 'fa-brands fa-strava',          si: 'strava' },
-    'steam':            { fa: 'fa-brands fa-steam',           si: 'steam' },
-    // Messaging
-    'telegram':         { fa: 'fa-brands fa-telegram',        si: 'telegram' },
-    'whatsapp':         { fa: 'fa-brands fa-whatsapp',        si: 'whatsapp' },
-    'signal':           { fa: null,                           si: 'signal' },
-    'discord':          { fa: 'fa-brands fa-discord',         si: 'discord' },
-    'slack':            { fa: 'fa-brands fa-slack',           si: 'slack' },
-    'matrix':           { fa: null,                           si: 'matrix' },
-    'skype':            { fa: 'fa-brands fa-skype',           si: 'skype' },
-    // Payment
-    'paypal':           { fa: 'fa-brands fa-paypal',          si: 'paypal' },
-    'venmo':            { fa: null,                           si: 'venmo' },
-    'cashapp':          { fa: null,                           si: 'cashapp' },
-    'patreon':          { fa: 'fa-brands fa-patreon',         si: 'patreon' },
-    'ko-fi':            { fa: null,                           si: 'kofi' },
-    'kofi':             { fa: null,                           si: 'kofi' },
-    'buymeacoffee':     { fa: null,                           si: 'buymeacoffee' },
-    'opencollective':   { fa: 'fa-brands fa-opencollective',  si: 'opencollective' },
-    'liberapay':        { fa: null,                           si: 'liberapay' },
-    'bitcoin':          { fa: 'fa-brands fa-bitcoin',         si: 'bitcoin' },
-    'ethereum':         { fa: null,                           si: 'ethereum' },
-    'linktree':         { fa: null,                           si: 'linktree' },
-    '_default':         { fa: 'fa-solid fa-link',             si: null },
+  // ── ICONIFY inline SVG fetcher ────────────────────────────────────────────
+  // Uses api.iconify.design — no tracking, GDPR-safe, adblock-safe
+  // Returns SVG string or null
+  const iconCache = new Map();
+  const fetchIcon = async (collection, name) => {
+    const key = `${collection}:${name}`;
+    if (iconCache.has(key)) return iconCache.get(key);
+    try {
+      const r = await fetch(
+        `https://api.iconify.design/${collection}/${name}.svg?width=1em&height=1em`,
+        { signal: AbortSignal.timeout(4000) }
+      );
+      if (!r.ok) throw new Error('not found');
+      const svg = await r.text();
+      // Strip width/height attrs so CSS controls size; ensure fill=currentColor
+      const clean = svg
+        .replace(/\s(width|height)="[^"]*"/g, '')
+        .replace(/<svg /, '<svg ');
+      iconCache.set(key, clean);
+      return clean;
+    } catch {
+      iconCache.set(key, null);
+      return null;
+    }
   };
 
-  const normaliseKey = s =>
-    (s || '').toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '');
+  // Icon lookup table: shortname/key → [collection, icon-name] candidates (tried in order)
+  const ICON_LOOKUP = {
+    'bluesky':       [['fa6-brands','bluesky'],       ['simple-icons','bluesky']],
+    'mastodon':      [['fa6-brands','mastodon'],       ['simple-icons','mastodon']],
+    'tumblr':        [['fa6-brands','tumblr'],         ['simple-icons','tumblr']],
+    'threads':       [['fa6-brands','threads'],        ['simple-icons','threads']],
+    'github':        [['fa6-brands','github'],         ['simple-icons','github']],
+    'gitlab':        [['fa6-brands','gitlab'],         ['simple-icons','gitlab']],
+    'twitter':       [['fa6-brands','x-twitter'],      ['simple-icons','x']],
+    'x':             [['fa6-brands','x-twitter'],      ['simple-icons','x']],
+    'instagram':     [['fa6-brands','instagram'],      ['simple-icons','instagram']],
+    'facebook':      [['fa6-brands','facebook'],       ['simple-icons','facebook']],
+    'linkedin':      [['fa6-brands','linkedin'],       ['simple-icons','linkedin']],
+    'pinterest':     [['fa6-brands','pinterest'],      ['simple-icons','pinterest']],
+    'reddit':        [['fa6-brands','reddit'],         ['simple-icons','reddit']],
+    'tiktok':        [['fa6-brands','tiktok'],         ['simple-icons','tiktok']],
+    'youtube':       [['fa6-brands','youtube'],        ['simple-icons','youtube']],
+    'twitch':        [['fa6-brands','twitch'],         ['simple-icons','twitch']],
+    'soundcloud':    [['fa6-brands','soundcloud'],     ['simple-icons','soundcloud']],
+    'spotify':       [['fa6-brands','spotify'],        ['simple-icons','spotify']],
+    'medium':        [['fa6-brands','medium'],         ['simple-icons','medium']],
+    'substack':      [['simple-icons','substack']],
+    'telegram':      [['fa6-brands','telegram'],       ['simple-icons','telegram']],
+    'whatsapp':      [['fa6-brands','whatsapp'],       ['simple-icons','whatsapp']],
+    'signal':        [['simple-icons','signal']],
+    'discord':       [['fa6-brands','discord'],        ['simple-icons','discord']],
+    'slack':         [['fa6-brands','slack'],          ['simple-icons','slack']],
+    'skype':         [['fa6-brands','skype'],          ['simple-icons','skype']],
+    'paypal':        [['fa6-brands','paypal'],         ['simple-icons','paypal']],
+    'paypalme':      [['fa6-brands','paypal'],         ['simple-icons','paypal']],
+    'venmo':         [['simple-icons','venmo']],
+    'cashapp':       [['simple-icons','cashapp']],
+    'patreon':       [['fa6-brands','patreon'],        ['simple-icons','patreon']],
+    'kofi':          [['simple-icons','kofi']],
+    'ko-fi':         [['simple-icons','kofi']],
+    'buymeacoffee':  [['simple-icons','buymeacoffee']],
+    'liberapay':     [['simple-icons','liberapay']],
+    'opencollective':[['fa6-brands','opencollective'], ['simple-icons','opencollective']],
+    'bitcoin':       [['fa6-brands','bitcoin'],        ['simple-icons','bitcoin']],
+    'ethereum':      [['simple-icons','ethereum']],
+    'revolut':       [['simple-icons','revolut']],
+    'sentz':         [['simple-icons','sentz']],
+    'farcaster':     [['simple-icons','farcaster']],
+    'nostr':         [['fa6-solid','bolt']],
+    'strava':        [['fa6-brands','strava'],         ['simple-icons','strava']],
+    'steam':         [['fa6-brands','steam'],          ['simple-icons','steam']],
+    'codepen':       [['fa6-brands','codepen'],        ['simple-icons','codepen']],
+    'npm':           [['fa6-brands','npm'],            ['simple-icons','npm']],
+    'docker':        [['fa6-brands','docker'],         ['simple-icons','docker']],
+    '_link':         [['fa6-solid','link']],
+    '_comment':      [['fa6-regular','comment']],
+    '_dollar':       [['fa6-solid','hand-holding-dollar']],
+  };
 
-  const resolveIcon = (serviceType, url) => {
-    const key = normaliseKey(serviceType);
-    if (ICON_MAP[key]) return ICON_MAP[key];
+  const resolveIconKey = (shortname, url) => {
+    const k = (shortname || '').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
+    if (ICON_LOOKUP[k]) return k;
+    // Try hostname
     try {
-      const host = new URL(url).hostname.replace(/^www\./, '').replace(/\.[^.]+$/, '');
-      const hkey = normaliseKey(host);
-      if (ICON_MAP[hkey]) return ICON_MAP[hkey];
-      for (const [k, v] of Object.entries(ICON_MAP)) {
-        if (k !== '_default' && (hkey.includes(k) || k.includes(hkey))) return v;
+      const host = new URL(url).hostname.replace(/^www\./,'').replace(/\.[^.]+$/,'');
+      const hk = host.toLowerCase().replace(/[^a-z0-9-]/g,'');
+      if (ICON_LOOKUP[hk]) return hk;
+      for (const key of Object.keys(ICON_LOOKUP)) {
+        if (key !== '_link' && key !== '_comment' && key !== '_dollar') {
+          if (hk.includes(key) || key.includes(hk)) return key;
+        }
       }
     } catch {}
-    return ICON_MAP['_default'];
+    return '_link';
   };
 
-  // Friendly display name for payment providers
-  const PAYMENT_LABELS = {
-    'paypal': 'PayPal', 'venmo': 'Venmo', 'cashapp': 'Cash App',
-    'cash-app': 'Cash App', 'patreon': 'Patreon', 'ko-fi': 'Ko-fi',
-    'kofi': 'Ko-fi', 'buymeacoffee': 'Buy Me a Coffee',
-    'buy-me-a-coffee': 'Buy Me a Coffee', 'liberapay': 'Liberapay',
-    'opencollective': 'Open Collective', 'open-collective': 'Open Collective',
-    'bitcoin': 'Bitcoin', 'ethereum': 'Ethereum', 'stripe': 'Stripe',
-    'gofundme': 'GoFundMe', 'zelle': 'Zelle', 'revolut': 'Revolut',
-    'wise': 'Wise',
+  const getIcon = async (shortname, url) => {
+    const key = resolveIconKey(shortname, url);
+    const candidates = ICON_LOOKUP[key] || ICON_LOOKUP['_link'];
+    for (const [col, name] of candidates) {
+      const svg = await fetchIcon(col, name);
+      if (svg) return svg;
+    }
+    // Ultimate fallback: simple link SVG inline
+    return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+    </svg>`;
   };
 
-  const paymentLabel = (serviceType, fallback) => {
-    const key = normaliseKey(serviceType);
-    return PAYMENT_LABELS[key] || fallback || serviceType;
-  };
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // HELPERS
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ── HELPERS ───────────────────────────────────────────────────────────────
   const esc = s => String(s ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
@@ -410,9 +379,7 @@ void (async () => {
     };
   })();
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // RELAY SYSTEM
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ── RELAY SYSTEM ──────────────────────────────────────────────────────────
   const fetchFromRelay = (wsUrl, pubkey, timeoutMs = 8000) =>
     new Promise((resolve, reject) => {
       let done = false; let ws;
@@ -433,10 +400,6 @@ void (async () => {
       ws.onclose = () => { if (!done) fail(`ws-close:${wsUrl}`); };
     });
 
-  const metaConsistent = (a, b) =>
-    ['name','display_name','picture','banner','nip05','lud16','lud06']
-      .every(f => (a[f] ?? '') === (b[f] ?? ''));
-
   const fetchNostrMeta = async (pubkey, relayHints) => {
     const others = [...new Set([
       ...relayHints.filter(r => r !== AUTHORITY_RELAY),
@@ -452,19 +415,7 @@ void (async () => {
     const otherPromises = others.map(url => fetchFromRelay(url, pubkey, 8000).catch(() => null));
     await authorityPromise;
 
-    if (authorityResult) {
-      Promise.allSettled(otherPromises).then(results => {
-        let ok = 0, bad = 0;
-        for (const r of results) {
-          if (r.status === 'fulfilled' && r.value) {
-            if (metaConsistent(authorityResult.meta, r.value.meta)) ok++;
-            else { bad++; console.warn(`[relay] inconsistent: ${r.value.relay}`); }
-          }
-        }
-        console.log(`[relay] cross-check: ${ok} consistent, ${bad} inconsistent`);
-      });
-      return authorityResult;
-    }
+    if (authorityResult) return authorityResult;
     const fallback = await Promise.any(
       otherPromises.map(p => p.then(r => r ? r : Promise.reject()))
     ).catch(() => null);
@@ -472,80 +423,54 @@ void (async () => {
     throw new Error('All relays failed');
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // GRAVATAR — parse accounts into three buckets: social, messaging, payment
-  // ═══════════════════════════════════════════════════════════════════════════
-  const classifyAccount = a => {
-    const key = normaliseKey(a.service_type || a.shortname || '');
-    // Also try to match against URL hostname for payment detection
-    let urlKey = '';
-    try {
-      urlKey = normaliseKey(
-        new URL(a.url || a.profile_url || '').hostname
-          .replace(/^www\./, '').replace(/\.[^.]+$/, '')
-      );
-    } catch {}
-
-    if (PAYMENT_KEYS.has(key) || PAYMENT_KEYS.has(urlKey)) return 'payment';
-    if (MESSAGING_KEYS.has(key) || MESSAGING_KEYS.has(urlKey)) return 'messaging';
-    return 'social';
-  };
-
+  // ── GRAVATAR ──────────────────────────────────────────────────────────────
+  // Actual JSON structure: entry[0].accounts[] + entry[0].payments{}
   const fetchGravatarData = async () => {
-    const legacyUrl = `https://gravatar.com/${GRAVATAR_SLUG}.json`;
+    const url = `https://gravatar.com/${GRAVATAR_SLUG}.json`;
     let entry = null;
 
-    // Try JSONP first (bypasses CORS)
     try {
-      const d = await fetchJSONP(legacyUrl);
+      const d = await fetchJSONP(url);
       entry = d?.entry?.[0];
       if (entry) console.log('[gravatar] jsonp ✓');
     } catch(e) { console.warn('[gravatar] jsonp:', e.message); }
 
-    // Fallback: direct fetch
     if (!entry) {
       try {
-        const d = await fetchJSON(legacyUrl, 6000);
+        const d = await fetchJSON(url, 6000);
         entry = d?.entry?.[0];
         if (entry) console.log('[gravatar] direct ✓');
       } catch(e) { console.warn('[gravatar] direct:', e.message); }
     }
 
-    if (!entry) return { social: [], messaging: [], payment: [] };
+    if (!entry) return { social: [], messaging: [], payments: [] };
 
-    // Normalise all accounts
+    // accounts[] — each has: shortname, name, url, verified, is_hidden
     const rawAccounts = (entry.accounts || [])
-      .filter(a => (a?.url || a?.profile_url || '').trim())
+      .filter(a => !a.is_hidden && a.verified && (a.url || '').trim())
       .map(a => ({
-        url:         (a.url || a.profile_url || '').trim(),
-        label:       a.service_label || a.display || a.shortname || '',
-        serviceType: normaliseKey(a.service_type || a.shortname || ''),
-        rawType:     a.service_type || a.shortname || '',
+        shortname: (a.shortname || '').toLowerCase(),
+        name:      a.name || a.shortname || '',
+        url:       (a.url || '').trim(),
       }));
 
-    // Also check for crypto_wallet_addresses (newer Gravatar REST API field
-    // sometimes present in legacy JSON too)
-    const cryptoWallets = (entry.crypto_wallet_addresses || []).map(w => ({
-      url:         w.address || '',
-      label:       w.label || w.currency || 'Crypto',
-      serviceType: normaliseKey(w.label || w.currency || 'crypto'),
-      rawType:     w.label || w.currency || 'crypto',
-      isCrypto:    true,
-    }));
+    const social    = rawAccounts.filter(a => !MESSAGING_KEYS.has(a.shortname));
+    const messaging = rawAccounts.filter(a =>  MESSAGING_KEYS.has(a.shortname));
 
-    // Combine and classify
-    const allAccounts = [...rawAccounts, ...cryptoWallets];
-    const social    = allAccounts.filter(a => classifyAccount(a) === 'social');
-    const messaging = allAccounts.filter(a => classifyAccount(a) === 'messaging');
-    const payment   = allAccounts.filter(a => classifyAccount(a) === 'payment');
+    // payments{} — plain object: key=provider, value=url
+    // e.g. {"paypalme":"https://paypal.me/zsoltsb","Revolut":"https://revolut.me/zsoltsb"}
+    const paymentsObj = entry.payments || {};
+    const payments = Object.entries(paymentsObj).map(([key, url]) => ({
+      shortname: key.toLowerCase().replace(/\s+/g,'-'),
+      name:      key,
+      url:       String(url),
+    })).filter(p => p.url.startsWith('http'));
 
-    console.log(`[gravatar] social:${social.length} messaging:${messaging.length} payment:${payment.length}`);
-    return { social, messaging, payment };
+    console.log(`[gravatar] social:${social.length} messaging:${messaging.length} payments:${payments.length}`);
+    return { social, messaging, payments };
   };
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // MAIN
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ── MAIN ──────────────────────────────────────────────────────────────────
 
   // 1. Resolve pubkey
   let pubkey = '', wellKnownNostrOk = false, relayHints = [];
@@ -560,11 +485,11 @@ void (async () => {
     return;
   }
 
-  // 2. Parallel: Nostr meta + Gravatar
+  // 2. Parallel: Nostr + Gravatar
   const metaPromise     = fetchNostrMeta(pubkey, relayHints);
   const gravatarPromise = fetchGravatarData();
 
-  // 3. Await Nostr meta
+  // 3. Nostr meta
   let result;
   try { result = await metaPromise; }
   catch(e) {
@@ -574,12 +499,12 @@ void (async () => {
   }
 
   const { meta } = result;
-  const npub          = hexToNpub(pubkey);
-  const nip05         = meta.nip05 || `_@${DOMAIN}`;
-  const nip05Domain   = nip05.includes('@') ? nip05.split('@')[1] : '';
+  const npub        = hexToNpub(pubkey);
+  const nip05       = meta.nip05 || `_@${DOMAIN}`;
+  const nip05Domain = nip05.includes('@') ? nip05.split('@')[1] : '';
   const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
 
-  // 4. Verification + Gravatar in parallel
+  // 4. Verification + Gravatar
   const [
     dnsNostrOk, dnsLnOk, lnWellKnownOk,
     avatarMediaLevel, bannerMediaLevel,
@@ -613,9 +538,29 @@ void (async () => {
     gravatarPromise,
   ]);
 
-  const { social: socialAccounts, messaging: messagingAccounts, payment: paymentAccounts } = gravatarData;
+  const { social: socialRaw, messaging: messagingRaw, payments } = gravatarData;
 
-  // 5. Tick levels
+  // 5. Build final social list with hardcoded order
+  // Merge Gravatar social + git fallbacks (only if not already in Gravatar)
+  const gravatarShortnames = new Set(socialRaw.map(a => a.shortname));
+  const gitToAdd = GIT_FALLBACKS.filter(g => !gravatarShortnames.has(g.shortname));
+  const allSocial = [...socialRaw, ...gitToAdd];
+
+  // Sort by SOCIAL_ORDER; items not in map go to end in original order
+  const maxOrder = Object.keys(SOCIAL_ORDER).length;
+  allSocial.sort((a, b) => {
+    const oa = SOCIAL_ORDER[a.shortname] ?? (maxOrder + allSocial.indexOf(a));
+    const ob = SOCIAL_ORDER[b.shortname] ?? (maxOrder + allSocial.indexOf(b));
+    return oa - ob;
+  });
+
+  // Messaging: hardcoded Telegram first, then Gravatar messaging (deduped)
+  const allMessaging = [
+    TELEGRAM_ENTRY,
+    ...messagingRaw.filter(a => a.shortname !== 'telegram'),
+  ];
+
+  // 6. Tick levels
   let handleTickLevel = 'green', handleTickTitle = 'Verified via relay';
   if (wellKnownNostrOk && nip05Domain === DOMAIN) {
     handleTickLevel = 'gold';
@@ -624,31 +569,27 @@ void (async () => {
     handleTickLevel = 'gold';
     handleTickTitle = 'Verified: pubkey in /.well-known/nostr.json ✓';
   }
-
   let lnTickLevel = null, lnTickTitle = '';
   if (lnWellKnownOk) {
     lnTickLevel = 'gold';
     lnTickTitle = '/.well-known/lnurlp ✓' + (dnsLnOk ? ' · DNS TXT _lnurlp ✓' : '');
   }
-
   const avatarTickTitle = avatarMediaLevel === 'gold' ? `Avatar hosted on ${DOMAIN} ✓`
     : avatarMediaLevel === 'green' ? 'Avatar on trusted media server ✓' : '';
   const bannerTickTitle = bannerMediaLevel === 'gold' ? `Banner hosted on ${DOMAIN} ✓`
     : bannerMediaLevel === 'green' ? 'Banner on trusted media server ✓' : '';
 
-  // 6. rel=me injection
+  // 7. rel=me
   if (npub) {
-    const l = document.createElement('link'); l.rel = 'me';
-    l.href = `https://njump.me/${npub}`; document.head.appendChild(l);
+    const l = document.createElement('link'); l.rel='me';
+    l.href=`https://njump.me/${npub}`; document.head.appendChild(l);
   }
-  for (const { url } of [...socialAccounts, ...messagingAccounts]) {
-    if (url && !url.startsWith('bitcoin:') && !url.startsWith('ethereum:')) {
-      const l = document.createElement('link'); l.rel = 'me'; l.href = url;
-      document.head.appendChild(l);
-    }
+  for (const { url } of allSocial) {
+    const l = document.createElement('link'); l.rel='me'; l.href=url;
+    document.head.appendChild(l);
   }
 
-  // 7. Banner
+  // 8. Banner
   const bannerEl = document.getElementById('banner');
   if (meta.banner) {
     const img = new Image();
@@ -656,110 +597,77 @@ void (async () => {
     img.src = meta.banner;
   }
   if (bannerMediaLevel) {
-    const bt = document.createElement('div'); bt.className = 'banner-tick';
+    const bt = document.createElement('div'); bt.className='banner-tick';
     bt.innerHTML = tickHtml(bannerMediaLevel, bannerTickTitle, true);
     bannerEl.appendChild(bt);
   }
 
-  // 8. Avatar
+  // 9. Avatar
   const name = meta.display_name || meta.name || DOMAIN;
   const avatarWrap = document.getElementById('avatarWrap');
   if (meta.picture) {
     const img = document.createElement('img');
-    img.className = 'avatar-img'; img.alt = name;
+    img.className='avatar-img'; img.alt=name;
     img.onerror = () => {
       const fb = document.createElement('div');
-      fb.className = 'avatar-fb'; fb.textContent = (name || '?')[0].toUpperCase();
+      fb.className='avatar-fb'; fb.textContent=(name||'?')[0].toUpperCase();
       img.replaceWith(fb);
     };
     img.src = meta.picture;
     avatarWrap.replaceChildren(img);
   } else {
     const fb = document.createElement('div');
-    fb.className = 'avatar-fb'; fb.textContent = (name || '?')[0].toUpperCase();
+    fb.className='avatar-fb'; fb.textContent=(name||'?')[0].toUpperCase();
     avatarWrap.replaceChildren(fb);
   }
   if (avatarMediaLevel) {
-    const at = document.createElement('div'); at.className = 'avatar-tick';
+    const at = document.createElement('div'); at.className='avatar-tick';
     at.innerHTML = tickHtml(avatarMediaLevel, avatarTickTitle, true);
     avatarWrap.appendChild(at);
   }
 
-  // 9. Icon placeholder helper (deferred class injection to bypass adblockers)
-  let _iconIdx = 0;
-  const iconPH = (icon) => {
-    const id = `_ic${_iconIdx++}`;
-    return `<i id="${id}" data-fa="${esc(icon.fa||'')}" data-si="${esc(icon.si||'')}"></i>`;
-  };
+  // 10. Fetch all icons in parallel before rendering
+  const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
+  const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
-  // 10. Social row builder
-  const buildSocialRow = accounts => accounts.map(({ url, label, serviceType }) => {
-    const icon = resolveIcon(serviceType, url);
-    const tip = label || serviceType || (() => { try { return new URL(url).hostname; } catch { return url; } })();
-    return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me"
-               title="${esc(tip)}">${iconPH(icon)}</a>`;
-  }).join('');
+  // Pre-fetch all needed icons concurrently
+  const [
+    iconComment, iconDollar,
+    socialIcons, messagingIcons, paymentIcons,
+  ] = await Promise.all([
+    getIcon('_comment', ''),
+    getIcon('_dollar', ''),
+    Promise.all(allSocial.map(a => getIcon(a.shortname, a.url))),
+    Promise.all(allMessaging.map(a => getIcon(a.shortname, a.url))),
+    Promise.all(payments.map(p => getIcon(p.shortname, p.url))),
+  ]);
 
-  // 11. Dropdown builder
-  const buildDropdown = (btnLabel, btnIcon, items) => {
+  // 11. Build HTML
+  const buildSocialRow = () => allSocial.map((a, i) =>
+    `<a class="social-btn" href="${esc(a.url)}" target="_blank" rel="noopener me" title="${esc(a.name)}">
+       ${socialIcons[i] || ''}
+     </a>`
+  ).join('');
+
+  const buildDropdown = (btnLabel, btnIconSvg, items, icons) => {
     if (!items.length) return '';
-    const itemsHtml = items.map(({ url, label, icon }) =>
-      `<a class="dropdown-item" href="${esc(url)}" target="_blank" rel="noopener">
-         <span class="di-icon">${iconPH(icon)}</span>
-         <span class="di-label">${esc(label)}</span>
+    const itemsHtml = items.map((item, i) =>
+      `<a class="dropdown-item" href="${esc(item.url)}" target="_blank" rel="noopener">
+         <span class="di-icon">${icons[i] || ''}</span>
+         <span>${esc(item.name)}</span>
        </a>`
     ).join('');
     return `<div class="dropdown">
       <button class="dropdown-btn" type="button">
-        ${iconPH(btnIcon)} ${esc(btnLabel)} <span class="chevron">▾</span>
+        <span class="btn-icon">${btnIconSvg || ''}</span>
+        ${esc(btnLabel)} <span class="chevron">▾</span>
       </button>
       <div class="dropdown-menu">${itemsHtml}</div>
     </div>`;
   };
 
-  // Hardcoded Telegram first, then any additional messaging from Gravatar
-  const TELEGRAM_HARDCODED = {
-    url: 'https://t.me/zsoltsb',
-    label: 'Telegram',
-    serviceType: 'telegram',
-  };
-  const allMessaging = [
-    TELEGRAM_HARDCODED,
-    ...messagingAccounts.filter(a => a.serviceType !== 'telegram'),
-  ];
-
-  const msgItems = allMessaging.map(a => ({
-    url:   a.url,
-    label: a.label || paymentLabel(a.serviceType, a.rawType),
-    icon:  resolveIcon(a.serviceType, a.url),
-  }));
-
-  const tipItems = paymentAccounts.map(a => ({
-    url:   a.url,
-    label: paymentLabel(a.serviceType, a.label || a.rawType),
-    icon:  resolveIcon(a.serviceType, a.url),
-  }));
-
-  // 12. Render
-  const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
-  const lightning = `${LN_USER}@${LN_DOMAIN}`;
-
-  const msgDropdown = buildDropdown(
-    'Drop me a line',
-    { fa: 'fa-regular fa-comment', si: null },
-    msgItems
-  );
-
-  const tipDropdown = buildDropdown(
-    'Drop me a dime',
-    { fa: 'fa-solid fa-hand-holding-dollar', si: null },
-    tipItems
-  );
-
-  const socialSection = socialAccounts.length
-    ? `<div class="section-title">Follow me on</div>
-       <div class="social-row">${buildSocialRow(socialAccounts)}</div>`
-    : '';
+  const msgDropdown = buildDropdown('Drop me a line', iconComment, allMessaging, messagingIcons);
+  const tipDropdown = buildDropdown('Drop me a dime', iconDollar, payments, paymentIcons);
 
   document.getElementById('body').innerHTML = `
     <div class="display-name">${esc(name)}</div>
@@ -778,29 +686,17 @@ void (async () => {
       ${tipDropdown}
     </div>
 
-    ${socialSection}
+    ${allSocial.length ? `
+      <div class="section-title">Follow me on</div>
+      <div class="social-row">${buildSocialRow()}</div>
+    ` : ''}
 
     <a class="footer-link" href="${DITTO_URL}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
   `;
 
-  // 13. Apply icon classes after DOM insertion (adblocker bypass)
-  document.querySelectorAll('i[data-fa], i[data-si]').forEach(el => {
-    const fa = el.dataset.fa;
-    const si = el.dataset.si;
-    if (fa) {
-      el.classList.add(...fa.split(' '));
-    } else if (si) {
-      el.classList.add('si', `si--${si}`);
-    } else {
-      el.classList.add('fa-solid', 'fa-link');
-    }
-    el.removeAttribute('data-fa');
-    el.removeAttribute('data-si');
-  });
-
-  // 14. Dropdown toggle
+  // 12. Dropdown toggle
   document.querySelectorAll('.dropdown-btn').forEach(btn => {
     btn.addEventListener('click', e => {
       e.stopPropagation();
