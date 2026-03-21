@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zsoltsb.eu</title>
-    <link href="https://bsky.app/profile/zsoltsb.eu" rel="me atproto authn">
-    <link rel="me" href="nostr:nprofile1qy2hwumn8ghj7un9d3shjtnyd968gmewwp6kyqg4waehxw309aex2mrp0yhx6mmnw3ezuur4vgq3vamnwvaz7tmjv4kxz7fwwpexjmtpdshxuet5qyxhwumn8ghj7mn0wvhxcmmvqqswsw9tl07xfny3s2mesl4dnydcszjlg65az3ap844pjrjedqytl6qeme5w7" />
-    <link rel="me" href="nostr:npub1aqu2h7luvnxfrq4hnpl2mxgm3q99734f69r6z0t2ry89j6qghl5qdy0rgm" />
+  <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
+  <link rel="me" href="https://mastodon.social/@zsoltsb" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -14,14 +13,14 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #0f0f0f;
-      --surface:   #1a1a1a;
-      --border:    #2a2a2a;
-      --accent:    #8b5cf6;
-      --accent-2:  #a78bfa;
-      --text:      #e8e8e8;
-      --muted:     #888;
-      --radius:    12px;
+      --bg:       #0f0f0f;
+      --surface:  #1a1a1a;
+      --border:   #2a2a2a;
+      --accent:   #8b5cf6;
+      --accent-2: #a78bfa;
+      --text:     #e8e8e8;
+      --muted:    #888;
+      --radius:   12px;
     }
 
     body {
@@ -46,43 +45,46 @@
 
     /* ── Banner ── */
     .banner {
-      height: 140px;
+      height: 160px;
       background: linear-gradient(135deg, #1e1040 0%, #2d1b69 50%, #1a0f3d 100%);
+      background-size: cover;
+      background-position: center;
       position: relative;
+      flex-shrink: 0;
     }
 
     /* ── Avatar ── */
     .avatar-wrap {
       position: absolute;
-      bottom: -44px;
+      bottom: -46px;
       left: 24px;
     }
     .avatar-wrap img,
     .avatar-wrap .avatar-fallback {
-      width: 88px;
-      height: 88px;
+      width: 92px;
+      height: 92px;
       border-radius: 50%;
       border: 3px solid var(--surface);
       object-fit: cover;
       display: block;
-      background: var(--accent);
     }
     .avatar-fallback {
+      background: var(--accent);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 700;
       color: #fff;
     }
 
     /* ── Body ── */
     .body {
-      padding: 56px 24px 24px;
+      padding: 58px 24px 28px;
     }
 
     .name {
-      font-size: 1.25rem;
+      font-size: 1.3rem;
       font-weight: 700;
       color: var(--text);
       line-height: 1.2;
@@ -109,7 +111,6 @@
       width: 14px;
       height: 14px;
       border-radius: 3px;
-      vertical-align: middle;
     }
 
     /* ── Lightning ── */
@@ -117,40 +118,46 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: 12px;
       background: rgba(139,92,246,0.12);
       border: 1px solid rgba(139,92,246,0.3);
       border-radius: 20px;
-      padding: 4px 12px;
+      padding: 5px 14px;
       font-size: 0.8rem;
       color: var(--accent-2);
       text-decoration: none;
       transition: background 0.2s;
+      cursor: pointer;
     }
-    .lightning:hover { background: rgba(139,92,246,0.22); }
-    .lightning svg { flex-shrink: 0; }
+    .lightning:hover { background: rgba(139,92,246,0.25); }
 
     /* ── Bio ── */
     .bio {
       margin-top: 14px;
       font-size: 0.9rem;
-      line-height: 1.6;
+      line-height: 1.65;
       color: var(--text);
       white-space: pre-wrap;
       word-break: break-word;
     }
-    .bio a {
-      color: var(--accent-2);
-      text-decoration: none;
-    }
+    .bio a { color: var(--accent-2); text-decoration: none; }
     .bio a:hover { text-decoration: underline; }
+
+    /* ── Stats ── */
+    .stats {
+      display: flex;
+      gap: 20px;
+      margin-top: 16px;
+    }
+    .stat { font-size: 0.85rem; color: var(--muted); }
+    .stat strong { color: var(--text); font-weight: 600; }
 
     /* ── Extra addresses ── */
     .section-title {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 600;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
+      letter-spacing: 0.09em;
       color: var(--muted);
       margin-top: 22px;
       margin-bottom: 8px;
@@ -169,41 +176,43 @@
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 8px 12px;
-      font-size: 0.82rem;
+      padding: 9px 14px;
+      font-size: 0.83rem;
       color: var(--text);
       text-decoration: none;
       transition: border-color 0.2s;
     }
     .address-chip:hover { border-color: var(--accent); }
-    .address-chip .chip-icon {
-      width: 20px;
-      height: 20px;
-      border-radius: 4px;
-      flex-shrink: 0;
+    .chip-icon {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
       object-fit: contain;
+      flex-shrink: 0;
     }
-    .address-chip .chip-label {
+    .chip-name {
       color: var(--muted);
-      font-size: 0.72rem;
-      margin-left: auto;
+      font-size: 0.75rem;
+      min-width: 70px;
+    }
+    .chip-value {
+      color: var(--text);
+      overflow: hidden;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
-
-    /* ── Stats ── */
-    .stats {
-      display: flex;
-      gap: 20px;
-      margin-top: 16px;
+    .chip-verified {
+      margin-left: auto;
+      color: #34d399;
+      font-size: 0.7rem;
+      flex-shrink: 0;
     }
-    .stat { font-size: 0.85rem; color: var(--muted); }
-    .stat strong { color: var(--text); font-weight: 600; }
 
     /* ── Ditto link ── */
     .ditto-link {
       display: block;
       text-align: center;
-      margin-top: 24px;
+      margin-top: 26px;
       padding-top: 18px;
       border-top: 1px solid var(--border);
       font-size: 0.78rem;
@@ -213,9 +222,9 @@
     .ditto-link span { color: var(--accent-2); }
     .ditto-link:hover span { text-decoration: underline; }
 
-    /* ── Skeleton loader ── */
+    /* ── Skeleton ── */
     .skeleton {
-      background: linear-gradient(90deg, var(--border) 25%, #333 50%, var(--border) 75%);
+      background: linear-gradient(90deg, var(--border) 25%, #2e2e2e 50%, var(--border) 75%);
       background-size: 200% 100%;
       animation: shimmer 1.4s infinite;
       border-radius: 6px;
@@ -224,114 +233,165 @@
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
-    .sk-line { height: 14px; margin-bottom: 8px; }
 
-    /* ── Error ── */
     .error-msg {
-      padding: 24px;
+      padding: 28px;
       color: #f87171;
       font-size: 0.875rem;
       text-align: center;
+      line-height: 1.6;
     }
   </style>
 </head>
 <body>
+
 <div class="card" id="card">
+  <!-- skeleton state -->
   <div class="banner" id="banner">
     <div class="avatar-wrap">
-      <div class="avatar-fallback skeleton" id="avatar-placeholder" style="width:88px;height:88px;border-radius:50%;"></div>
+      <div class="avatar-fallback skeleton" style="width:92px;height:92px;border-radius:50%;background:var(--border);"></div>
     </div>
   </div>
   <div class="body" id="body">
-    <div class="sk-line skeleton" style="width:40%;height:18px;"></div>
-    <div class="sk-line skeleton" style="width:30%;margin-top:6px;"></div>
-    <div class="sk-line skeleton" style="width:60%;margin-top:14px;"></div>
-    <div class="sk-line skeleton" style="width:90%;margin-top:6px;"></div>
-    <div class="sk-line skeleton" style="width:75%;"></div>
+    <div class="skeleton" style="width:42%;height:20px;"></div>
+    <div class="skeleton" style="width:32%;height:13px;margin-top:8px;"></div>
+    <div class="skeleton" style="width:55%;height:13px;margin-top:16px;border-radius:20px;"></div>
+    <div class="skeleton" style="width:95%;height:13px;margin-top:16px;"></div>
+    <div class="skeleton" style="width:80%;height:13px;margin-top:7px;"></div>
+    <div class="skeleton" style="width:65%;height:13px;margin-top:7px;"></div>
   </div>
 </div>
 
 <script>
 (async () => {
-  const DOMAIN   = 'zsoltsb.eu';
-  const DITTO    = 'https://ditto.pub';
-  const RELAY_API = `${DITTO}/api/v1/accounts/lookup?acct=${DOMAIN}`;
+  const DOMAIN  = 'zsoltsb.eu';
+  const DITTO   = 'https://ditto.pub';
 
-  /* ── helpers ── */
-  const $  = id => document.getElementById(id);
-  const esc = s  => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  // CORS proxy — prepend to any cross-origin URL
+  const PROXY   = 'https://corsproxy.io/?url=';
 
-  function linkifyBio(text) {
+  const API_URL = `${DITTO}/api/v1/accounts/lookup?acct=${DOMAIN}`;
+
+  const esc = s => String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+  function proxyImg(url) {
+    // Use proxy for avatar/header to avoid mixed-content / CORS on images too
+    return url ? `${PROXY}${encodeURIComponent(url)}` : '';
+  }
+
+  function stripHtml(html) {
+    const d = document.createElement('div');
+    d.innerHTML = html;
+    return d.textContent || d.innerText || '';
+  }
+
+  function linkifyText(text) {
+    // URLs
+    text = text.replace(/(https?:\/\/[^\s<>"]+)/g,
+      '<a href="$1" target="_blank" rel="noopener">$1</a>');
     // hashtags
-    text = text.replace(/#(\w+)/g, '<a href="https://ditto.pub/t/$1" target="_blank" rel="noopener">#$1</a>');
-    // bare URLs (not already in href)
-    text = text.replace(/(https?:\/\/[^\s<>"]+)/g, '<a href="$1" target="_blank" rel="noopener">$1</a>');
+    text = text.replace(/#(\w+)/g,
+      `<a href="${DITTO}/t/$1" target="_blank" rel="noopener">#$1</a>`);
     return text;
   }
 
-  function protocolLabel(url) {
-    if (!url) return '';
-    if (url.startsWith('nostr:'))      return 'Nostr';
-    if (url.includes('bsky.app'))      return 'Bluesky';
-    if (url.includes('mastodon') || url.includes('fosstodon') || url.includes('social'))
-                                       return 'Fediverse';
-    if (url.includes('tumblr'))        return 'Tumblr';
-    if (url.includes('twitter') || url.includes('x.com')) return 'X / Twitter';
-    try { return new URL(url).hostname.replace('www.',''); } catch { return url; }
+  function bioFromHtml(html) {
+    // Ditto/Mastodon returns HTML bio — convert <br> / <p> to newlines, strip rest
+    let t = html
+      .replace(/<br\s*\/?>/gi, '\n')
+      .replace(/<\/p>/gi, '\n\n')
+      .replace(/<p[^>]*>/gi, '')
+      .replace(/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi, (_, href, label) =>
+        `<a href="${esc(href)}" target="_blank" rel="noopener">${label}</a>`)
+      .replace(/<(?!a|\/a)[^>]+>/g, '');
+    return t.trim();
   }
 
-  /* ── fetch Mastodon-compatible account from Ditto ── */
+  function chipHostname(href) {
+    try { return new URL(href).hostname.replace(/^www\./, ''); }
+    catch { return href; }
+  }
+
+  function faviconFor(href) {
+    const host = chipHostname(href);
+    return host ? `${DITTO}/api/favicon/${host}` : '';
+  }
+
+  // ── Fetch ──────────────────────────────────────────────────────────────────
   let profile;
   try {
-    const res = await fetch(RELAY_API);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const res = await fetch(PROXY + encodeURIComponent(API_URL));
+    if (!res.ok) throw new Error(`HTTP ${res.status} from Ditto API`);
     profile = await res.json();
-  } catch (e) {
-    $('body-content') && ($('body-content').innerHTML = `<p class="error-msg">Could not load profile: ${esc(e.message)}</p>`);
-    $('body').innerHTML = `<p class="error-msg">Could not load profile: ${esc(e.message)}</p>`;
+  } catch (err) {
+    document.getElementById('body').innerHTML =
+      `<p class="error-msg">⚠️ Could not load profile.<br><small>${esc(err.message)}</small></p>`;
     return;
   }
 
-  /* ── parse fields ── */
+  // ── Parse ──────────────────────────────────────────────────────────────────
   const name      = profile.display_name || profile.username || DOMAIN;
   const handle    = profile.acct         || DOMAIN;
   const avatarUrl = profile.avatar        || '';
   const headerUrl = profile.header        || '';
-  const note      = profile.note          || '';   // HTML bio from Mastodon API
-  const fields    = profile.fields        || [];   // extra address fields
-  const followers = profile.followers_count ?? '';
-  const following = profile.following_count ?? '';
+  const bioHtml   = profile.note          || '';
+  const fields    = Array.isArray(profile.fields) ? profile.fields : [];
+  const followers = profile.followers_count;
+  const following = profile.following_count;
 
-  // lightning address: check lud16 in source (Ditto exposes it via nostr metadata)
-  // Also check fields for "Lightning" label
-  let lightning = '';
-  if (profile.lud16) {
-    lightning = profile.lud16;
-  } else {
-    const lf = fields.find(f => /lightning|wallet|lnurl|⚡/i.test(f.name));
-    if (lf) lightning = lf.value.replace(/<[^>]+>/g,'').trim();
+  // Lightning: check fields for lud16 / lightning label
+  let lightning = profile.lud16 || '';
+  if (!lightning) {
+    const lf = fields.find(f => /lightning|⚡|lnurl|wallet/i.test(f.name));
+    if (lf) lightning = stripHtml(lf.value).trim();
   }
-  // fallback: known from profile
-  if (!lightning) lightning = `wallet@${DOMAIN}`;
 
-  /* ── render banner ── */
-  const banner = $('banner');
+  // Extra address fields (exclude lightning ones)
+  const extraFields = fields.filter(f =>
+    !/lightning|⚡|lnurl|wallet/i.test(f.name)
+  );
+
+  // ── Banner ─────────────────────────────────────────────────────────────────
+  const banner = document.getElementById('banner');
   if (headerUrl) {
-    banner.style.backgroundImage = `url(${headerUrl})`;
-    banner.style.backgroundSize  = 'cover';
-    banner.style.backgroundPosition = 'center';
+    // Load header via proxy to avoid CORS on image fetch
+    const proxyHeader = proxyImg(headerUrl);
+    const testImg = new Image();
+    testImg.onload = () => {
+      banner.style.backgroundImage = `url(${proxyHeader})`;
+      banner.style.backgroundSize  = 'cover';
+      banner.style.backgroundPosition = 'center';
+    };
+    // Also try direct (works if server allows it)
+    const directImg = new Image();
+    directImg.onload = () => {
+      banner.style.backgroundImage = `url(${headerUrl})`;
+      banner.style.backgroundSize  = 'cover';
+      banner.style.backgroundPosition = 'center';
+    };
+    directImg.onerror = () => { testImg.src = proxyHeader; };
+    directImg.src = headerUrl;
   }
 
-  /* ── render avatar ── */
+  // ── Avatar ─────────────────────────────────────────────────────────────────
   const avatarWrap = banner.querySelector('.avatar-wrap');
+  const avatarEl = document.createElement('img');
+  avatarEl.alt = name;
+  avatarEl.style.cssText = 'width:92px;height:92px;border-radius:50%;border:3px solid var(--surface);object-fit:cover;display:block;';
+
   if (avatarUrl) {
-    const img = document.createElement('img');
-    img.src = avatarUrl;
-    img.alt = name;
-    img.onerror = () => {
-      img.replaceWith(makeFallback(name));
+    avatarEl.onerror = () => {
+      // try proxy
+      if (!avatarEl.src.includes('corsproxy')) {
+        avatarEl.src = proxyImg(avatarUrl);
+      } else {
+        avatarEl.replaceWith(makeFallback(name));
+      }
     };
-    avatarWrap.replaceChildren(img);
+    avatarEl.src = avatarUrl;
+    avatarWrap.replaceChildren(avatarEl);
   } else {
     avatarWrap.replaceChildren(makeFallback(name));
   }
@@ -343,53 +403,70 @@
     return d;
   }
 
-  /* ── build body HTML ── */
-  const faviconUrl = `${DITTO}/api/favicon/${DOMAIN}`;
+  // ── Build body HTML ────────────────────────────────────────────────────────
+  const lightningHtml = lightning ? `
+    <a class="lightning" href="lightning:${esc(lightning)}" title="Send via Lightning Network">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/>
+      </svg>
+      ${esc(lightning)}
+    </a>` : '';
 
-  // filter out lightning from extra fields to avoid duplication
-  const extraFields = fields.filter(f => !/lightning|wallet|lnurl|⚡/i.test(f.name));
+  const statsHtml = (followers != null || following != null) ? `
+    <div class="stats">
+      ${followers != null ? `<div class="stat"><strong>${Number(followers).toLocaleString()}</strong> followers</div>` : ''}
+      ${following != null ? `<div class="stat"><strong>${Number(following).toLocaleString()}</strong> following</div>` : ''}
+    </div>` : '';
 
   let addressesHtml = '';
   if (extraFields.length) {
     const chips = extraFields.map(f => {
-      const raw   = f.value.replace(/<[^>]+>/g,'').trim();
-      const href  = f.value.match(/href="([^"]+)"/)?.[1] || (raw.startsWith('http') ? raw : '#');
-      const label = protocolLabel(href);
-      const fav   = href !== '#' ? `<img class="chip-icon" src="${DITTO}/api/favicon/${(() => { try { return new URL(href).hostname; } catch { return ''; } })()}" alt="" onerror="this.style.display='none'" />` : '';
-      return `<a class="address-chip" href="${esc(href)}" target="_blank" rel="noopener me">
-                ${fav}
-                <span>${esc(f.name)}: ${esc(raw)}</span>
-                <span class="chip-label">${esc(label)}</span>
-              </a>`;
+      const rawValue = stripHtml(f.value).trim();
+      const href     = f.value.match(/href="([^"]+)"/)?.[1]
+                    || (rawValue.startsWith('http') ? rawValue : null);
+      const fav      = href ? faviconFor(href) : '';
+      const verified = f.verified_at ? '<span class="chip-verified">✓ verified</span>' : '';
+      const iconHtml = fav
+        ? `<img class="chip-icon" src="${esc(fav)}" alt="" onerror="this.style.display='none'" />`
+        : `<span style="width:18px;flex-shrink:0;"></span>`;
+
+      return href
+        ? `<a class="address-chip" href="${esc(href)}" target="_blank" rel="noopener me">
+             ${iconHtml}
+             <span class="chip-name">${esc(f.name)}</span>
+             <span class="chip-value">${esc(rawValue)}</span>
+             ${verified}
+           </a>`
+        : `<div class="address-chip">
+             ${iconHtml}
+             <span class="chip-name">${esc(f.name)}</span>
+             <span class="chip-value">${esc(rawValue)}</span>
+           </div>`;
     }).join('');
-    addressesHtml = `<div class="section-title">Also on</div><div class="addresses">${chips}</div>`;
+
+    addressesHtml = `
+      <div class="section-title">Also on</div>
+      <div class="addresses">${chips}</div>`;
   }
 
-  const statsHtml = (followers !== '' || following !== '')
-    ? `<div class="stats">
-         ${followers !== '' ? `<div class="stat"><strong>${followers}</strong> followers</div>` : ''}
-         ${following !== '' ? `<div class="stat"><strong>${following}</strong> following</div>` : ''}
-       </div>` : '';
-
-  const lightningHtml = lightning
-    ? `<a class="lightning" href="lightning:${esc(lightning)}" title="Pay via Lightning">
-         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-           <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13L13 2Z"/>
-         </svg>
-         ${esc(lightning)}
-       </a>` : '';
-
-  $('body').innerHTML = `
+  document.getElementById('body').innerHTML = `
     <div class="name">${esc(name)}</div>
     <div class="handle-row">
-      <span class="handle"><a href="${DITTO}/${esc(handle)}" target="_blank" rel="noopener">@${esc(handle)}</a></span>
-      <img class="favicon" src="${faviconUrl}" alt="" onerror="this.style.display='none'" />
+      <span class="handle">
+        <a href="${DITTO}/${esc(handle)}" target="_blank" rel="noopener me">@${esc(handle)}</a>
+      </span>
+      <img class="favicon"
+           src="${DITTO}/api/favicon/${esc(DOMAIN)}"
+           alt=""
+           onerror="this.style.display='none'" />
     </div>
     ${lightningHtml}
-    <div class="bio">${linkifyBio(note || esc(profile.source?.note || ''))}</div>
+    <div class="bio">${bioFromHtml(bioHtml)}</div>
     ${statsHtml}
     ${addressesHtml}
-    <a class="ditto-link" href="${DITTO}/${esc(handle)}" target="_blank" rel="noopener">
+    <a class="ditto-link"
+       href="${DITTO}/${esc(handle)}"
+       target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
   `;
