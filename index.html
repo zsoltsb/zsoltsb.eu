@@ -5,13 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zsoltsb.eu</title>
 
-  <!-- Static rel-me; more injected dynamically after load -->
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -123,6 +121,7 @@
       width: 15px; height: 15px;
       border-radius: 50%;
       flex-shrink: 0;
+      cursor: help;
     }
     .tick svg {
       width: 9px; height: 9px;
@@ -134,50 +133,6 @@
     }
     .tick.gold  { background: var(--gold); }
     .tick.green { background: var(--green); }
-
-    /* ── Section title ── */
-    .section-title {
-      font-size: 0.68rem;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.09em;
-      color: var(--muted);
-      margin-top: 24px;
-      margin-bottom: 10px;
-    }
-
-    /* ── Social pills row ── */
-    .social-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
-
-    /* Social links reuse .pill style but with slightly different colour */
-    .social-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--bg);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 0.82rem;
-      color: var(--text);
-      text-decoration: none;
-      white-space: nowrap;
-      transition: border-color 0.18s, background 0.18s;
-    }
-    .social-pill:hover {
-      border-color: var(--accent);
-      background: rgba(139,92,246,0.06);
-    }
-    .social-pill i {
-      font-size: 0.95rem;
-      width: 14px;
-      text-align: center;
-      flex-shrink: 0;
-    }
 
     /* ── Footer ── */
     .footer-link {
@@ -227,20 +182,17 @@
     <div class="sk" style="width:44%;height:22px;"></div>
     <div class="sk" style="width:62%;height:32px;margin-top:12px;border-radius:20px;display:inline-block;"></div>
     <div class="sk" style="width:52%;height:32px;border-radius:20px;display:inline-block;margin-left:8px;"></div>
-    <div class="sk" style="width:30%;height:11px;margin-top:24px;"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-      <div class="sk" style="width:90px;height:34px;border-radius:20px;margin:0;"></div>
-      <div class="sk" style="width:110px;height:34px;border-radius:20px;margin:0;"></div>
-      <div class="sk" style="width:80px;height:34px;border-radius:20px;margin:0;"></div>
-    </div>
   </div>
 </div>
 
 <script>
 (async () => {
-  const DOMAIN        = 'zsoltsb.eu';
-  const DITTO         = 'https://ditto.pub';
-  const GRAVATAR_SLUG = 'zsoltsb'; // gravatar.com/zsoltsb
+  const DOMAIN = 'zsoltsb.eu';
+  const DITTO  = 'https://ditto.pub';
+
+  // Lightning address local part — hardcoded, known to be wallet@zsoltsb.eu
+  const LN_USER   = 'wallet';
+  const LN_DOMAIN = DOMAIN; // same domain = self-hosted
 
   const RELAYS = [
     'wss://relay.damus.io',
@@ -250,6 +202,11 @@
     'wss://nostr.mom',
     'wss://relay.snort.social',
     'wss://ditto.pub',
+  ];
+
+  const DOH_RESOLVERS = [
+    n => `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(n)}&type=TXT`,
+    n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -271,8 +228,22 @@
 
   async function fetchJSON(url, ms = 5000) {
     const r = await fetch(url, { signal: AbortSignal.timeout(ms) });
-    if (!r.ok) throw new Error(`HTTP ${r.status} — ${url}`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
+  }
+
+  // ── DNS-over-HTTPS TXT lookup ─────────────────────────────────────────────
+  async function dohTxtLookup(hostname) {
+    for (const resolver of DOH_RESOLVERS) {
+      try {
+        const data = await fetchJSON(resolver(hostname), 4000);
+        const answers = (data?.Answer || []).filter(a => a.type === 16);
+        if (answers.length) {
+          return answers.map(a => String(a.data).replace(/^"|"$/g, '').trim());
+        }
+      } catch {}
+    }
+    return [];
   }
 
   // ── Minimal bech32 encoder → npub ─────────────────────────────────────────
@@ -318,18 +289,22 @@
     });
   }
 
-  // ── Step 1: Resolve pubkey via NIP-05 (same-origin) ──────────────────────
+  // ═════════════════════════════════════════════════════════════════════════
+  // MAIN
+  // ═════════════════════════════════════════════════════════════════════════
+
+  // ── 1. Resolve pubkey via same-origin /.well-known/nostr.json ─────────────
   let pubkey = '';
-  let nip05SelfHosted = false;
+  let wellKnownNostrOk = false;
   try {
     const j = await fetchJSON(`https://${DOMAIN}/.well-known/nostr.json?name=_`, 4000);
     const pk = j?.names?.['_'] || Object.values(j?.names || {})[0] || '';
-    if (pk) { pubkey = pk; nip05SelfHosted = true; }
+    if (pk) { pubkey = pk; wellKnownNostrOk = true; }
   } catch {}
 
   if (!pubkey) { showError('Could not resolve pubkey from NIP-05.'); return; }
 
-  // ── Step 2: Race relays for kind:0 ───────────────────────────────────────
+  // ── 2. Race relays for kind:0 ─────────────────────────────────────────────
   let result;
   try {
     result = await Promise.any(RELAYS.map(r => queryRelay(r, pubkey)));
@@ -340,161 +315,105 @@
 
   const { meta } = result;
   const npub = hexToNpub(pubkey);
-
-  // ── Step 3: Validate handle ───────────────────────────────────────────────
   const nip05 = meta.nip05 || `_@${DOMAIN}`;
   const nip05Domain = nip05.includes('@') ? nip05.split('@')[1] : '';
   const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
 
-  // Golden: pubkey confirmed in our own /.well-known/nostr.json AND nip05 domain = our domain
-  // Green:  NIP-05 resolves but on a third-party domain
-  const handleTickLevel = (nip05SelfHosted && nip05Domain === DOMAIN) ? 'gold'
-    : nip05SelfHosted ? 'green'
-    : null;
-  const handleTickTitle = handleTickLevel === 'gold'
-    ? 'Verified via /.well-known/nostr.json on this domain'
-    : 'NIP-05 identity confirmed';
+  // ── 3. All verification checks in parallel ────────────────────────────────
 
-  // ── Step 4: Validate lightning address ────────────────────────────────────
-  const lightning = meta.lud16 || meta.lud06 || '';
-  let lnTickLevel = null, lnTickTitle = '';
-  if (lightning && lightning.includes('@')) {
-    const [lnUser, lnDomain] = lightning.split('@');
+  // 3a. DNS TXT for NIP-05 — check _nostr.zsoltsb.eu and _nip05.zsoltsb.eu
+  //     for a record containing the hex pubkey or npub <kcite ref="1"/>
+  const dnsNostrPromise = (async () => {
+    const npubVal = npub || '';
+    for (const name of [`_nostr.${DOMAIN}`, `_nip05.${DOMAIN}`, DOMAIN]) {
+      try {
+        const txts = await dohTxtLookup(name);
+        if (txts.some(t => t.includes(pubkey) || (npubVal && t.includes(npubVal)))) {
+          return true;
+        }
+      } catch {}
+    }
+    return false;
+  })();
+
+  // 3b. DNS TXT for Lightning — check _lnurlp.zsoltsb.eu
+  //     Standard: TXT value contains lnurlp= or the username <kcite ref="2"/>
+  const dnsLnPromise = (async () => {
     try {
-      const lnJson = await fetchJSON(`https://${lnDomain}/.well-known/lnurlp/${lnUser}`, 5000);
-      if (lnJson?.tag === 'payRequest' && lnJson?.callback) {
-        // Golden if the lightning address is self-hosted on our own domain
-        lnTickLevel = (lnDomain === DOMAIN) ? 'gold' : 'green';
-        lnTickTitle = lnTickLevel === 'gold'
-          ? 'Verified via /.well-known/lnurlp on this domain'
-          : 'Lightning address resolves to a valid LNURL-pay endpoint';
-      }
-    } catch {}
-  }
-
-  // ── Step 5: Fetch Gravatar verified accounts ──────────────────────────────
-  // Strategy: try v3 REST API (may need API key → will 401), fall back to
-  // legacy /{slug}.json which is unauthenticated for public profiles.
-  let gravatarAccounts = [];
-
-  const parseV3 = data => {
-    const accts = data?.verified_accounts || data?.accounts || [];
-    return accts
-      .filter(a => a?.url || a?.profile_url)
-      .map(a => ({
-        url:   (a.url || a.profile_url).trim(),
-        label: a.service_label || a.service_type || '',
-        type:  (a.service_type || '').toLowerCase().replace(/\s+/g, '-'),
-      }));
-  };
-
-  const parseLegacy = data => {
-    const accts = data?.entry?.[0]?.accounts || [];
-    return accts
-      .filter(a => a?.url)
-      .map(a => ({
-        url:   a.url.trim(),
-        label: a.display || a.shortname || a.domain || '',
-        type:  (a.shortname || '').toLowerCase(),
-      }));
-  };
-
-  // Try v3 first (no API key — works for public profiles on some endpoints)
-  try {
-    const d = await fetchJSON(`https://api.gravatar.com/v3/profiles/${GRAVATAR_SLUG}`, 6000);
-    gravatarAccounts = parseV3(d);
-  } catch {}
-
-  // Fall back to legacy JSON endpoint if v3 returned nothing or failed
-  if (!gravatarAccounts.length) {
-    try {
-      const d = await fetchJSON(`https://gravatar.com/${GRAVATAR_SLUG}.json`, 6000);
-      gravatarAccounts = parseLegacy(d);
-    } catch {}
-  }
-
-  // ── Step 6: Per-account DNS/.well-known cross-verification ────────────────
-  // For each Gravatar-verified account, attempt to confirm via the platform's
-  // own webfinger or rel-me endpoint that it references back to our domain.
-  // This is feasible for ActivityPub/Mastodon (webfinger) and any site
-  // serving /.well-known/ with rel-me. Others get green (Gravatar-only).
-  async function checkWellKnownBacklink(accountUrl) {
-    try {
-      const u = new URL(accountUrl);
-      const host = u.hostname;
-      // Mastodon/ActivityPub: webfinger lookup for the account
-      // Extract username from path e.g. /@zsoltsb → zsoltsb
-      const pathParts = u.pathname.replace(/^\/+/, '').replace(/^@/, '').split('/');
-      const username  = pathParts[0];
-      if (!username) return false;
-
-      const wf = await fetchJSON(
-        `https://${host}/.well-known/webfinger?resource=acct:${encodeURIComponent(username)}@${host}`,
-        4000
+      const txts = await dohTxtLookup(`_lnurlp.${LN_DOMAIN}`);
+      return txts.some(t =>
+        t.includes(LN_USER) ||
+        t.toLowerCase().includes('lnurlp') ||
+        t.toLowerCase().includes('lightning')
       );
-      // Check if webfinger links contain a rel=me or alias pointing to our domain
-      const links   = wf?.links   || [];
-      const aliases = wf?.aliases || [];
-      const all     = [...aliases, ...links.map(l => l?.href || '')].join(' ');
-      return all.includes(DOMAIN);
     } catch { return false; }
+  })();
+
+  // 3c. LNURL-pay well-known — hardcoded to wallet@zsoltsb.eu
+  //     This is self-hosted (LN_DOMAIN === DOMAIN) so always golden if it resolves
+  const lnWellKnownPromise = (async () => {
+    try {
+      const j = await fetchJSON(
+        `https://${LN_DOMAIN}/.well-known/lnurlp/${LN_USER}`, 5000
+      );
+      return j?.tag === 'payRequest' && !!j?.callback;
+    } catch { return false; }
+  })();
+
+  const [dnsNostrOk, dnsLnOk, lnWellKnownOk] = await Promise.all([
+    dnsNostrPromise,
+    dnsLnPromise,
+    lnWellKnownPromise,
+  ]);
+
+  // ── 4. Determine tick levels ──────────────────────────────────────────────
+  //
+  // Priority rule: file present (self-hosted) = golden, always.
+  // DNS TXT is additive — it adds detail to the tooltip but cannot downgrade.
+  // External-only (no self-hosted file) = green.
+  //
+  // Handle:
+  //   Golden = /.well-known/nostr.json present on own domain AND nip05 domain matches
+  //   Green  = relay-confirmed only (no self-hosted file)
+  let handleTickLevel = null;
+  let handleTickTitle = '';
+
+  if (wellKnownNostrOk && nip05Domain === DOMAIN) {
+    handleTickLevel = 'gold';
+    const parts = ['/.well-known/nostr.json ✓'];
+    if (dnsNostrOk) parts.push('DNS TXT record ✓');
+    handleTickTitle = 'Verified: ' + parts.join('  ');
+  } else if (wellKnownNostrOk) {
+    handleTickLevel = 'gold';
+    handleTickTitle = 'Verified: pubkey confirmed in /.well-known/nostr.json ✓';
+  } else {
+    handleTickLevel = 'green';
+    handleTickTitle = 'Verified: NIP-05 identity confirmed via relay';
   }
 
-  // Run all cross-checks in parallel
-  const crossChecked = await Promise.all(
-    gravatarAccounts.map(async acct => {
-      const domainVerified = await checkWellKnownBacklink(acct.url);
-      return { ...acct, domainVerified };
-    })
-  );
+  // Lightning:
+  //   Golden = /.well-known/lnurlp/wallet resolves (self-hosted, LN_DOMAIN === DOMAIN)
+  //            DNS TXT adds to tooltip only
+  //   No tick = file doesn't resolve
+  let lnTickLevel = null;
+  let lnTickTitle = '';
 
-  // ── Step 7: Platform icon map ─────────────────────────────────────────────
-  const PLATFORMS = [
-    { key:'mastodon',   test: u => /mastodon|fosstodon|hachyderm|infosec\.exchange|social\.coop|techhub\.social|mstdn\.|social\./i.test(u), icon:'fa-brands fa-mastodon',    color:'#6364ff' },
-    { key:'bluesky',    test: u => /bsky\.app|bsky\.social/i.test(u),                                                                        icon:'fa-brands fa-bluesky',     color:'#0085ff' },
-    { key:'instagram',  test: u => /instagram\.com/i.test(u),                                                                                icon:'fa-brands fa-instagram',   color:'#e1306c' },
-    { key:'threads',    test: u => /threads\.net/i.test(u),                                                                                  icon:'fa-brands fa-threads',     color:'#e8e8e8' },
-    { key:'twitter',    test: u => /twitter\.com|x\.com/i.test(u),                                                                           icon:'fa-brands fa-x-twitter',   color:'#e8e8e8' },
-    { key:'github',     test: u => /github\.com/i.test(u),                                                                                   icon:'fa-brands fa-github',      color:'#e8e8e8' },
-    { key:'youtube',    test: u => /youtube\.com|youtu\.be/i.test(u),                                                                        icon:'fa-brands fa-youtube',     color:'#ff0000' },
-    { key:'twitch',     test: u => /twitch\.tv/i.test(u),                                                                                    icon:'fa-brands fa-twitch',      color:'#9146ff' },
-    { key:'tiktok',     test: u => /tiktok\.com/i.test(u),                                                                                   icon:'fa-brands fa-tiktok',      color:'#e8e8e8' },
-    { key:'linkedin',   test: u => /linkedin\.com/i.test(u),                                                                                 icon:'fa-brands fa-linkedin',    color:'#0a66c2' },
-    { key:'facebook',   test: u => /facebook\.com|fb\.com/i.test(u),                                                                         icon:'fa-brands fa-facebook',    color:'#1877f2' },
-    { key:'reddit',     test: u => /reddit\.com/i.test(u),                                                                                   icon:'fa-brands fa-reddit',      color:'#ff4500' },
-    { key:'telegram',   test: u => /t\.me|telegram\.me/i.test(u),                                                                            icon:'fa-brands fa-telegram',    color:'#2ca5e0' },
-    { key:'discord',    test: u => /discord\.gg|discord\.com/i.test(u),                                                                      icon:'fa-brands fa-discord',     color:'#5865f2' },
-    { key:'farcaster',  test: u => /warpcast\.com|farcaster\.xyz/i.test(u),                                                                  icon:'fa-solid fa-circle-nodes', color:'#8a63d2' },
-    { key:'nostr',      test: u => /nostr\.|njump\.me|snort\.social|primal\.net/i.test(u),                                                   icon:'fa-solid fa-bolt',         color:'#a78bfa' },
-    { key:'substack',   test: u => /substack\.com/i.test(u),                                                                                 icon:'fa-solid fa-newspaper',    color:'#ff6719' },
-    { key:'medium',     test: u => /medium\.com/i.test(u),                                                                                   icon:'fa-brands fa-medium',      color:'#e8e8e8' },
-    { key:'tumblr',     test: u => /tumblr\.com/i.test(u),                                                                                   icon:'fa-brands fa-tumblr',      color:'#35465c' },
-    { key:'pinterest',  test: u => /pinterest\.com/i.test(u),                                                                                icon:'fa-brands fa-pinterest',   color:'#e60023' },
-    { key:'spotify',    test: u => /spotify\.com/i.test(u),                                                                                  icon:'fa-brands fa-spotify',     color:'#1db954' },
-    { key:'soundcloud', test: u => /soundcloud\.com/i.test(u),                                                                               icon:'fa-brands fa-soundcloud',  color:'#ff5500' },
-    { key:'patreon',    test: u => /patreon\.com/i.test(u),                                                                                  icon:'fa-brands fa-patreon',     color:'#ff424d' },
-    { key:'ko-fi',      test: u => /ko-fi\.com/i.test(u),                                                                                    icon:'fa-solid fa-mug-hot',      color:'#ff5e5b' },
-    { key:'wordpress',  test: u => /wordpress\.com/i.test(u),                                                                                icon:'fa-brands fa-wordpress',   color:'#21759b' },
-    { key:'website',    test: () => false,                                                                                                    icon:'fa-solid fa-globe',        color:'#888'    },
-  ];
-
-  function detectPlatform(url) {
-    return PLATFORMS.find(p => p.test(url)) || PLATFORMS[PLATFORMS.length - 1];
+  if (lnWellKnownOk) {
+    // LN_DOMAIN === DOMAIN is always true here (hardcoded), so always golden
+    lnTickLevel = 'gold';
+    const parts = ['/.well-known/lnurlp ✓'];
+    if (dnsLnOk) parts.push('DNS TXT _lnurlp record ✓');
+    lnTickTitle = 'Verified: ' + parts.join('  ');
   }
 
-  // ── Step 8: Inject rel=me into <head> ─────────────────────────────────────
-  for (const { url } of crossChecked) {
-    const l = document.createElement('link');
-    l.rel = 'me'; l.href = url;
-    document.head.appendChild(l);
-  }
+  // ── 5. Inject rel=me into <head> ──────────────────────────────────────────
   if (npub) {
     const l = document.createElement('link');
     l.rel = 'me'; l.href = `https://njump.me/${npub}`;
     document.head.appendChild(l);
   }
 
-  // ── Step 9: Banner ────────────────────────────────────────────────────────
+  // ── 6. Banner ─────────────────────────────────────────────────────────────
   const bannerUrl = meta.banner || '';
   if (bannerUrl) {
     const img = new Image();
@@ -507,11 +426,10 @@
     img.src = bannerUrl;
   }
 
-  // ── Step 10: Avatar ───────────────────────────────────────────────────────
+  // ── 7. Avatar ─────────────────────────────────────────────────────────────
   const avatarUrl = meta.picture || '';
   const name      = meta.display_name || meta.name || DOMAIN;
   const avatarWrap = document.getElementById('avatarWrap');
-
   const makeFallback = n => {
     const d = document.createElement('div');
     d.className = 'avatar-fallback';
@@ -520,8 +438,7 @@
   };
   if (avatarUrl) {
     const img = document.createElement('img');
-    img.className = 'avatar-img';
-    img.alt = name;
+    img.className = 'avatar-img'; img.alt = name;
     img.onerror = () => img.replaceWith(makeFallback(name));
     img.src = avatarUrl;
     avatarWrap.replaceChildren(img);
@@ -529,28 +446,10 @@
     avatarWrap.replaceChildren(makeFallback(name));
   }
 
-  // ── Step 11: Social pills HTML ────────────────────────────────────────────
+  // ── 8. Render ─────────────────────────────────────────────────────────────
   const nostrUri = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
+  const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
-  let socialHtml = '';
-  if (crossChecked.length) {
-    const pills = crossChecked.map(({ url, label, type, domainVerified }) => {
-      const p = PLATFORMS.find(pl => pl.key === type) || detectPlatform(url);
-      const displayLabel = label || p.key;
-      const tLevel = domainVerified ? 'gold' : 'green';
-      const tTitle = domainVerified
-        ? 'Verified via Gravatar + DNS/.well-known backlink'
-        : 'Verified via Gravatar';
-      return `<a class="social-pill" href="${esc(url)}" target="_blank" rel="noopener me">
-        <i class="${esc(p.icon)}" style="color:${esc(p.color)};"></i>
-        ${esc(displayLabel)}
-        ${tickHtml(tLevel, tTitle)}
-      </a>`;
-    }).join('');
-    socialHtml = `<div class="section-title">Find me on</div><div class="social-row">${pills}</div>`;
-  }
-
-  // ── Step 12: Render ───────────────────────────────────────────────────────
   document.getElementById('body').innerHTML = `
     <div class="display-name">${esc(name)}</div>
 
@@ -560,13 +459,11 @@
         ${tickHtml(handleTickLevel, handleTickTitle)}
       </a>
 
-      ${lightning ? `<a class="pill" href="lightning:${esc(lightning)}" title="Pay via Lightning Network">
+      <a class="pill" href="lightning:${esc(lightning)}" title="Pay via Lightning Network">
         ⚡ ${esc(lightning)}
         ${tickHtml(lnTickLevel, lnTickTitle)}
-      </a>` : ''}
+      </a>
     </div>
-
-    ${socialHtml}
 
     <a class="footer-link" href="${DITTO}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
