@@ -10,6 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -55,8 +56,6 @@
       background-position: center;
       position: relative;
     }
-
-    /* Banner media tick — bottom-right of banner */
     .banner-tick {
       position: absolute;
       bottom: 8px;
@@ -68,7 +67,6 @@
       position: absolute;
       bottom: -48px;
       left: 24px;
-      /* needed so the tick badge is relative to this */
       display: inline-block;
     }
     .avatar-img, .avatar-fallback {
@@ -83,8 +81,6 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 2.4rem; font-weight: 700; color: #fff;
     }
-
-    /* Avatar media tick — bottom-right of avatar circle */
     .avatar-tick {
       position: absolute;
       bottom: 2px;
@@ -149,13 +145,55 @@
     }
     .tick.gold  { background: var(--gold); }
     .tick.green { background: var(--green); }
-
-    /* Larger tick for media badges */
     .tick.lg {
       width: 20px; height: 20px;
       box-shadow: 0 0 0 2px var(--surface);
     }
     .tick.lg svg { width: 11px; height: 11px; }
+
+    /* ── Social section ── */
+    .section-title {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: var(--muted);
+      margin-top: 24px;
+      margin-bottom: 12px;
+    }
+
+    .social-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Icon-only square button, comfortable tap target */
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      text-decoration: none;
+      font-size: 1.2rem;
+      transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+      position: relative;
+    }
+    .social-btn:hover {
+      background: rgba(139,92,246,0.10);
+      border-color: var(--accent);
+      color: var(--accent-2);
+      transform: translateY(-2px);
+    }
+    .social-btn i {
+      /* single colour — inherit from parent, no per-platform colour */
+      line-height: 1;
+    }
 
     /* ── Footer ── */
     .footer-link {
@@ -212,10 +250,11 @@
 void (async () => {
 
   // ── Constants ──────────────────────────────────────────────────────────────
-  const DOMAIN    = 'zsoltsb.eu';
-  const DITTO     = 'https://ditto.pub';
-  const LN_USER   = 'wallet';
-  const LN_DOMAIN = DOMAIN;
+  const DOMAIN        = 'zsoltsb.eu';
+  const DITTO         = 'https://ditto.pub';
+  const LN_USER       = 'wallet';
+  const LN_DOMAIN     = DOMAIN;
+  const GRAVATAR_SLUG = 'zsoltsb';
 
   const FALLBACK_RELAYS = [
     'wss://relay.damus.io',
@@ -231,6 +270,95 @@ void (async () => {
     n => `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(n)}&type=TXT`,
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
+
+  // Messaging / IM platforms to exclude — we only want social/content platforms
+  const MESSAGING_TYPES = new Set([
+    'whatsapp','telegram','signal','messenger','wechat','line','viber',
+    'skype','discord','slack','matrix','xmpp','imessage','sms','kik',
+    'snapchat','kakaotalk','zalo','imo','threema','wire','session',
+    'element','rocketchat','mattermost','teams','hangouts','gchat',
+  ]);
+
+  // Platform → Font Awesome 6 icon class map
+  // Keyed on Gravatar service_type (lowercased, spaces→hyphens)
+  const PLATFORM_ICONS = {
+    'twitter':        'fa-brands fa-x-twitter',
+    'x':              'fa-brands fa-x-twitter',
+    'x-twitter':      'fa-brands fa-x-twitter',
+    'mastodon':       'fa-brands fa-mastodon',
+    'bluesky':        'fa-brands fa-bluesky',
+    'instagram':      'fa-brands fa-instagram',
+    'threads':        'fa-brands fa-threads',
+    'facebook':       'fa-brands fa-facebook',
+    'linkedin':       'fa-brands fa-linkedin',
+    'github':         'fa-brands fa-github',
+    'gitlab':         'fa-brands fa-gitlab',
+    'youtube':        'fa-brands fa-youtube',
+    'twitch':         'fa-brands fa-twitch',
+    'tiktok':         'fa-brands fa-tiktok',
+    'reddit':         'fa-brands fa-reddit',
+    'pinterest':      'fa-brands fa-pinterest',
+    'tumblr':         'fa-brands fa-tumblr',
+    'medium':         'fa-brands fa-medium',
+    'substack':       'fa-solid fa-newspaper',
+    'wordpress':      'fa-brands fa-wordpress',
+    'soundcloud':     'fa-brands fa-soundcloud',
+    'spotify':        'fa-brands fa-spotify',
+    'patreon':        'fa-brands fa-patreon',
+    'ko-fi':          'fa-solid fa-mug-hot',
+    'kofi':           'fa-solid fa-mug-hot',
+    'twitch':         'fa-brands fa-twitch',
+    'vimeo':          'fa-brands fa-vimeo',
+    'flickr':         'fa-brands fa-flickr',
+    'deviantart':     'fa-brands fa-deviantart',
+    'behance':        'fa-brands fa-behance',
+    'dribbble':       'fa-brands fa-dribbble',
+    'stackexchange':  'fa-brands fa-stack-exchange',
+    'stackoverflow':  'fa-brands fa-stack-overflow',
+    'hackernews':     'fa-brands fa-hacker-news',
+    'producthunt':    'fa-brands fa-product-hunt',
+    'farcaster':      'fa-solid fa-circle-nodes',
+    'nostr':          'fa-solid fa-bolt',
+    'peertube':       'fa-solid fa-play',
+    'pixelfed':       'fa-solid fa-camera',
+    'lemmy':          'fa-solid fa-comments',
+    'diaspora':       'fa-brands fa-diaspora',
+    'vk':             'fa-brands fa-vk',
+    'odnoklassniki':  'fa-brands fa-odnoklassniki',
+    'xing':           'fa-brands fa-xing',
+    'quora':          'fa-brands fa-quora',
+    'goodreads':      'fa-brands fa-goodreads',
+    'last-fm':        'fa-brands fa-lastfm',
+    'lastfm':         'fa-brands fa-lastfm',
+    'strava':         'fa-brands fa-strava',
+    'steam':          'fa-brands fa-steam',
+    'itch-io':        'fa-brands fa-itch-io',
+    'twitch':         'fa-brands fa-twitch',
+    'bandcamp':       'fa-brands fa-bandcamp',
+    'mixcloud':       'fa-brands fa-mixcloud',
+    'researchgate':   'fa-brands fa-researchgate',
+    'orcid':          'fa-brands fa-orcid',
+    'academia':       'fa-solid fa-graduation-cap',
+    'angellist':      'fa-brands fa-angellist',
+    'crunchbase':     'fa-solid fa-building',
+    'gravatar':       'fa-solid fa-user-circle',
+    // fallback
+    '_default':       'fa-solid fa-globe',
+  };
+
+  // Derive icon from service_type, falling back to URL hostname sniffing
+  function resolveIcon(serviceType, url) {
+    const key = (serviceType || '').toLowerCase().replace(/[\s_]+/g, '-');
+    if (PLATFORM_ICONS[key]) return PLATFORM_ICONS[key];
+    // Hostname sniff fallback
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '');
+      for (const [k, v] of Object.entries(PLATFORM_ICONS)) {
+        if (k !== '_default' && host.includes(k.replace(/-/g, ''))) return v;
+      }
+    } catch {}
+    return PLATFORM_ICONS['_default'];
+  }
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const esc = s => String(s ?? '')
@@ -283,19 +411,13 @@ void (async () => {
   };
 
   // ── Media hosting check ────────────────────────────────────────────────────
-  // Returns 'gold' if URL is served from DOMAIN,
-  // 'green' if from a trusted media server listed in /.well-known/media-servers.json,
-  // null otherwise.
   const checkMediaHost = (() => {
-    // Fetch media-servers.json once, cache the result
     let mediaServersPromise = null;
     const getMediaServers = () => {
       if (!mediaServersPromise) {
         mediaServersPromise = fetchJSON(
           `https://${DOMAIN}/.well-known/media-servers.json`, 4000
         ).then(j => {
-          // Format per NIP-96 / Blossom: { servers: ["https://..."] }
-          // Also handle flat array format
           const raw = Array.isArray(j) ? j : (j?.servers || j?.media_servers || []);
           return raw.map(s => {
             try { return new URL(s).hostname.toLowerCase(); } catch { return null; }
@@ -304,27 +426,19 @@ void (async () => {
       }
       return mediaServersPromise;
     };
-
-    return async (url) => {
+    return async url => {
       if (!url) return null;
       let hostname;
       try { hostname = new URL(url).hostname.toLowerCase(); } catch { return null; }
-
-      // Golden: served directly from own domain
       if (hostname === DOMAIN || hostname.endsWith(`.${DOMAIN}`)) return 'gold';
-
-      // Green: listed in /.well-known/media-servers.json
       const trusted = await getMediaServers();
       if (trusted.some(h => hostname === h || hostname.endsWith(`.${h}`))) return 'green';
-
       return null;
     };
   })();
 
-  // ── Race all relays — keep all pings alive, resolve on first win ───────────
-  // Losers are NOT closed; they continue running passively.
-  // Only the winning socket is explicitly closed after resolving.
-  const raceRelays = (async (relays, pubkey) => {
+  // ── Race all relays — keep losers alive, resolve on first win ─────────────
+  const raceRelays = (relays, pubkey) => {
     const SUB = 'p';
     return Promise.any(relays.map(url => new Promise((resolve, reject) => {
       let done = false;
@@ -343,7 +457,7 @@ void (async () => {
           if (m[0] === 'EVENT' && m[1] === SUB && m[2]?.kind === 0 && !done) {
             done = true;
             clearTimeout(timer);
-            // Close only the winning socket — losers remain open passively
+            // Close only the winning socket; losers remain open passively
             try { ws.close(); } catch {}
             try { resolve({ meta: JSON.parse(m[2].content), pubkey: m[2].pubkey }); }
             catch(pe) { reject(pe); }
@@ -356,13 +470,52 @@ void (async () => {
       ws.onerror = () => fail(`ws-err:${url}`);
       ws.onclose = () => { if (!done) fail(`ws-close:${url}`); };
     })));
-  });
+  };
+
+  // ── Gravatar verified accounts ─────────────────────────────────────────────
+  // Returns array of { url, label, serviceType } filtered to non-messaging only.
+  // Tries v3 REST API first, falls back to legacy unauthenticated endpoint.
+  // Note: unauthenticated requests return max 4 verified accounts. <kcite ref="75"/>
+  const fetchGravatarAccounts = async () => {
+    const normalise = accts => accts
+      .filter(a => {
+        if (!a?.url && !a?.profile_url) return false;
+        const t = (a.service_type || a.shortname || '').toLowerCase().replace(/[\s_]+/g, '-');
+        return !MESSAGING_TYPES.has(t);
+      })
+      .map(a => ({
+        url:         (a.url || a.profile_url || '').trim(),
+        label:       a.service_label || a.display || a.shortname || '',
+        serviceType: (a.service_type || a.shortname || '').toLowerCase().replace(/[\s_]+/g, '-'),
+      }))
+      .filter(a => a.url);
+
+    // v3 REST API
+    try {
+      const d = await fetchJSON(
+        `https://api.gravatar.com/v3/profiles/${GRAVATAR_SLUG}`, 6000
+      );
+      const accts = d?.verified_accounts || d?.accounts || [];
+      if (accts.length) return normalise(accts);
+    } catch {}
+
+    // Legacy unauthenticated endpoint
+    try {
+      const d = await fetchJSON(
+        `https://gravatar.com/${GRAVATAR_SLUG}.json`, 6000
+      );
+      const accts = d?.entry?.[0]?.accounts || [];
+      if (accts.length) return normalise(accts);
+    } catch {}
+
+    return [];
+  };
 
   // ═══════════════════════════════════════════════════════════════════════════
   // MAIN
   // ═══════════════════════════════════════════════════════════════════════════
 
-  // ── 1. Fetch nostr.json — pubkey + relay hints ─────────────────────────────
+  // ── 1. nostr.json — pubkey + relay hints ───────────────────────────────────
   let pubkey           = '';
   let wellKnownNostrOk = false;
   let relayHints       = [];
@@ -380,13 +533,17 @@ void (async () => {
 
   if (!pubkey) { showError('Could not resolve pubkey from NIP-05.'); return; }
 
-  // Relay hints first (most likely to have the event), then fallbacks, deduped
   const allRelays = [...new Set([...relayHints, ...FALLBACK_RELAYS])];
 
-  // ── 2. Race all relays simultaneously (losers stay alive) ─────────────────
+  // ── 2. Race relays + Gravatar in parallel ──────────────────────────────────
+  // Both network operations start at the same time; we don't wait for one
+  // before starting the other.
+  const relayPromise    = raceRelays(allRelays, pubkey);
+  const gravatarPromise = fetchGravatarAccounts();
+
   let result;
   try {
-    result = await raceRelays(allRelays, pubkey);
+    result = await relayPromise;
   } catch(agg) {
     showError('All relays failed.',
       agg?.errors?.map(e => e.message).join(' | ') ?? String(agg));
@@ -399,7 +556,7 @@ void (async () => {
   const nip05Domain   = nip05.includes('@') ? nip05.split('@')[1] : '';
   const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
 
-  // ── 3. All verification checks in parallel ────────────────────────────────
+  // ── 3. All verification + media checks in parallel ─────────────────────────
   const dnsNostrPromise = (async () => {
     const npubVal = npub || '';
     for (const name of [`_nostr.${DOMAIN}`, `_nip05.${DOMAIN}`, DOMAIN]) {
@@ -432,7 +589,6 @@ void (async () => {
     } catch { return false; }
   })();
 
-  // Media host checks run in parallel with everything else
   const avatarMediaPromise = checkMediaHost(meta.picture || '');
   const bannerMediaPromise = checkMediaHost(meta.banner  || '');
 
@@ -442,12 +598,14 @@ void (async () => {
     lnWellKnownOk,
     avatarMediaLevel,
     bannerMediaLevel,
+    gravatarAccounts,
   ] = await Promise.all([
     dnsNostrPromise,
     dnsLnPromise,
     lnWellKnownPromise,
     avatarMediaPromise,
     bannerMediaPromise,
+    gravatarPromise,
   ]);
 
   // ── 4. Tick levels ─────────────────────────────────────────────────────────
@@ -473,23 +631,25 @@ void (async () => {
     lnTickTitle = 'Verified: ' + parts.join('  ');
   }
 
-  // Media tick tooltips
   const avatarTickTitle = avatarMediaLevel === 'gold'
     ? `Avatar served from ${DOMAIN} ✓`
     : avatarMediaLevel === 'green'
-      ? 'Avatar served from a trusted media server ✓'
-      : '';
+      ? 'Avatar served from a trusted media server ✓' : '';
 
   const bannerTickTitle = bannerMediaLevel === 'gold'
     ? `Header image served from ${DOMAIN} ✓`
     : bannerMediaLevel === 'green'
-      ? 'Header image served from a trusted media server ✓'
-      : '';
+      ? 'Header image served from a trusted media server ✓' : '';
 
   // ── 5. rel=me injection ────────────────────────────────────────────────────
   if (npub) {
     const l = document.createElement('link');
     l.rel = 'me'; l.href = `https://njump.me/${npub}`;
+    document.head.appendChild(l);
+  }
+  for (const { url } of gravatarAccounts) {
+    const l = document.createElement('link');
+    l.rel = 'me'; l.href = url;
     document.head.appendChild(l);
   }
 
@@ -504,7 +664,6 @@ void (async () => {
     };
     img.src = meta.banner;
   }
-  // Inject banner media tick
   if (bannerMediaLevel) {
     const bt = document.createElement('div');
     bt.className = 'banner-tick';
@@ -515,14 +674,12 @@ void (async () => {
   // ── 7. Avatar ──────────────────────────────────────────────────────────────
   const name       = meta.display_name || meta.name || DOMAIN;
   const avatarWrap = document.getElementById('avatarWrap');
-
   const makeFallback = n => {
     const d = document.createElement('div');
     d.className   = 'avatar-fallback';
     d.textContent = (n || '?')[0].toUpperCase();
     return d;
   };
-
   if (meta.picture) {
     const img = document.createElement('img');
     img.className = 'avatar-img'; img.alt = name;
@@ -532,8 +689,6 @@ void (async () => {
   } else {
     avatarWrap.replaceChildren(makeFallback(name));
   }
-
-  // Inject avatar media tick
   if (avatarMediaLevel) {
     const at = document.createElement('div');
     at.className = 'avatar-tick';
@@ -541,7 +696,23 @@ void (async () => {
     avatarWrap.appendChild(at);
   }
 
-  // ── 8. Render body ─────────────────────────────────────────────────────────
+  // ── 8. Social icons HTML ───────────────────────────────────────────────────
+  let socialHtml = '';
+  if (gravatarAccounts.length) {
+    const buttons = gravatarAccounts.map(({ url, label, serviceType }) => {
+      const icon    = resolveIcon(serviceType, url);
+      const tipText = label || serviceType || new URL(url).hostname;
+      return `<a class="social-btn" href="${esc(url)}" target="_blank"
+                 rel="noopener me" title="${esc(tipText)}">
+                <i class="${esc(icon)}"></i>
+              </a>`;
+    }).join('');
+    socialHtml = `
+      <div class="section-title">Follow me on</div>
+      <div class="social-row">${buttons}</div>`;
+  }
+
+  // ── 9. Render body ─────────────────────────────────────────────────────────
   const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
   const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
@@ -557,6 +728,7 @@ void (async () => {
         ${tickHtml(lnTickLevel, lnTickTitle)}
       </a>
     </div>
+    ${socialHtml}
     <a class="footer-link" href="${DITTO}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
