@@ -4,11 +4,17 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zsoltsb.eu</title>
+
+  <!-- rel-me static anchors; more injected dynamically after profile loads -->
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
   <link rel="me" href="https://mastodon.social/@zsoltsb" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Font Awesome 6 Free via cdnjs -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -20,6 +26,7 @@
       --accent-2: #a78bfa;
       --text:     #e8e8e8;
       --muted:    #888;
+      --green:    #34d399;
       --radius:   14px;
     }
 
@@ -31,7 +38,6 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
       padding: 40px 16px 80px;
     }
 
@@ -51,7 +57,6 @@
       background-size: cover;
       background-position: center;
       position: relative;
-      transition: background-image 0.3s;
     }
 
     /* ── Avatar ── */
@@ -60,10 +65,8 @@
       bottom: -48px;
       left: 24px;
     }
-    .avatar-img,
-    .avatar-fallback {
-      width: 96px;
-      height: 96px;
+    .avatar-img, .avatar-fallback {
+      width: 96px; height: 96px;
       border-radius: 50%;
       border: 4px solid var(--surface);
       object-fit: cover;
@@ -71,65 +74,53 @@
     }
     .avatar-fallback {
       background: var(--accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 2.4rem;
-      font-weight: 700;
-      color: #fff;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.4rem; font-weight: 700; color: #fff;
     }
 
     /* ── Body ── */
     .body { padding: 62px 24px 28px; }
 
-    .name {
-      font-size: 1.35rem;
-      font-weight: 700;
-      line-height: 1.2;
-      color: var(--text);
-    }
-
-    .handle-row {
+    /* ── Pill buttons row ── */
+    .pills {
       display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 4px;
       flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 4px;
     }
-    .handle { font-size: 0.875rem; color: var(--muted); }
-    .handle a { color: var(--muted); text-decoration: none; }
-    .handle a:hover { color: var(--accent-2); }
 
-    /* ── Lightning ── */
-    .lightning {
+    .pill {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      margin-top: 12px;
-      background: rgba(139,92,246,0.12);
-      border: 1px solid rgba(139,92,246,0.3);
+      gap: 7px;
+      background: rgba(139,92,246,0.10);
+      border: 1px solid rgba(139,92,246,0.28);
       border-radius: 20px;
-      padding: 5px 14px;
+      padding: 6px 14px;
       font-size: 0.8rem;
       color: var(--accent-2);
       text-decoration: none;
-      transition: background 0.2s;
+      cursor: pointer;
+      transition: background 0.18s, border-color 0.18s;
+      font-family: inherit;
+      line-height: 1;
     }
-    .lightning:hover { background: rgba(139,92,246,0.25); }
+    .pill:hover { background: rgba(139,92,246,0.22); border-color: rgba(139,92,246,0.55); }
+    .pill i, .pill svg { font-size: 0.85rem; flex-shrink: 0; }
 
-    /* ── Bio ── */
-    .bio {
-      margin-top: 14px;
-      font-size: 0.9rem;
-      line-height: 1.7;
-      color: var(--text);
-      white-space: pre-wrap;
-      word-break: break-word;
+    /* verified tick */
+    .tick {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 15px; height: 15px;
+      background: var(--green);
+      border-radius: 50%;
+      flex-shrink: 0;
     }
-    .bio a { color: var(--accent-2); text-decoration: none; }
-    .bio a:hover { text-decoration: underline; }
+    .tick svg { width: 9px; height: 9px; fill: #0f0f0f; }
 
-    /* ── Links / fields ── */
+    /* ── Social link buttons ── */
     .section-title {
       font-size: 0.68rem;
       font-weight: 600;
@@ -137,34 +128,40 @@
       letter-spacing: 0.09em;
       color: var(--muted);
       margin-top: 22px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
-    .links { display: flex; flex-direction: column; gap: 6px; }
 
-    .link-chip {
+    .social-row {
       display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .social-btn {
+      display: inline-flex;
       align-items: center;
-      gap: 10px;
+      gap: 7px;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 8px;
-      padding: 9px 14px;
-      font-size: 0.83rem;
+      padding: 8px 14px;
+      font-size: 0.82rem;
       color: var(--text);
       text-decoration: none;
-      transition: border-color 0.2s;
+      transition: border-color 0.18s, background 0.18s;
+      white-space: nowrap;
     }
-    .link-chip:hover { border-color: var(--accent); }
-    .chip-icon {
-      width: 18px; height: 18px;
-      border-radius: 3px;
+    .social-btn:hover { border-color: var(--accent); background: rgba(139,92,246,0.06); }
+    .social-btn i { font-size: 1rem; width: 16px; text-align: center; }
+    .social-btn img.si {
+      width: 16px; height: 16px;
       object-fit: contain;
-      flex-shrink: 0;
+      filter: brightness(0) invert(1);
+      opacity: 0.75;
     }
-    .chip-label { color: var(--muted); font-size: 0.75rem; min-width: 72px; flex-shrink: 0; }
-    .chip-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .social-btn:hover img.si { opacity: 1; }
 
-    /* ── Ditto footer ── */
+    /* ── Footer ── */
     .footer-link {
       display: block;
       text-align: center;
@@ -192,50 +189,33 @@
     }
 
     .error {
-      padding: 28px;
-      color: #f87171;
-      font-size: 0.875rem;
-      text-align: center;
-      line-height: 1.7;
+      padding: 28px; color: #f87171;
+      font-size: 0.875rem; text-align: center; line-height: 1.7;
     }
-    .error code {
-      display: block;
-      margin-top: 8px;
-      font-size: 0.75rem;
-      color: var(--muted);
-      word-break: break-all;
-    }
+    .error code { display: block; margin-top: 8px; font-size: 0.72rem; color: var(--muted); word-break: break-all; }
   </style>
 </head>
 <body>
 <div class="card">
   <div class="banner" id="banner">
     <div class="avatar-wrap" id="avatarWrap">
-      <!-- skeleton avatar -->
       <div class="avatar-fallback sk" style="background:var(--border);"></div>
     </div>
   </div>
   <div class="body" id="body">
     <div class="sk" style="width:44%;height:20px;"></div>
-    <div class="sk" style="width:34%;height:13px;margin-top:6px;"></div>
-    <div class="sk" style="width:58%;height:13px;margin-top:14px;border-radius:20px;"></div>
-    <div class="sk" style="width:96%;height:13px;margin-top:14px;"></div>
-    <div class="sk" style="width:82%;height:13px;"></div>
-    <div class="sk" style="width:68%;height:13px;"></div>
+    <div class="sk" style="width:60%;height:32px;margin-top:10px;border-radius:20px;"></div>
+    <div class="sk" style="width:50%;height:32px;margin-top:0;border-radius:20px;display:inline-block;"></div>
+    <div class="sk" style="width:96%;height:13px;margin-top:18px;"></div>
+    <div class="sk" style="width:80%;height:13px;"></div>
   </div>
 </div>
 
 <script>
 (async () => {
-  // ─────────────────────────────────────────────────────────────────────────
-  // CONFIG — pubkey resolved from zsoltsb.eu NIP-05 (hardcoded; never changes)
-  // To re-verify: fetch https://zsoltsb.eu/.well-known/nostr.json?name=_
-  // ─────────────────────────────────────────────────────────────────────────
-  const PUBKEY  = await resolvePubkey('zsoltsb.eu');
-  const DITTO   = 'https://ditto.pub';
-  const HANDLE  = 'zsoltsb.eu';
+  const DOMAIN = 'zsoltsb.eu';
+  const DITTO  = 'https://ditto.pub';
 
-  // Multiple relays — race them, use first response
   const RELAYS = [
     'wss://relay.damus.io',
     'wss://relay.nostr.band',
@@ -243,108 +223,207 @@
     'wss://relay.primal.net',
     'wss://nostr.mom',
     'wss://ditto.pub',
+    'wss://relay.snort.social',
   ];
 
   const esc = s => String(s ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
+  const tickSvg = `<span class="tick" title="Verified"><svg viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#0f0f0f" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+
   function showError(msg, detail) {
     document.getElementById('body').innerHTML =
       `<div class="error">⚠️ Could not load profile.<br>${esc(msg)}${detail ? `<code>${esc(detail)}</code>` : ''}</div>`;
   }
 
-  // ── NIP-05 pubkey resolution (same-origin if hosted on zsoltsb.eu) ────────
-  async function resolvePubkey(domain) {
-    // Try same-origin first (no CORS when page is on zsoltsb.eu)
+  // ── Hex pubkey → npub (bech32) without external lib ──────────────────────
+  // Minimal bech32 encoder for npub
+  function hexToNpub(hex) {
     try {
-      const r = await fetch(`https://${domain}/.well-known/nostr.json?name=_`,
-        { signal: AbortSignal.timeout(4000) });
-      if (r.ok) {
-        const j = await r.json();
-        const pk = j?.names?.['_'] || Object.values(j?.names || {})[0];
-        if (pk) return pk;
+      const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
+      function convertbits(data, frombits, tobits, pad) {
+        let acc = 0, bits = 0;
+        const result = [];
+        for (const val of data) {
+          acc = (acc << frombits) | val;
+          bits += frombits;
+          while (bits >= tobits) { bits -= tobits; result.push((acc >> bits) & ((1 << tobits) - 1)); }
+        }
+        if (pad && bits > 0) result.push((acc << (tobits - bits)) & ((1 << tobits) - 1));
+        return result;
       }
-    } catch (_) {}
-    // Fallback: known pubkey (update if you rotate keys)
-    // Derived from https://zsoltsb.eu/.well-known/nostr.json
-    return null; // will trigger relay search by nip05
+      function polymod(values) {
+        const GEN = [0x3b6a57b2,0x26508e6d,0x1ea119fa,0x3d4233dd,0x2a1462b3];
+        let chk = 1;
+        for (const v of values) {
+          const b = chk >> 25;
+          chk = ((chk & 0x1ffffff) << 5) ^ v;
+          for (let i = 0; i < 5; i++) if ((b >> i) & 1) chk ^= GEN[i];
+        }
+        return chk;
+      }
+      function hrpExpand(hrp) {
+        const ret = [];
+        for (const c of hrp) ret.push(c.charCodeAt(0) >> 5);
+        ret.push(0);
+        for (const c of hrp) ret.push(c.charCodeAt(0) & 31);
+        return ret;
+      }
+      function createChecksum(hrp, data) {
+        const values = hrpExpand(hrp).concat(data).concat([0,0,0,0,0,0]);
+        const mod = polymod(values) ^ 1;
+        const ret = [];
+        for (let p = 0; p < 6; p++) ret.push((mod >> (5 * (5 - p))) & 31);
+        return ret;
+      }
+      const bytes = hex.match(/.{1,2}/g).map(b => parseInt(b, 16));
+      const data  = convertbits(bytes, 8, 5, true);
+      const hrp   = 'npub';
+      const enc   = data.concat(createChecksum(hrp, data));
+      return hrp + '1' + enc.map(d => CHARSET[d]).join('');
+    } catch { return null; }
   }
 
-  // ── WebSocket query — returns kind:0 content JSON ─────────────────────────
-  function queryRelay(url, pubkey, nip05) {
+  // ── WebSocket query ───────────────────────────────────────────────────────
+  function queryRelay(url, pubkey) {
     return new Promise((resolve, reject) => {
       let done = false;
-      const ws = new WebSocket(url);
-
-      const timer = setTimeout(() => {
-        if (!done) { done = true; ws.close(); reject(new Error(`timeout: ${url}`)); }
-      }, 7000);
-
-      ws.onopen = () => {
-        const filter = pubkey
-          ? { kinds: [0], authors: [pubkey], limit: 1 }
-          : { kinds: [0], '#d': [nip05], limit: 1 };
-        ws.send(JSON.stringify(['REQ', 'p', filter]));
-      };
-
+      let ws;
+      try { ws = new WebSocket(url); } catch(e) { return reject(e); }
+      const timer = setTimeout(() => { if (!done) { done=true; try{ws.close();}catch{} reject(new Error(`timeout:${url}`)); }}, 7000);
+      ws.onopen = () => ws.send(JSON.stringify(['REQ','p',{ kinds:[0], authors:[pubkey], limit:1 }]));
       ws.onmessage = e => {
         try {
           const msg = JSON.parse(e.data);
-          if (msg[0] === 'EVENT' && msg[1] === 'p' && msg[2]?.kind === 0) {
-            if (!done) {
-              done = true;
-              clearTimeout(timer);
-              ws.close();
-              try { resolve({ meta: JSON.parse(msg[2].content), pubkey: msg[2].pubkey }); }
-              catch { reject(new Error('bad content JSON')); }
-            }
-          } else if (msg[0] === 'EOSE') {
-            if (!done) { done = true; clearTimeout(timer); ws.close(); reject(new Error(`no event: ${url}`)); }
+          if (msg[0]==='EVENT' && msg[1]==='p' && msg[2]?.kind===0 && !done) {
+            done=true; clearTimeout(timer); try{ws.close();}catch{}
+            try { resolve({ meta: JSON.parse(msg[2].content), pubkey: msg[2].pubkey }); }
+            catch(pe) { reject(pe); }
+          } else if (msg[0]==='EOSE' && !done) {
+            done=true; clearTimeout(timer); try{ws.close();}catch{}
+            reject(new Error(`no-event:${url}`));
           }
-        } catch (_) {}
+        } catch {}
       };
-
-      ws.onerror = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error(`ws error: ${url}`)); } };
-      ws.onclose = () => { if (!done) { done = true; clearTimeout(timer); reject(new Error(`ws closed: ${url}`)); } };
+      ws.onerror = () => { if(!done){done=true;clearTimeout(timer);reject(new Error(`ws-err:${url}`));} };
+      ws.onclose = () => { if(!done){done=true;clearTimeout(timer);reject(new Error(`ws-close:${url}`));} };
     });
   }
 
-  // ── Race all relays ───────────────────────────────────────────────────────
+  // ── Step 1: resolve pubkey via NIP-05 (same-origin) ──────────────────────
+  let pubkey = '';
+  try {
+    const r = await fetch(`https://${DOMAIN}/.well-known/nostr.json?name=_`, { signal: AbortSignal.timeout(4000) });
+    if (r.ok) {
+      const j = await r.json();
+      pubkey = j?.names?.['_'] || Object.values(j?.names||{})[0] || '';
+    }
+  } catch {}
+
+  if (!pubkey) { showError('Could not resolve pubkey from NIP-05.'); return; }
+
+  // ── Step 2: race relays ───────────────────────────────────────────────────
   let result;
   try {
-    result = await Promise.any(
-      RELAYS.map(r => queryRelay(r, PUBKEY, `_@${HANDLE}`))
-    );
-  } catch (aggErr) {
-    // AggregateError — all relays failed
-    const reasons = aggErr?.errors?.map(e => e.message).join(' | ') ?? String(aggErr);
+    result = await Promise.any(RELAYS.map(r => queryRelay(r, pubkey)));
+  } catch(agg) {
+    const reasons = agg?.errors?.map(e=>e.message).join(' | ') ?? String(agg);
     showError('All relays failed.', reasons);
     return;
   }
 
-  const { meta, pubkey: resolvedPubkey } = result;
+  const { meta } = result;
+  const npub = hexToNpub(pubkey);
 
-  // ── Parse metadata ────────────────────────────────────────────────────────
-  const name      = meta.display_name || meta.name || HANDLE;
-  const about     = meta.about        || '';
-  const avatarUrl = meta.picture      || '';
-  const bannerUrl = meta.banner       || '';
-  const lightning = meta.lud16        || meta.lud06 || '';
-  const nip05     = meta.nip05        || `_@${HANDLE}`;
-  const website   = meta.website      || '';
+  // ── Step 3: parallel validation ───────────────────────────────────────────
+  // NIP-05: verify pubkey matches what /.well-known/nostr.json returns
+  // (already resolved above — if we got here, it matched)
+  let nip05Verified = true; // pubkey came from our own domain's nostr.json
 
-  // Ditto stores extra links as JSON in a custom field "fields" or "links"
-  // Standard Nostr kind:0 doesn't have structured fields — parse from about
-  // or check for known custom keys Ditto uses
+  // Lightning: validate by fetching LNURL well-known (same-origin-ish or CORS-open)
+  const lightning = meta.lud16 || meta.lud06 || '';
+  let lnVerified = false;
+  if (lightning && lightning.includes('@')) {
+    const [lnUser, lnDomain] = lightning.split('@');
+    try {
+      const lnRes = await fetch(
+        `https://${lnDomain}/.well-known/lnurlp/${lnUser}`,
+        { signal: AbortSignal.timeout(5000) }
+      );
+      if (lnRes.ok) {
+        const lnJson = await lnRes.json();
+        // Valid LNURL-pay response must have callback + tag=payRequest
+        lnVerified = lnJson?.tag === 'payRequest' && !!lnJson?.callback;
+      }
+    } catch {}
+  }
+
+  // ── Step 4: parse social fields ───────────────────────────────────────────
+  const name      = meta.display_name || meta.name || DOMAIN;
+  const avatarUrl = meta.picture || '';
+  const bannerUrl = meta.banner  || '';
+  const nip05     = meta.nip05   || `_@${DOMAIN}`;
+  const website   = meta.website || '';
+
+  // Ditto stores extra links as array of [name, value] pairs in meta.fields
   const rawFields = meta.fields || meta.links || [];
-  // Some clients store as array of [name, value] pairs
   const extraLinks = Array.isArray(rawFields)
-    ? rawFields
-        .map(f => Array.isArray(f) ? { name: f[0], value: f[1] } : f)
-        .filter(f => f?.name && f?.value)
-        .filter(f => !/lightning|lnurl|⚡|wallet/i.test(f.name))
+    ? rawFields.map(f => Array.isArray(f) ? { name: f[0], value: f[1] } : f)
+               .filter(f => f?.name && f?.value)
     : [];
+
+  // ── Social platform detection ─────────────────────────────────────────────
+  const PLATFORMS = [
+    { key:'mastodon',   test: u => /mastodon|fosstodon|hachyderm|infosec\.exchange|social\.coop|techhub\.social/i.test(u), icon:'fa-brands fa-mastodon',   label:'Mastodon',   color:'#6364ff' },
+    { key:'bluesky',    test: u => /bsky\.app|bsky\.social/i.test(u),                                                       icon:'fa-brands fa-bluesky',    label:'Bluesky',    color:'#0085ff' },
+    { key:'instagram',  test: u => /instagram\.com/i.test(u),                                                               icon:'fa-brands fa-instagram',  label:'Instagram',  color:'#e1306c' },
+    { key:'threads',    test: u => /threads\.net/i.test(u),                                                                 icon:'fa-brands fa-threads',    label:'Threads',    color:'#e8e8e8' },
+    { key:'twitter',    test: u => /twitter\.com|x\.com/i.test(u),                                                          icon:'fa-brands fa-x-twitter',  label:'X',          color:'#e8e8e8' },
+    { key:'github',     test: u => /github\.com/i.test(u),                                                                  icon:'fa-brands fa-github',     label:'GitHub',     color:'#e8e8e8' },
+    { key:'youtube',    test: u => /youtube\.com|youtu\.be/i.test(u),                                                       icon:'fa-brands fa-youtube',    label:'YouTube',    color:'#ff0000' },
+    { key:'twitch',     test: u => /twitch\.tv/i.test(u),                                                                   icon:'fa-brands fa-twitch',     label:'Twitch',     color:'#9146ff' },
+    { key:'tiktok',     test: u => /tiktok\.com/i.test(u),                                                                  icon:'fa-brands fa-tiktok',     label:'TikTok',     color:'#e8e8e8' },
+    { key:'linkedin',   test: u => /linkedin\.com/i.test(u),                                                                icon:'fa-brands fa-linkedin',   label:'LinkedIn',   color:'#0a66c2' },
+    { key:'facebook',   test: u => /facebook\.com|fb\.com/i.test(u),                                                        icon:'fa-brands fa-facebook',   label:'Facebook',   color:'#1877f2' },
+    { key:'reddit',     test: u => /reddit\.com/i.test(u),                                                                  icon:'fa-brands fa-reddit',     label:'Reddit',     color:'#ff4500' },
+    { key:'telegram',   test: u => /t\.me|telegram\.me/i.test(u),                                                           icon:'fa-brands fa-telegram',   label:'Telegram',   color:'#2ca5e0' },
+    { key:'discord',    test: u => /discord\.gg|discord\.com/i.test(u),                                                     icon:'fa-brands fa-discord',    label:'Discord',    color:'#5865f2' },
+    { key:'farcaster',  test: u => /warpcast\.com|farcaster\.xyz/i.test(u),                                                 icon:'fa-solid fa-circle-nodes',label:'Farcaster',  color:'#8a63d2' },
+    { key:'nostr',      test: u => /nostr\.|njump\.me|snort\.social|primal\.net|ditto\.pub/i.test(u),                       icon:'fa-solid fa-bolt',        label:'Nostr',      color:'#a78bfa' },
+    { key:'substack',   test: u => /substack\.com/i.test(u),                                                                icon:'fa-solid fa-newspaper',   label:'Substack',   color:'#ff6719' },
+    { key:'medium',     test: u => /medium\.com/i.test(u),                                                                  icon:'fa-brands fa-medium',     label:'Medium',     color:'#e8e8e8' },
+    { key:'tumblr',     test: u => /tumblr\.com/i.test(u),                                                                  icon:'fa-brands fa-tumblr',     label:'Tumblr',     color:'#35465c' },
+    { key:'pinterest',  test: u => /pinterest\.com/i.test(u),                                                               icon:'fa-brands fa-pinterest',  label:'Pinterest',  color:'#e60023' },
+    { key:'snapchat',   test: u => /snapchat\.com/i.test(u),                                                                icon:'fa-brands fa-snapchat',   label:'Snapchat',   color:'#fffc00' },
+    { key:'spotify',    test: u => /spotify\.com/i.test(u),                                                                 icon:'fa-brands fa-spotify',    label:'Spotify',    color:'#1db954' },
+    { key:'soundcloud', test: u => /soundcloud\.com/i.test(u),                                                              icon:'fa-brands fa-soundcloud', label:'SoundCloud', color:'#ff5500' },
+    { key:'patreon',    test: u => /patreon\.com/i.test(u),                                                                 icon:'fa-brands fa-patreon',    label:'Patreon',    color:'#ff424d' },
+    { key:'ko-fi',      test: u => /ko-fi\.com/i.test(u),                                                                   icon:'fa-solid fa-mug-hot',     label:'Ko-fi',      color:'#ff5e5b' },
+    { key:'website',    test: () => false,                                                                                   icon:'fa-solid fa-globe',       label:'Website',    color:'#888'    },
+  ];
+
+  function detectPlatform(url) {
+    return PLATFORMS.find(p => p.test(url)) || PLATFORMS[PLATFORMS.length - 1];
+  }
+
+  // Build social links list from extraFields + website
+  const socialLinks = [];
+  if (website) socialLinks.push({ url: website, name: 'Website' });
+  for (const f of extraLinks) {
+    const val = String(f.value).trim();
+    if (val.startsWith('http')) socialLinks.push({ url: val, name: f.name });
+  }
+  // Deduplicate by URL
+  const seen = new Set();
+  const uniqueLinks = socialLinks.filter(l => { if (seen.has(l.url)) return false; seen.add(l.url); return true; });
+
+  // ── Inject rel=me links into <head> ───────────────────────────────────────
+  for (const { url } of uniqueLinks) {
+    const l = document.createElement('link');
+    l.rel = 'me'; l.href = url;
+    document.head.appendChild(l);
+  }
 
   // ── Banner ────────────────────────────────────────────────────────────────
   const banner = document.getElementById('banner');
@@ -363,10 +442,9 @@
   const makeFallback = n => {
     const d = document.createElement('div');
     d.className = 'avatar-fallback';
-    d.textContent = (n || '?')[0].toUpperCase();
+    d.textContent = (n||'?')[0].toUpperCase();
     return d;
   };
-
   if (avatarUrl) {
     const img = document.createElement('img');
     img.className = 'avatar-img';
@@ -378,101 +456,57 @@
     avatarWrap.replaceChildren(makeFallback(name));
   }
 
-  // ── Linkify bio ───────────────────────────────────────────────────────────
-  function linkify(text) {
-    return esc(text)
-      .replace(/(https?:\/\/[^\s<>"]+)/g,
-        '<a href="$1" target="_blank" rel="noopener">$1</a>')
-      .replace(/#(\w+)/g,
-        `<a href="${DITTO}/t/$1" target="_blank" rel="noopener">#$1</a>`);
-  }
-
   // ── Handle display ────────────────────────────────────────────────────────
-  const displayNip05 = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
-  const profileUrl   = `${DITTO}/${HANDLE}`;
+  const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
+  const nostrUri      = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
 
-  // ── Extra links HTML ──────────────────────────────────────────────────────
-  function chipHostname(href) {
-    try { return new URL(href).hostname.replace(/^www\./, ''); } catch { return ''; }
-  }
+  // Nostr SVG logo (simple lightning-bolt style used by Nostr ecosystem)
+  const nostrLogoSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13Z"/></svg>`;
 
-  let linksHtml = '';
-  if (extraLinks.length) {
-    const chips = extraLinks.map(f => {
-      const val  = String(f.value).trim();
-      const href = val.startsWith('http') ? val : null;
-      const host = href ? chipHostname(href) : '';
-      const icon = host
-        ? `<img class="chip-icon" src="${DITTO}/api/favicon/${esc(host)}" alt="" onerror="this.style.display='none'" />`
-        : `<span style="width:18px;flex-shrink:0;"></span>`;
-      const relAttr = href ? ' rel="noopener me"' : '';
-      const inner = `${icon}<span class="chip-label">${esc(f.name)}</span><span class="chip-value">${esc(val)}</span>`;
-      return href
-        ? `<a class="link-chip" href="${esc(href)}" target="_blank"${relAttr}>${inner}</a>`
-        : `<div class="link-chip">${inner}</div>`;
+  // ── Social buttons HTML ───────────────────────────────────────────────────
+  let socialHtml = '';
+  if (uniqueLinks.length) {
+    const btns = uniqueLinks.map(({ url, name: fieldName }) => {
+      const p = detectPlatform(url);
+      // Use field name if it's meaningful, else platform label
+      const label = (fieldName && fieldName.toLowerCase() !== 'website' && fieldName.length < 24)
+        ? fieldName : p.label;
+      return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me" title="${esc(label)}">
+        <i class="${esc(p.icon)}" style="color:${esc(p.color)};"></i>
+        ${esc(label)}
+      </a>`;
     }).join('');
-    linksHtml = `<div class="section-title">Also on</div><div class="links">${chips}</div>`;
+    socialHtml = `<div class="section-title">Find me on</div><div class="social-row">${btns}</div>`;
   }
 
-  // ── Website chip ──────────────────────────────────────────────────────────
-  let websiteHtml = '';
-  if (website) {
-    const host = chipHostname(website);
-    const icon = host
-      ? `<img class="chip-icon" src="${DITTO}/api/favicon/${esc(host)}" alt="" onerror="this.style.display='none'" />`
-      : '';
-    websiteHtml = `
-      <div class="section-title">Website</div>
-      <div class="links">
-        <a class="link-chip" href="${esc(website)}" target="_blank" rel="noopener me">
-          ${icon}
-          <span class="chip-value">${esc(website.replace(/^https?:\/\//, ''))}</span>
-        </a>
-      </div>`;
-  }
-
-  // ── Lightning HTML ────────────────────────────────────────────────────────
-  const lightningHtml = lightning ? `
-    <a class="lightning" href="lightning:${esc(lightning)}" title="Pay via Lightning">
-      <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13Z"/>
-      </svg>
-      ${esc(lightning)}
-    </a>` : '';
-
-  // ── Inject ────────────────────────────────────────────────────────────────
+  // ── Render body ───────────────────────────────────────────────────────────
   document.getElementById('body').innerHTML = `
-    <div class="name">${esc(name)}</div>
-    <div class="handle-row">
-      <span class="handle">
-        <a href="${esc(profileUrl)}" target="_blank" rel="noopener me">@${esc(displayNip05)}</a>
-      </span>
+    <div style="font-size:1.3rem;font-weight:700;line-height:1.2;color:var(--text);">${esc(name)}</div>
+
+    <div class="pills" style="margin-top:12px;">
+
+      <!-- Nostr handle button → opens in default Nostr client via NIP-21 -->
+      <a class="pill" href="${esc(nostrUri)}" title="Open in your Nostr client">
+        ${nostrLogoSvg}
+        @${esc(displayHandle)}
+        ${nip05Verified ? tickSvg : ''}
+      </a>
+
+      <!-- Lightning address button -->
+      ${lightning ? `<a class="pill" href="lightning:${esc(lightning)}" title="Pay via Lightning Network">
+        <i class="fa-solid fa-bolt"></i>
+        ${esc(lightning)}
+        ${lnVerified ? tickSvg : ''}
+      </a>` : ''}
+
     </div>
-    ${lightningHtml}
-    <div class="bio">${linkify(about)}</div>
-    ${websiteHtml}
-    ${linksHtml}
-    <a class="footer-link" href="${esc(profileUrl)}" target="_blank" rel="noopener">
+
+    ${socialHtml}
+
+    <a class="footer-link" href="${DITTO}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
   `;
-
-  // ── Dynamic rel=me for discovered links ───────────────────────────────────
-  extraLinks.forEach(f => {
-    const val = String(f.value).trim();
-    if (val.startsWith('http')) {
-      const l = document.createElement('link');
-      l.rel  = 'me';
-      l.href = val;
-      document.head.appendChild(l);
-    }
-  });
-  if (website) {
-    const l = document.createElement('link');
-    l.rel  = 'me';
-    l.href = website;
-    document.head.appendChild(l);
-  }
 
 })().catch(err => {
   document.getElementById('body').innerHTML =
