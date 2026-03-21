@@ -43,7 +43,10 @@
       "wss://multiplexer.huszonegy.world",
       "wss://relay.hunos.hu",
       "wss://nostr.huszonegy.world",
-      "wss://bookmarks.relays.land"
+      "wss://bookmarks.relays.land",
+      "wss://relaypag.es",
+      "wss://pyramid.fiatjaf.com",
+      "wss://purplepag.es"
     ]
   }
 }
