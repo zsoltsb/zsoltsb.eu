@@ -5,6 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zsoltsb.eu</title>
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
+
+  <!-- Bunny Fonts (GDPR-safe Google Fonts drop-in) -->
+  <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
+  <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome 6 Free via cdnjs (Cloudflare) -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+    integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -12,10 +26,11 @@
       --accent:  #8b5cf6; --accent2: #a78bfa; --text: #e8e8e8;
       --muted:   #888;    --gold: #f59e0b;     --green: #34d399;
       --r: 14px;
+      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
     }
     body {
       background: var(--bg); color: var(--text);
-      font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+      font-family: var(--font);
       min-height: 100vh; display: flex; flex-direction: column;
       align-items: center; padding: 40px 16px 80px;
     }
@@ -77,14 +92,15 @@
       display: inline-flex; align-items: center; justify-content: center;
       width: 44px; height: 44px; border-radius: 10px;
       background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); text-decoration: none;
+      color: var(--text); text-decoration: none; font-size: 1.15rem;
       transition: background .15s, border-color .15s, color .15s, transform .1s;
     }
     .social-btn:hover {
       background: rgba(139,92,246,.10); border-color: var(--accent);
       color: var(--accent2); transform: translateY(-2px);
     }
-    .social-btn svg { width: 20px; height: 20px; fill: currentColor; }
+    /* Neutral class prefix — adblockers target "fa-twitter" etc., not "ic-*" */
+    .ic { display: inline-block; }
 
     /* ── Footer ── */
     .footer-link {
@@ -133,7 +149,6 @@ void (async () => {
 
   const AUTHORITY_RELAY = 'wss://relay.ditto.pub';
 
-  // OpenVibe default relays
   const OPENVIBE_RELAYS = [
     'wss://relay.damus.io',
     'wss://relay.nostr.band',
@@ -163,58 +178,60 @@ void (async () => {
     'element','rocketchat','mattermost','teams','hangouts','gchat',
   ]);
 
-  // ── Platform registry: inline SVG paths only (Simple Icons, CC0) ──────────
-  // Each entry: { svg: '<path d="..."/>', label }
-  // viewBox is always "0 0 24 24"
-  const PLATFORMS = {
-    'twitter':       { label:'X / Twitter',  svg:'<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>' },
-    'x':             { label:'X',            svg:'<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>' },
-    'x-twitter':     { label:'X',            svg:'<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>' },
-    'mastodon':      { label:'Mastodon',      svg:'<path d="M21.327 8.566c0-4.339-2.843-5.61-2.843-5.61-1.433-.658-3.894-.935-6.451-.956h-.063c-2.557.021-5.016.298-6.45.956 0 0-2.843 1.272-2.843 5.61 0 .993-.019 2.181.012 3.441.103 4.243.778 8.425 4.701 9.463 1.809.479 3.362.579 4.612.51 2.268-.126 3.541-.809 3.541-.809l-.075-1.646s-1.621.511-3.441.449c-1.804-.062-3.707-.194-3.999-2.409a4.523 4.523 0 0 1-.04-.621s1.77.433 4.014.536c1.372.063 2.658-.08 3.965-.236 2.506-.299 4.688-1.843 4.962-3.254.434-2.223.398-5.424.398-5.424zm-3.353 5.59h-2.081V9.057c0-1.075-.452-1.62-1.357-1.62-1 0-1.501.647-1.501 1.927v2.791h-2.069V9.364c0-1.28-.501-1.927-1.502-1.927-.905 0-1.357.546-1.357 1.62v5.099H6.026V8.903c0-1.074.273-1.927.823-2.558.567-.631 1.307-.955 2.228-.955 1.065 0 1.872.409 2.405 1.228l.518.869.519-.869c.533-.819 1.34-1.228 2.4-1.228.92 0 1.66.324 2.233.955.549.631.822 1.484.822 2.558v5.253z"/>' },
-    'bluesky':       { label:'Bluesky',       svg:'<path d="M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078a8.741 8.741 0 0 1-.415-.056c.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8z"/>' },
-    'instagram':     { label:'Instagram',     svg:'<path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z"/>' },
-    'threads':       { label:'Threads',       svg:'<path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.321.142 1.49.7 2.58 1.761 3.154 3.07.797 1.829.64 4.335-1.215 6.145-1.846 1.797-4.083 2.67-7.617 2.663z"/>' },
-    'facebook':      { label:'Facebook',      svg:'<path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>' },
-    'linkedin':      { label:'LinkedIn',      svg:'<path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>' },
-    'github':        { label:'GitHub',        svg:'<path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/>' },
-    'gitlab':        { label:'GitLab',        svg:'<path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 0 0-.867 0L16.418 9.45H7.582L4.918 1.263a.455.455 0 0 0-.867 0L1.386 9.45.044 13.587a.924.924 0 0 0 .331 1.023L12 23.054l11.625-8.443a.92.92 0 0 0 .33-1.024"/>' },
-    'youtube':       { label:'YouTube',       svg:'<path d="M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/>' },
-    'twitch':        { label:'Twitch',        svg:'<path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z"/>' },
-    'tiktok':        { label:'TikTok',        svg:'<path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>' },
-    'reddit':        { label:'Reddit',        svg:'<path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z"/>' },
-    'pinterest':     { label:'Pinterest',     svg:'<path d="M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/>' },
-    'medium':        { label:'Medium',        svg:'<path d="M13.54 12a6.8 6.8 0 0 1-6.77 6.82A6.8 6.8 0 0 1 0 12a6.8 6.8 0 0 1 6.77-6.82A6.8 6.8 0 0 1 13.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z"/>' },
-    'substack':      { label:'Substack',      svg:'<path d="M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z"/>' },
-    'soundcloud':    { label:'SoundCloud',    svg:'<path d="M1.175 12.225C.528 12.225 0 12.75 0 13.397c0 .645.528 1.168 1.175 1.168.646 0 1.173-.523 1.173-1.168 0-.647-.527-1.172-1.173-1.172zm3.133 1.521c-.068 0-.13.01-.192.024l-.028-1.274c0-.65-.527-1.175-1.175-1.175-.647 0-1.172.525-1.172 1.175v3.63c0 .648.525 1.173 1.172 1.173.648 0 1.175-.525 1.175-1.173v-.022c.062.014.124.022.192.022.648 0 1.175-.525 1.175-1.173 0-.648-.527-1.207-1.147-1.207zm3.133-.48c-.648 0-1.175.527-1.175 1.175v1.655c0 .648.527 1.175 1.175 1.175.647 0 1.172-.527 1.172-1.175v-1.655c0-.648-.525-1.175-1.172-1.175zm3.13-.96c-.647 0-1.172.527-1.172 1.175v2.615c0 .648.525 1.175 1.172 1.175.648 0 1.175-.527 1.175-1.175v-2.615c0-.648-.527-1.175-1.175-1.175zm3.133-.48c-.648 0-1.175.527-1.175 1.175v3.095c0 .648.527 1.175 1.175 1.175.647 0 1.172-.527 1.172-1.175v-3.095c0-.648-.525-1.175-1.172-1.175zm3.13-.48c-.648 0-1.175.527-1.175 1.175v3.575c0 .648.527 1.175 1.175 1.175.647 0 1.172-.527 1.172-1.175v-3.575c0-.648-.525-1.175-1.172-1.175zm3.133 0c-.648 0-1.175.527-1.175 1.175v3.575c0 .648.527 1.175 1.175 1.175.647 0 1.172-.527 1.172-1.175v-3.575c0-.648-.525-1.175-1.172-1.175z"/>' },
-    'spotify':       { label:'Spotify',       svg:'<path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>' },
-    'patreon':       { label:'Patreon',       svg:'<path d="M15.386.524a8.168 8.168 0 0 0-8.143 8.143 8.168 8.168 0 0 0 8.143 8.143 8.168 8.168 0 0 0 8.143-8.143A8.168 8.168 0 0 0 15.386.524zM.471 23.476h4.134V.524H.471z"/>' },
-    'ko-fi':         { label:'Ko-fi',         svg:'<path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>' },
-    'kofi':          { label:'Ko-fi',         svg:'<path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.363.407 0 0 1.565-1.782 3.468-.963 1.904.82 1.832 3.011.723 4.311zm6.173.478c-.928.116-1.682.028-1.682.028V7.284h1.77s1.971.551 1.971 2.638c0 1.913-.985 2.667-2.059 3.015z"/>' },
-    'vimeo':         { label:'Vimeo',         svg:'<path d="M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197a315.065 315.065 0 0 0 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.48 4.807z"/>' },
-    'flickr':        { label:'Flickr',        svg:'<path d="M0 12c0 3.074 2.494 5.568 5.568 5.568 3.074 0 5.568-2.494 5.568-5.568 0-3.074-2.494-5.568-5.568-5.568C2.494 6.432 0 8.926 0 12zm12.864 0c0 3.074 2.494 5.568 5.568 5.568C21.506 17.568 24 15.074 24 12c0-3.074-2.494-5.568-5.568-5.568-3.074 0-5.568 2.494-5.568 5.568z"/>' },
-    'behance':       { label:'Behance',       svg:'<path d="M22.228 14.009c0-3.705-2.635-6.252-6.232-6.252-3.705 0-6.34 2.547-6.34 6.252 0 3.813 2.635 6.252 6.34 6.252 2.851 0 5.052-1.426 5.92-4.061h-2.743c-.434.977-1.627 1.518-3.068 1.518-1.844 0-3.163-1.085-3.38-2.96h9.395c.054-.217.108-.542.108-.749zm-9.395-1.302c.217-1.627 1.302-2.743 3.163-2.743 1.735 0 2.96 1.085 3.068 2.743H12.833zM15.996 5.7h-5.92V7.11h5.92V5.7zM0 4.832v14.336h6.557c3.38 0 5.486-1.627 5.486-4.495 0-1.844-.868-3.163-2.418-3.813 1.085-.65 1.735-1.735 1.735-3.163C11.36 5.7 9.3 4.832 6.557 4.832H0zm2.743 2.418h3.38c1.302 0 2.093.65 2.093 1.844 0 1.085-.76 1.735-2.093 1.735H2.743V7.25zm0 5.92h3.705c1.518 0 2.418.76 2.418 2.093 0 1.302-.9 2.093-2.418 2.093H2.743v-4.186z"/>' },
-    'dribbble':      { label:'Dribbble',      svg:'<path d="M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308 2.3-1.555 3.936-4.02 4.395-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4 1.73 1.358 3.92 2.166 6.29 2.166 1.42 0 2.77-.29 4-.816zm-11.62-2.073c.232-.4 3.045-5.055 8.332-6.765.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 2.206 11.71 1.756 11.7l-.004.312c0 2.633.998 5.037 2.634 6.855zm-2.42-8.955c.46.008 4.683.026 9.477-1.248-1.698-3.018-3.53-5.558-3.8-5.928-2.868 1.35-5.01 3.99-5.676 7.176zM9.6 2.052c.282.38 2.145 2.914 3.822 6 3.645-1.365 5.19-3.44 5.373-3.702-1.81-1.61-4.19-2.586-6.795-2.586-.477 0-.946.04-1.4.111zm4.268 8.177c.19.39.37.784.54 1.18 1.99-.25 3.99.19 4.19.234-.02-1.88-.71-3.6-1.86-4.93-1.19 1.63-2.87 3.516-2.87 3.516z"/>' },
-    'stackoverflow': { label:'Stack Overflow',svg:'<path d="M15.725 0l-1.72 1.277 6.39 8.588 1.716-1.277L15.725 0zm-3.94 3.418l-1.369 1.644 8.225 6.85 1.369-1.644-8.225-6.85zm-3.15 4.465l-.905 1.94 9.702 4.517.904-1.94-9.701-4.517zm-1.85 4.86l-.44 2.093 10.473 2.201.44-2.092-10.473-2.203zM1.89 15.47V24h19.19v-8.53h-2.133v6.397H4.021v-6.396H1.89zm4.265 2.133v2.13h10.66v-2.13H6.154Z"/>' },
-    'strava':        { label:'Strava',        svg:'<path d="M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169"/>' },
-    'steam':         { label:'Steam',         svg:'<path d="M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0z"/>' },
-    'bandcamp':      { label:'Bandcamp',      svg:'<path d="M0 18.75l7.437-13.5H24l-7.438 13.5z"/>' },
-    'lastfm':        { label:'Last.fm',       svg:'<path d="M10.584 17.21l-.88-2.392s-1.43 1.595-3.573 1.595c-1.897 0-3.244-1.65-3.244-4.296 0-3.381 1.704-4.596 3.381-4.596 2.42 0 3.189 1.567 3.849 3.574l.88 2.75c.88 2.667 2.53 4.807 7.296 4.807 3.409 0 5.72-1.044 5.72-3.793 0-2.22-1.265-3.37-3.629-3.926l-1.76-.385c-1.21-.275-1.567-.77-1.567-1.594 0-.935.742-1.485 1.952-1.485 1.32 0 2.035.495 2.145 1.677l2.75-.33c-.22-2.475-1.925-3.49-4.73-3.49-2.475 0-4.84.935-4.84 3.93 0 1.87.907 3.05 3.19 3.602l1.87.44c1.375.33 1.87.88 1.87 1.76 0 1.045-.99 1.485-2.86 1.485-2.75 0-3.904-1.457-4.564-3.464l-.907-2.75C12.178 7.37 10.474 5.5 6.9 5.5 3.079 5.5.5 7.975.5 12.2c0 4.07 2.42 6.38 5.995 6.38 3.1 0 4.09-1.37 4.09-1.37z"/>' },
-    'goodreads':     { label:'Goodreads',     svg:'<path d="M11.648 0C5.41 0 .34 5.07.34 11.308c0 6.237 5.07 11.307 11.308 11.307 6.237 0 11.307-5.07 11.307-11.307C22.955 5.07 17.885 0 11.648 0zm.36 17.04c-2.27 0-3.974-1.02-4.93-2.86v2.56H5.47V5.4h1.608v2.56c.956-1.84 2.66-2.86 4.93-2.86 3.22 0 5.48 2.56 5.48 5.97s-2.26 5.97-5.48 5.97zm0-10.44c-2.46 0-4.27 1.9-4.27 4.47s1.81 4.47 4.27 4.47c2.46 0 4.27-1.9 4.27-4.47s-1.81-4.47-4.27-4.47z"/>' },
-    'farcaster':     { label:'Farcaster',     svg:'<path d="M7.488 3.36H16.512V20.64H14.256V13.2H14.232C13.968 11.04 12.168 9.36 9.984 9.36C7.8 9.36 6 11.04 5.736 13.2H5.712V20.64H3.456V3.36H7.488ZM0 5.616L0.936 3.36H3.456V1.104L5.712 0V3.36H18.288V0L20.544 1.104V3.36H23.064L24 5.616H20.544V20.64H23.064L24 22.896H0L0.936 20.64H3.456V5.616H0ZM14.256 5.616H9.744V7.104H14.256V5.616Z"/>' },
-    'nostr':         { label:'Nostr',         svg:'<path d="M13 0L4.5 13.5H11L9 24l10.5-14H13L13 0z"/>' },
-    '_default':      { label:'Link',          svg:'<path d="M3.9 12c0-1.71 1.39-3.1 3.1-3.1h4V7H7c-2.76 0-5 2.24-5 5s2.24 5 5 5h4v-1.9H7c-1.71 0-3.1-1.39-3.1-3.1zM8 13h8v-2H8v2zm9-6h-4v1.9h4c1.71 0 3.1 1.39 3.1 3.1s-1.39 3.1-3.1 3.1h-4V17h4c2.76 0 5-2.24 5-5s-2.24-5-5-5z"/>' },
+  // ── Icon map: platform key → FA 6 classes (using neutral wrapper "ic")
+  // Adblockers match on element class names like "fa-twitter" in the DOM.
+  // We store the FA class string in a data attribute and apply it via JS
+  // AFTER the DOM is built, so filter-list selectors never match statically.
+  // ─────────────────────────────────────────────────────────────────────────
+  const FA_ICONS = {
+    'twitter':       'fa-brands fa-x-twitter',
+    'x':             'fa-brands fa-x-twitter',
+    'x-twitter':     'fa-brands fa-x-twitter',
+    'mastodon':      'fa-brands fa-mastodon',
+    'bluesky':       'fa-brands fa-bluesky',
+    'instagram':     'fa-brands fa-instagram',
+    'threads':       'fa-brands fa-threads',
+    'facebook':      'fa-brands fa-facebook',
+    'linkedin':      'fa-brands fa-linkedin',
+    'github':        'fa-brands fa-github',
+    'gitlab':        'fa-brands fa-gitlab',
+    'youtube':       'fa-brands fa-youtube',
+    'twitch':        'fa-brands fa-twitch',
+    'tiktok':        'fa-brands fa-tiktok',
+    'reddit':        'fa-brands fa-reddit',
+    'pinterest':     'fa-brands fa-pinterest',
+    'medium':        'fa-brands fa-medium',
+    'substack':      'fa-solid fa-newspaper',
+    'soundcloud':    'fa-brands fa-soundcloud',
+    'spotify':       'fa-brands fa-spotify',
+    'patreon':       'fa-brands fa-patreon',
+    'ko-fi':         'fa-solid fa-mug-hot',
+    'kofi':          'fa-solid fa-mug-hot',
+    'vimeo':         'fa-brands fa-vimeo',
+    'flickr':        'fa-brands fa-flickr',
+    'behance':       'fa-brands fa-behance',
+    'dribbble':      'fa-brands fa-dribbble',
+    'stackoverflow': 'fa-brands fa-stack-overflow',
+    'strava':        'fa-brands fa-strava',
+    'steam':         'fa-brands fa-steam',
+    'bandcamp':      'fa-brands fa-bandcamp',
+    'lastfm':        'fa-brands fa-lastfm',
+    'goodreads':     'fa-brands fa-goodreads',
+    'farcaster':     'fa-solid fa-f',          // no official FA icon yet
+    'nostr':         'fa-solid fa-bolt',        // no official FA icon yet
+    '_default':      'fa-solid fa-link',
   };
 
-  const resolvePlatform = (serviceType, url) => {
+  const resolveIcon = (serviceType, url) => {
     const key = (serviceType || '').toLowerCase().replace(/[\s_]+/g, '-');
-    if (PLATFORMS[key]) return PLATFORMS[key];
+    if (FA_ICONS[key]) return FA_ICONS[key];
     try {
       const host = new URL(url).hostname.replace(/^www\./, '');
-      for (const [k, v] of Object.entries(PLATFORMS)) {
+      for (const [k, v] of Object.entries(FA_ICONS)) {
         if (k !== '_default' && host.includes(k.replace(/-/g, ''))) return v;
       }
     } catch {}
-    return PLATFORMS['_default'];
+    return FA_ICONS['_default'];
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -225,7 +242,8 @@ void (async () => {
 
   const tickHtml = (level, title, large = false) => !level ? '' :
     `<span class="tick${large?' lg':''} ${esc(level)}" title="${esc(title)}">
-       <svg viewBox="0 0 10 10" fill="none" stroke="#0f0f0f" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+       <svg viewBox="0 0 10 10" fill="none" stroke="#0f0f0f" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
          <polyline points="1.5,5 4,7.5 8.5,2.5"/>
        </svg>
      </span>`;
@@ -344,7 +362,6 @@ void (async () => {
     await authorityPromise;
 
     if (authorityResult) {
-      // Cross-check others asynchronously — don't block render
       Promise.allSettled(otherPromises).then(results => {
         let ok = 0, bad = 0;
         for (const r of results) {
@@ -358,7 +375,6 @@ void (async () => {
       return authorityResult;
     }
 
-    // Authority failed — use first available from others
     const fallback = await Promise.any(
       otherPromises.map(p => p.then(r => r ? r : Promise.reject()))
     ).catch(() => null);
@@ -367,7 +383,7 @@ void (async () => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // GRAVATAR — JSONP primary (adblocker-safe), direct fetch fallback only
+  // GRAVATAR
   // ═══════════════════════════════════════════════════════════════════════════
   const normaliseAccounts = (accts = []) => accts
     .filter(a => {
@@ -379,7 +395,6 @@ void (async () => {
       url:         (a.url || a.profile_url || '').trim(),
       label:       a.service_label || a.display || a.shortname || '',
       serviceType: (a.service_type || a.shortname || '').toLowerCase().replace(/[\s_]+/g, '-'),
-      // Preserve original order from Gravatar
       order:       a.order ?? 999,
     }))
     .filter(a => a.url)
@@ -387,22 +402,16 @@ void (async () => {
 
   const fetchGravatarAccounts = async () => {
     const legacyUrl = `https://gravatar.com/${GRAVATAR_SLUG}.json`;
-
-    // Strategy 1: JSONP — no XHR, no CORS, not blocked by adblockers
     try {
       const d = await fetchJSONP(legacyUrl);
       const a = normaliseAccounts(d?.entry?.[0]?.accounts);
       if (a.length) { console.log('[gravatar] jsonp ✓'); return a; }
     } catch(e) { console.warn('[gravatar] jsonp:', e.message); }
-
-    // Strategy 2: Direct fetch (same-origin-ish CDN, sometimes works)
     try {
       const d = await fetchJSON(legacyUrl, 6000);
       const a = normaliseAccounts(d?.entry?.[0]?.accounts);
       if (a.length) { console.log('[gravatar] direct ✓'); return a; }
     } catch(e) { console.warn('[gravatar] direct:', e.message); }
-
-    console.warn('[gravatar] no accounts retrieved');
     return [];
   };
 
@@ -417,7 +426,11 @@ void (async () => {
     const pk = j?.names?.['_'] || Object.values(j?.names || {})[0] || '';
     if (pk) { pubkey = pk; wellKnownNostrOk = true; relayHints = j?.relays?.[pk] || []; }
   } catch {}
-  if (!pubkey) { document.getElementById('body').innerHTML = '<div class="error">⚠️ Could not resolve pubkey from NIP-05.</div>'; return; }
+  if (!pubkey) {
+    document.getElementById('body').innerHTML =
+      '<div class="error">⚠️ Could not resolve pubkey from NIP-05.</div>';
+    return;
+  }
 
   // 2. Parallel: Nostr meta + Gravatar
   const metaPromise     = fetchNostrMeta(pubkey, relayHints);
@@ -426,11 +439,15 @@ void (async () => {
   // 3. Await Nostr meta
   let result;
   try { result = await metaPromise; }
-  catch(e) { document.getElementById('body').innerHTML = `<div class="error">⚠️ All relays failed.<code>${esc(e.message)}</code></div>`; return; }
+  catch(e) {
+    document.getElementById('body').innerHTML =
+      `<div class="error">⚠️ All relays failed.<code>${esc(e.message)}</code></div>`;
+    return;
+  }
 
   const { meta } = result;
-  const npub     = hexToNpub(pubkey);
-  const nip05    = meta.nip05 || `_@${DOMAIN}`;
+  const npub          = hexToNpub(pubkey);
+  const nip05         = meta.nip05 || `_@${DOMAIN}`;
   const nip05Domain   = nip05.includes('@') ? nip05.split('@')[1] : '';
   const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
 
@@ -452,7 +469,9 @@ void (async () => {
     (async () => {
       try {
         const txts = await dohTxtLookup(`_lnurlp.${LN_DOMAIN}`);
-        return txts.some(t => t.includes(LN_USER) || t.toLowerCase().includes('lnurlp') || t.toLowerCase().includes('lightning'));
+        return txts.some(t =>
+          t.includes(LN_USER) || t.toLowerCase().includes('lnurlp') || t.toLowerCase().includes('lightning')
+        );
       } catch { return false; }
     })(),
     (async () => {
@@ -488,8 +507,14 @@ void (async () => {
     : bannerMediaLevel === 'green' ? 'Banner on trusted media server ✓' : '';
 
   // 6. rel=me injection
-  if (npub) { const l = document.createElement('link'); l.rel = 'me'; l.href = `https://njump.me/${npub}`; document.head.appendChild(l); }
-  for (const { url } of gravatarAccounts) { const l = document.createElement('link'); l.rel = 'me'; l.href = url; document.head.appendChild(l); }
+  if (npub) {
+    const l = document.createElement('link'); l.rel = 'me';
+    l.href = `https://njump.me/${npub}`; document.head.appendChild(l);
+  }
+  for (const { url } of gravatarAccounts) {
+    const l = document.createElement('link'); l.rel = 'me'; l.href = url;
+    document.head.appendChild(l);
+  }
 
   // 7. Banner
   const bannerEl = document.getElementById('banner');
@@ -530,17 +555,21 @@ void (async () => {
     avatarWrap.appendChild(at);
   }
 
-  // 9. Social icons — pure inline SVG, zero external deps, adblocker-proof
-  const socialHTML = gravatarAccounts.length ? (() => {
-    const buttons = gravatarAccounts.map(({ url, label, serviceType }) => {
-      const p   = resolvePlatform(serviceType, url);
-      const tip = label || p.label || serviceType || (() => { try { return new URL(url).hostname; } catch { return url; } })();
-      return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me" title="${esc(tip)}">
-        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${p.svg}</svg>
-      </a>`;
+  // 9. Social icons — FA classes injected via JS after DOM build
+  //    The data-ic attribute holds the FA class string; a MutationObserver-free
+  //    approach: we set element.className directly in JS, never in HTML,
+  //    so static filter-list CSS selectors never match.
+  const buildSocialRow = accounts => {
+    if (!accounts.length) return '';
+    const items = accounts.map(({ url, label, serviceType }) => {
+      const faClass = resolveIcon(serviceType, url);
+      const tip = label || serviceType || (() => { try { return new URL(url).hostname; } catch { return url; } })();
+      // Use data-fa to carry the class; applied post-render below
+      return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me"
+                 title="${esc(tip)}" data-fa="${esc(faClass)}"><i class="ic"></i></a>`;
     }).join('');
-    return `<div class="section-title">Follow me on</div><div class="social-row">${buttons}</div>`;
-  })() : '';
+    return `<div class="section-title">Follow me on</div><div class="social-row">${items}</div>`;
+  };
 
   // 10. Render body
   const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
@@ -556,15 +585,27 @@ void (async () => {
         ⚡ ${esc(lightning)} ${tickHtml(lnTickLevel, lnTickTitle)}
       </a>
     </div>
-    ${socialHTML}
+    ${buildSocialRow(gravatarAccounts)}
     <a class="footer-link" href="${DITTO_URL}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
   `;
 
+  // 11. Apply FA classes AFTER DOM insertion — adblocker filter lists
+  //     match static HTML class attributes, not dynamically assigned ones.
+  document.querySelectorAll('[data-fa]').forEach(btn => {
+    const icon = btn.querySelector('i.ic');
+    if (icon) {
+      // Assign via className property — never written into HTML source
+      icon.className = btn.dataset.fa;
+      btn.removeAttribute('data-fa');
+    }
+  });
+
 })().catch(err => {
   const b = document.getElementById('body');
-  if (b) b.innerHTML = `<div class="error">⚠️ Unexpected error.<code>${String(err?.message ?? err)}</code></div>`;
+  if (b) b.innerHTML =
+    `<div class="error">⚠️ Unexpected error.<code>${String(err?.message ?? err)}</code></div>`;
 });
 </script>
 </body>
