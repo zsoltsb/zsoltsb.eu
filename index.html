@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zsoltsb.eu</title>
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
-  <link rel="me" href="https://mastodon.social/@zsoltsb" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -43,7 +42,6 @@
       overflow: hidden;
     }
 
-    /* ── Banner ── */
     .banner {
       height: 160px;
       background: linear-gradient(135deg, #1e1040 0%, #2d1b69 50%, #1a0f3d 100%);
@@ -53,7 +51,6 @@
       flex-shrink: 0;
     }
 
-    /* ── Avatar ── */
     .avatar-wrap {
       position: absolute;
       bottom: -46px;
@@ -78,10 +75,7 @@
       color: #fff;
     }
 
-    /* ── Body ── */
-    .body {
-      padding: 58px 24px 28px;
-    }
+    .body { padding: 58px 24px 28px; }
 
     .name {
       font-size: 1.3rem;
@@ -97,23 +91,12 @@
       margin-top: 4px;
       flex-wrap: wrap;
     }
-    .handle {
-      font-size: 0.875rem;
-      color: var(--muted);
-    }
-    .handle a {
-      color: var(--muted);
-      text-decoration: none;
-    }
+    .handle { font-size: 0.875rem; color: var(--muted); }
+    .handle a { color: var(--muted); text-decoration: none; }
     .handle a:hover { color: var(--accent-2); }
 
-    .favicon {
-      width: 14px;
-      height: 14px;
-      border-radius: 3px;
-    }
+    .favicon { width: 14px; height: 14px; border-radius: 3px; }
 
-    /* ── Lightning ── */
     .lightning {
       display: inline-flex;
       align-items: center;
@@ -127,11 +110,9 @@
       color: var(--accent-2);
       text-decoration: none;
       transition: background 0.2s;
-      cursor: pointer;
     }
     .lightning:hover { background: rgba(139,92,246,0.25); }
 
-    /* ── Bio ── */
     .bio {
       margin-top: 14px;
       font-size: 0.9rem;
@@ -143,16 +124,10 @@
     .bio a { color: var(--accent-2); text-decoration: none; }
     .bio a:hover { text-decoration: underline; }
 
-    /* ── Stats ── */
-    .stats {
-      display: flex;
-      gap: 20px;
-      margin-top: 16px;
-    }
+    .stats { display: flex; gap: 20px; margin-top: 16px; }
     .stat { font-size: 0.85rem; color: var(--muted); }
     .stat strong { color: var(--text); font-weight: 600; }
 
-    /* ── Extra addresses ── */
     .section-title {
       font-size: 0.68rem;
       font-weight: 600;
@@ -163,11 +138,7 @@
       margin-bottom: 8px;
     }
 
-    .addresses {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
+    .addresses { display: flex; flex-direction: column; gap: 6px; }
 
     .address-chip {
       display: flex;
@@ -184,31 +155,15 @@
     }
     .address-chip:hover { border-color: var(--accent); }
     .chip-icon {
-      width: 18px;
-      height: 18px;
+      width: 18px; height: 18px;
       border-radius: 3px;
       object-fit: contain;
       flex-shrink: 0;
     }
-    .chip-name {
-      color: var(--muted);
-      font-size: 0.75rem;
-      min-width: 70px;
-    }
-    .chip-value {
-      color: var(--text);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .chip-verified {
-      margin-left: auto;
-      color: #34d399;
-      font-size: 0.7rem;
-      flex-shrink: 0;
-    }
+    .chip-name { color: var(--muted); font-size: 0.75rem; min-width: 70px; }
+    .chip-value { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .chip-verified { margin-left: auto; color: #34d399; font-size: 0.7rem; flex-shrink: 0; }
 
-    /* ── Ditto link ── */
     .ditto-link {
       display: block;
       text-align: center;
@@ -222,7 +177,6 @@
     .ditto-link span { color: var(--accent-2); }
     .ditto-link:hover span { text-decoration: underline; }
 
-    /* ── Skeleton ── */
     .skeleton {
       background: linear-gradient(90deg, var(--border) 25%, #2e2e2e 50%, var(--border) 75%);
       background-size: 200% 100%;
@@ -246,9 +200,8 @@
 <body>
 
 <div class="card" id="card">
-  <!-- skeleton state -->
   <div class="banner" id="banner">
-    <div class="avatar-wrap">
+    <div class="avatar-wrap" id="avatar-wrap">
       <div class="avatar-fallback skeleton" style="width:92px;height:92px;border-radius:50%;background:var(--border);"></div>
     </div>
   </div>
@@ -264,22 +217,24 @@
 
 <script>
 (async () => {
-  const DOMAIN  = 'zsoltsb.eu';
-  const DITTO   = 'https://ditto.pub';
+  const DOMAIN = 'zsoltsb.eu';
+  const DITTO  = 'https://ditto.pub';
 
-  // CORS proxy — prepend to any cross-origin URL
-  const PROXY   = 'https://corsproxy.io/?url=';
+  // allorigins wraps response in { contents, status }
+  // Use /raw for direct passthrough, /get for JSON envelope
+  const ALLORIGINS = 'https://api.allorigins.win/get?url=';
 
-  const API_URL = `${DITTO}/api/v1/accounts/lookup?acct=${DOMAIN}`;
+  async function fetchViaProxy(url) {
+    const res = await fetch(ALLORIGINS + encodeURIComponent(url));
+    if (!res.ok) throw new Error(`Proxy HTTP ${res.status}`);
+    const wrapper = await res.json();
+    if (!wrapper.contents) throw new Error('Empty proxy response');
+    return JSON.parse(wrapper.contents);
+  }
 
   const esc = s => String(s)
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-
-  function proxyImg(url) {
-    // Use proxy for avatar/header to avoid mixed-content / CORS on images too
-    return url ? `${PROXY}${encodeURIComponent(url)}` : '';
-  }
 
   function stripHtml(html) {
     const d = document.createElement('div');
@@ -287,51 +242,35 @@
     return d.textContent || d.innerText || '';
   }
 
-  function linkifyText(text) {
-    // URLs
-    text = text.replace(/(https?:\/\/[^\s<>"]+)/g,
-      '<a href="$1" target="_blank" rel="noopener">$1</a>');
-    // hashtags
-    text = text.replace(/#(\w+)/g,
-      `<a href="${DITTO}/t/$1" target="_blank" rel="noopener">#$1</a>`);
-    return text;
-  }
-
   function bioFromHtml(html) {
-    // Ditto/Mastodon returns HTML bio — convert <br> / <p> to newlines, strip rest
-    let t = html
+    return html
       .replace(/<br\s*\/?>/gi, '\n')
       .replace(/<\/p>/gi, '\n\n')
       .replace(/<p[^>]*>/gi, '')
-      .replace(/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi, (_, href, label) =>
-        `<a href="${esc(href)}" target="_blank" rel="noopener">${label}</a>`)
-      .replace(/<(?!a|\/a)[^>]+>/g, '');
-    return t.trim();
+      .replace(/<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi,
+        (_, href, label) => `<a href="${esc(href)}" target="_blank" rel="noopener">${label}</a>`)
+      .replace(/<(?!\/?(a)\b)[^>]+>/gi, '')
+      .trim();
   }
 
   function chipHostname(href) {
     try { return new URL(href).hostname.replace(/^www\./, ''); }
-    catch { return href; }
+    catch { return ''; }
   }
 
-  function faviconFor(href) {
-    const host = chipHostname(href);
-    return host ? `${DITTO}/api/favicon/${host}` : '';
-  }
-
-  // ── Fetch ──────────────────────────────────────────────────────────────────
+  // ── Fetch profile ──────────────────────────────────────────────────────────
   let profile;
   try {
-    const res = await fetch(PROXY + encodeURIComponent(API_URL));
-    if (!res.ok) throw new Error(`HTTP ${res.status} from Ditto API`);
-    profile = await res.json();
+    profile = await fetchViaProxy(
+      `${DITTO}/api/v1/accounts/lookup?acct=${DOMAIN}`
+    );
   } catch (err) {
     document.getElementById('body').innerHTML =
       `<p class="error-msg">⚠️ Could not load profile.<br><small>${esc(err.message)}</small></p>`;
     return;
   }
 
-  // ── Parse ──────────────────────────────────────────────────────────────────
+  // ── Parse fields ───────────────────────────────────────────────────────────
   const name      = profile.display_name || profile.username || DOMAIN;
   const handle    = profile.acct         || DOMAIN;
   const avatarUrl = profile.avatar        || '';
@@ -341,69 +280,66 @@
   const followers = profile.followers_count;
   const following = profile.following_count;
 
-  // Lightning: check fields for lud16 / lightning label
+  // Lightning address
   let lightning = profile.lud16 || '';
   if (!lightning) {
     const lf = fields.find(f => /lightning|⚡|lnurl|wallet/i.test(f.name));
     if (lf) lightning = stripHtml(lf.value).trim();
   }
 
-  // Extra address fields (exclude lightning ones)
   const extraFields = fields.filter(f =>
     !/lightning|⚡|lnurl|wallet/i.test(f.name)
   );
 
-  // ── Banner ─────────────────────────────────────────────────────────────────
+  // ── Banner / header image ──────────────────────────────────────────────────
   const banner = document.getElementById('banner');
   if (headerUrl) {
-    // Load header via proxy to avoid CORS on image fetch
-    const proxyHeader = proxyImg(headerUrl);
-    const testImg = new Image();
-    testImg.onload = () => {
-      banner.style.backgroundImage = `url(${proxyHeader})`;
-      banner.style.backgroundSize  = 'cover';
+    // Try direct load first; browsers can load <img> cross-origin fine for display
+    const img = new Image();
+    img.onload = () => {
+      banner.style.backgroundImage    = `url(${headerUrl})`;
+      banner.style.backgroundSize     = 'cover';
       banner.style.backgroundPosition = 'center';
     };
-    // Also try direct (works if server allows it)
-    const directImg = new Image();
-    directImg.onload = () => {
-      banner.style.backgroundImage = `url(${headerUrl})`;
-      banner.style.backgroundSize  = 'cover';
+    img.onerror = () => {
+      // Fallback: use allorigins /raw endpoint which streams the image
+      const rawUrl = `https://api.allorigins.win/raw?url=${encodeURIComponent(headerUrl)}`;
+      banner.style.backgroundImage    = `url(${rawUrl})`;
+      banner.style.backgroundSize     = 'cover';
       banner.style.backgroundPosition = 'center';
     };
-    directImg.onerror = () => { testImg.src = proxyHeader; };
-    directImg.src = headerUrl;
+    img.src = headerUrl;
   }
 
   // ── Avatar ─────────────────────────────────────────────────────────────────
-  const avatarWrap = banner.querySelector('.avatar-wrap');
-  const avatarEl = document.createElement('img');
-  avatarEl.alt = name;
-  avatarEl.style.cssText = 'width:92px;height:92px;border-radius:50%;border:3px solid var(--surface);object-fit:cover;display:block;';
-
-  if (avatarUrl) {
-    avatarEl.onerror = () => {
-      // try proxy
-      if (!avatarEl.src.includes('corsproxy')) {
-        avatarEl.src = proxyImg(avatarUrl);
-      } else {
-        avatarEl.replaceWith(makeFallback(name));
-      }
-    };
-    avatarEl.src = avatarUrl;
-    avatarWrap.replaceChildren(avatarEl);
-  } else {
-    avatarWrap.replaceChildren(makeFallback(name));
-  }
+  const avatarWrap = document.getElementById('avatar-wrap');
 
   function makeFallback(n) {
     const d = document.createElement('div');
     d.className = 'avatar-fallback';
+    d.style.cssText = 'width:92px;height:92px;border-radius:50%;border:3px solid var(--surface);';
     d.textContent = (n || '?')[0].toUpperCase();
     return d;
   }
 
-  // ── Build body HTML ────────────────────────────────────────────────────────
+  if (avatarUrl) {
+    const img = document.createElement('img');
+    img.alt = name;
+    img.style.cssText = 'width:92px;height:92px;border-radius:50%;border:3px solid var(--surface);object-fit:cover;display:block;';
+    img.onerror = () => {
+      if (!img.src.includes('allorigins')) {
+        img.src = `https://api.allorigins.win/raw?url=${encodeURIComponent(avatarUrl)}`;
+      } else {
+        img.replaceWith(makeFallback(name));
+      }
+    };
+    img.src = avatarUrl;
+    avatarWrap.replaceChildren(img);
+  } else {
+    avatarWrap.replaceChildren(makeFallback(name));
+  }
+
+  // ── Build HTML ─────────────────────────────────────────────────────────────
   const lightningHtml = lightning ? `
     <a class="lightning" href="lightning:${esc(lightning)}" title="Send via Lightning Network">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
@@ -424,8 +360,10 @@
       const rawValue = stripHtml(f.value).trim();
       const href     = f.value.match(/href="([^"]+)"/)?.[1]
                     || (rawValue.startsWith('http') ? rawValue : null);
-      const fav      = href ? faviconFor(href) : '';
-      const verified = f.verified_at ? '<span class="chip-verified">✓ verified</span>' : '';
+      const host     = href ? chipHostname(href) : '';
+      const fav      = host ? `${DITTO}/api/favicon/${host}` : '';
+      const verified = f.verified_at
+        ? '<span class="chip-verified">✓ verified</span>' : '';
       const iconHtml = fav
         ? `<img class="chip-icon" src="${esc(fav)}" alt="" onerror="this.style.display='none'" />`
         : `<span style="width:18px;flex-shrink:0;"></span>`;
