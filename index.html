@@ -6,15 +6,24 @@
   <title>zsoltsb.eu</title>
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
 
-  <!-- Bunny Fonts (GDPR-safe Google Fonts drop-in) -->
+  <!-- Bunny Fonts -->
   <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
   <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-  <!-- Font Awesome 6 Free via cdnjs (Cloudflare) -->
+  <!-- Font Awesome 6 Free via cdnjs -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
     integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+    crossorigin="anonymous"
+    referrerpolicy="no-referrer"
+  />
+
+  <!-- Simple Icons via cdnjs (brand icon fallback) -->
+  <!-- We use the CSS+font build from the simpleicons-font package -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/11.14.0/simple-icons.min.css"
     crossorigin="anonymous"
     referrerpolicy="no-referrer"
   />
@@ -99,8 +108,8 @@
       background: rgba(139,92,246,.10); border-color: var(--accent);
       color: var(--accent2); transform: translateY(-2px);
     }
-    /* Neutral class prefix — adblockers target "fa-twitter" etc., not "ic-*" */
-    .ic { display: inline-block; }
+    /* Simple Icons font uses .si class + .si--{slug} */
+    .si { display: inline-block; font-size: 1.1rem; line-height: 1; }
 
     /* ── Footer ── */
     .footer-link {
@@ -171,67 +180,120 @@ void (async () => {
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
 
-  const MESSAGING_TYPES = new Set([
-    'whatsapp','telegram','signal','messenger','wechat','line','viber',
-    'skype','discord','slack','matrix','xmpp','imessage','sms','kik',
-    'snapchat','kakaotalk','zalo','imo','threema','wire','session',
-    'element','rocketchat','mattermost','teams','hangouts','gchat',
-  ]);
+  // ── Icon resolution ────────────────────────────────────────────────────────
+  // Strategy: try FA 6 brand first; fall back to Simple Icons CSS font.
+  // FA classes are injected via JS (never static HTML) to defeat adblocker
+  // filter-list CSS selectors.
+  //
+  // Simple Icons slug = lowercase, no spaces/punctuation (e.g. "stackoverflow")
+  // FA 6 Free brands class = "fa-brands fa-{name}"
+  // ──────────────────────────────────────────────────────────────────────────
 
-  // ── Icon map: platform key → FA 6 classes (using neutral wrapper "ic")
-  // Adblockers match on element class names like "fa-twitter" in the DOM.
-  // We store the FA class string in a data attribute and apply it via JS
-  // AFTER the DOM is built, so filter-list selectors never match statically.
-  // ─────────────────────────────────────────────────────────────────────────
-  const FA_ICONS = {
-    'twitter':       'fa-brands fa-x-twitter',
-    'x':             'fa-brands fa-x-twitter',
-    'x-twitter':     'fa-brands fa-x-twitter',
-    'mastodon':      'fa-brands fa-mastodon',
-    'bluesky':       'fa-brands fa-bluesky',
-    'instagram':     'fa-brands fa-instagram',
-    'threads':       'fa-brands fa-threads',
-    'facebook':      'fa-brands fa-facebook',
-    'linkedin':      'fa-brands fa-linkedin',
-    'github':        'fa-brands fa-github',
-    'gitlab':        'fa-brands fa-gitlab',
-    'youtube':       'fa-brands fa-youtube',
-    'twitch':        'fa-brands fa-twitch',
-    'tiktok':        'fa-brands fa-tiktok',
-    'reddit':        'fa-brands fa-reddit',
-    'pinterest':     'fa-brands fa-pinterest',
-    'medium':        'fa-brands fa-medium',
-    'substack':      'fa-solid fa-newspaper',
-    'soundcloud':    'fa-brands fa-soundcloud',
-    'spotify':       'fa-brands fa-spotify',
-    'patreon':       'fa-brands fa-patreon',
-    'ko-fi':         'fa-solid fa-mug-hot',
-    'kofi':          'fa-solid fa-mug-hot',
-    'vimeo':         'fa-brands fa-vimeo',
-    'flickr':        'fa-brands fa-flickr',
-    'behance':       'fa-brands fa-behance',
-    'dribbble':      'fa-brands fa-dribbble',
-    'stackoverflow': 'fa-brands fa-stack-overflow',
-    'strava':        'fa-brands fa-strava',
-    'steam':         'fa-brands fa-steam',
-    'bandcamp':      'fa-brands fa-bandcamp',
-    'lastfm':        'fa-brands fa-lastfm',
-    'goodreads':     'fa-brands fa-goodreads',
-    'farcaster':     'fa-solid fa-f',          // no official FA icon yet
-    'nostr':         'fa-solid fa-bolt',        // no official FA icon yet
-    '_default':      'fa-solid fa-link',
+  // Map: normalised service key → { fa: string|null, si: string|null }
+  // fa  = FA 6 class string (null = not in FA Free)
+  // si  = Simple Icons slug  (null = use fa only)
+  const ICON_MAP = {
+    // ── Social networks ──
+    'twitter':          { fa: 'fa-brands fa-x-twitter',   si: 'x' },
+    'x':                { fa: 'fa-brands fa-x-twitter',   si: 'x' },
+    'x-twitter':        { fa: 'fa-brands fa-x-twitter',   si: 'x' },
+    'mastodon':         { fa: 'fa-brands fa-mastodon',     si: 'mastodon' },
+    'bluesky':          { fa: 'fa-brands fa-bluesky',      si: 'bluesky' },
+    'instagram':        { fa: 'fa-brands fa-instagram',    si: 'instagram' },
+    'threads':          { fa: 'fa-brands fa-threads',      si: 'threads' },
+    'facebook':         { fa: 'fa-brands fa-facebook',     si: 'facebook' },
+    'linkedin':         { fa: 'fa-brands fa-linkedin',     si: 'linkedin' },
+    'tumblr':           { fa: 'fa-brands fa-tumblr',       si: 'tumblr' },
+    'pinterest':        { fa: 'fa-brands fa-pinterest',    si: 'pinterest' },
+    'reddit':           { fa: 'fa-brands fa-reddit',       si: 'reddit' },
+    'snapchat':         { fa: 'fa-brands fa-snapchat',     si: 'snapchat' },
+    'tiktok':           { fa: 'fa-brands fa-tiktok',       si: 'tiktok' },
+    'vk':               { fa: 'fa-brands fa-vk',           si: 'vk' },
+    // ── Dev / tech ──
+    'github':           { fa: 'fa-brands fa-github',       si: 'github' },
+    'gitlab':           { fa: 'fa-brands fa-gitlab',       si: 'gitlab' },
+    'bitbucket':        { fa: 'fa-brands fa-bitbucket',    si: 'bitbucket' },
+    'stackoverflow':    { fa: 'fa-brands fa-stack-overflow', si: 'stackoverflow' },
+    'hackernews':       { fa: 'fa-brands fa-hacker-news',  si: 'ycombinator' },
+    'hacker-news':      { fa: 'fa-brands fa-hacker-news',  si: 'ycombinator' },
+    'dev':              { fa: 'fa-brands fa-dev',          si: 'devdotto' },
+    'devto':            { fa: 'fa-brands fa-dev',          si: 'devdotto' },
+    'codepen':          { fa: 'fa-brands fa-codepen',      si: 'codepen' },
+    'codesandbox':      { fa: null,                        si: 'codesandbox' },
+    'replit':           { fa: null,                        si: 'replit' },
+    'npm':              { fa: 'fa-brands fa-npm',          si: 'npm' },
+    'docker':           { fa: 'fa-brands fa-docker',       si: 'docker' },
+    // ── Video / streaming ──
+    'youtube':          { fa: 'fa-brands fa-youtube',      si: 'youtube' },
+    'twitch':           { fa: 'fa-brands fa-twitch',       si: 'twitch' },
+    'vimeo':            { fa: 'fa-brands fa-vimeo',        si: 'vimeo' },
+    'dailymotion':      { fa: null,                        si: 'dailymotion' },
+    'kick':             { fa: null,                        si: 'kick' },
+    // ── Music / audio ──
+    'soundcloud':       { fa: 'fa-brands fa-soundcloud',   si: 'soundcloud' },
+    'spotify':          { fa: 'fa-brands fa-spotify',      si: 'spotify' },
+    'bandcamp':         { fa: 'fa-brands fa-bandcamp',     si: 'bandcamp' },
+    'lastfm':           { fa: 'fa-brands fa-lastfm',       si: 'lastfm' },
+    'applemusic':       { fa: null,                        si: 'applemusic' },
+    'apple-music':      { fa: null,                        si: 'applemusic' },
+    // ── Writing / publishing ──
+    'medium':           { fa: 'fa-brands fa-medium',       si: 'medium' },
+    'substack':         { fa: null,                        si: 'substack' },
+    'wordpress':        { fa: 'fa-brands fa-wordpress',    si: 'wordpress' },
+    'ghost':            { fa: null,                        si: 'ghost' },
+    'hashnode':         { fa: null,                        si: 'hashnode' },
+    'goodreads':        { fa: 'fa-brands fa-goodreads',    si: 'goodreads' },
+    // ── Creative ──
+    'behance':          { fa: 'fa-brands fa-behance',      si: 'behance' },
+    'dribbble':         { fa: 'fa-brands fa-dribbble',     si: 'dribbble' },
+    'flickr':           { fa: 'fa-brands fa-flickr',       si: 'flickr' },
+    'deviantart':       { fa: 'fa-brands fa-deviantart',   si: 'deviantart' },
+    '500px':            { fa: 'fa-brands fa-500px',        si: '500px' },
+    'artstation':       { fa: null,                        si: 'artstation' },
+    'unsplash':         { fa: null,                        si: 'unsplash' },
+    // ── Support / funding ──
+    'patreon':          { fa: 'fa-brands fa-patreon',      si: 'patreon' },
+    'ko-fi':            { fa: null,                        si: 'kofi' },
+    'kofi':             { fa: null,                        si: 'kofi' },
+    'buymeacoffee':     { fa: null,                        si: 'buymeacoffee' },
+    'buy-me-a-coffee':  { fa: null,                        si: 'buymeacoffee' },
+    'opencollective':   { fa: 'fa-brands fa-opencollective', si: 'opencollective' },
+    'liberapay':        { fa: null,                        si: 'liberapay' },
+    // ── Decentralised / crypto ──
+    'nostr':            { fa: 'fa-solid fa-bolt',          si: null },
+    'farcaster':        { fa: null,                        si: 'farcaster' },
+    'lens':             { fa: null,                        si: 'lens' },
+    'ethereum':         { fa: null,                        si: 'ethereum' },
+    'bitcoin':          { fa: null,                        si: 'bitcoin' },
+    // ── Fitness / lifestyle ──
+    'strava':           { fa: 'fa-brands fa-strava',       si: 'strava' },
+    'steam':            { fa: 'fa-brands fa-steam',        si: 'steam' },
+    'xbox':             { fa: 'fa-brands fa-xbox',         si: 'xbox' },
+    'playstation':      { fa: 'fa-brands fa-playstation',  si: 'playstation' },
+    // ── Misc ──
+    'linktree':         { fa: null,                        si: 'linktree' },
+    'about-me':         { fa: null,                        si: 'aboutme' },
+    'gravatar':         { fa: null,                        si: 'gravatar' },
+    '_default':         { fa: 'fa-solid fa-link',          si: null },
   };
 
+  const normaliseKey = s =>
+    (s || '').toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9-]/g, '');
+
   const resolveIcon = (serviceType, url) => {
-    const key = (serviceType || '').toLowerCase().replace(/[\s_]+/g, '-');
-    if (FA_ICONS[key]) return FA_ICONS[key];
+    const key = normaliseKey(serviceType);
+    if (ICON_MAP[key]) return ICON_MAP[key];
+    // hostname-based fallback
     try {
-      const host = new URL(url).hostname.replace(/^www\./, '');
-      for (const [k, v] of Object.entries(FA_ICONS)) {
-        if (k !== '_default' && host.includes(k.replace(/-/g, ''))) return v;
+      const host = new URL(url).hostname.replace(/^www\./, '').replace(/\.[^.]+$/, '');
+      const hkey = normaliseKey(host);
+      if (ICON_MAP[hkey]) return ICON_MAP[hkey];
+      // partial match
+      for (const [k, v] of Object.entries(ICON_MAP)) {
+        if (k !== '_default' && (hkey.includes(k) || k.includes(hkey))) return v;
       }
     } catch {}
-    return FA_ICONS['_default'];
+    return ICON_MAP['_default'];
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -383,34 +445,29 @@ void (async () => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // GRAVATAR
+  // GRAVATAR — preserve raw array order, no filtering, no sorting
   // ═══════════════════════════════════════════════════════════════════════════
-  const normaliseAccounts = (accts = []) => accts
-    .filter(a => {
-      if (!a?.url && !a?.profile_url) return false;
-      const t = (a.service_type || a.shortname || '').toLowerCase().replace(/[\s_]+/g, '-');
-      return !MESSAGING_TYPES.has(t);
-    })
-    .map(a => ({
-      url:         (a.url || a.profile_url || '').trim(),
-      label:       a.service_label || a.display || a.shortname || '',
-      serviceType: (a.service_type || a.shortname || '').toLowerCase().replace(/[\s_]+/g, '-'),
-      order:       a.order ?? 999,
-    }))
-    .filter(a => a.url)
-    .sort((a, b) => a.order - b.order);
+  const normaliseAccounts = (accts = []) =>
+    accts
+      .filter(a => (a?.url || a?.profile_url || '').trim())
+      .map(a => ({
+        url:         (a.url || a.profile_url || '').trim(),
+        label:       a.service_label || a.display || a.shortname || '',
+        serviceType: normaliseKey(a.service_type || a.shortname || ''),
+      }));
+  // Note: no sort — Gravatar returns accounts in the user's chosen display order
 
   const fetchGravatarAccounts = async () => {
     const legacyUrl = `https://gravatar.com/${GRAVATAR_SLUG}.json`;
     try {
       const d = await fetchJSONP(legacyUrl);
       const a = normaliseAccounts(d?.entry?.[0]?.accounts);
-      if (a.length) { console.log('[gravatar] jsonp ✓'); return a; }
+      if (a.length) { console.log('[gravatar] jsonp ✓', a); return a; }
     } catch(e) { console.warn('[gravatar] jsonp:', e.message); }
     try {
       const d = await fetchJSON(legacyUrl, 6000);
       const a = normaliseAccounts(d?.entry?.[0]?.accounts);
-      if (a.length) { console.log('[gravatar] direct ✓'); return a; }
+      if (a.length) { console.log('[gravatar] direct ✓', a); return a; }
     } catch(e) { console.warn('[gravatar] direct:', e.message); }
     return [];
   };
@@ -555,18 +612,17 @@ void (async () => {
     avatarWrap.appendChild(at);
   }
 
-  // 9. Social icons — FA classes injected via JS after DOM build
-  //    The data-ic attribute holds the FA class string; a MutationObserver-free
-  //    approach: we set element.className directly in JS, never in HTML,
-  //    so static filter-list CSS selectors never match.
+  // 9. Build social row — FA classes + SI slugs injected via JS post-render
   const buildSocialRow = accounts => {
     if (!accounts.length) return '';
     const items = accounts.map(({ url, label, serviceType }) => {
-      const faClass = resolveIcon(serviceType, url);
+      const icon = resolveIcon(serviceType, url);
       const tip = label || serviceType || (() => { try { return new URL(url).hostname; } catch { return url; } })();
-      // Use data-fa to carry the class; applied post-render below
+      // Store resolved icon info in data attributes; applied after innerHTML set
       return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me"
-                 title="${esc(tip)}" data-fa="${esc(faClass)}"><i class="ic"></i></a>`;
+                 title="${esc(tip)}"
+                 data-fa="${esc(icon.fa || '')}"
+                 data-si="${esc(icon.si || '')}"><i></i></a>`;
     }).join('');
     return `<div class="section-title">Follow me on</div><div class="social-row">${items}</div>`;
   };
@@ -591,15 +647,27 @@ void (async () => {
     </a>
   `;
 
-  // 11. Apply FA classes AFTER DOM insertion — adblocker filter lists
-  //     match static HTML class attributes, not dynamically assigned ones.
-  document.querySelectorAll('[data-fa]').forEach(btn => {
-    const icon = btn.querySelector('i.ic');
-    if (icon) {
-      // Assign via className property — never written into HTML source
-      icon.className = btn.dataset.fa;
-      btn.removeAttribute('data-fa');
+  // 11. Apply icon classes AFTER DOM insertion
+  //     FA: set className on <i> directly (never in HTML source)
+  //     SI: prefer FA if available, fall back to Simple Icons CSS class
+  document.querySelectorAll('.social-btn[data-fa], .social-btn[data-si]').forEach(btn => {
+    const faClass = btn.dataset.fa;
+    const siSlug  = btn.dataset.si;
+    const icon    = btn.querySelector('i');
+    if (!icon) return;
+
+    if (faClass) {
+      // Use Font Awesome
+      icon.className = faClass;
+    } else if (siSlug) {
+      // Use Simple Icons CSS font: class "si si--{slug}"
+      icon.className = `si si--${siSlug}`;
+    } else {
+      icon.className = 'fa-solid fa-link';
     }
+
+    btn.removeAttribute('data-fa');
+    btn.removeAttribute('data-si');
   });
 
 })().catch(err => {
