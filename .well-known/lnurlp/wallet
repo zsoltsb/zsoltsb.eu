@@ -1,0 +1,10 @@
+{
+  "callback": "https://cake.cash/lnurlp/zsoltsb/invoice",
+  "maxSendable": 4000000000,
+  "minSendable": 1000,
+  "tag": "payRequest",
+  "metadata": "[[\"text/plain\",\"Pay to zsoltsb@cake.cash\"],[\"text/identifier\",\"zsoltsb@cake.cash\"]]",
+  "commentAllowed": 255,
+  "allowsNostr": true,
+  "nostrPubkey": "a6796f8440db6169fc5bf33e5aa65f683a6ec43856c58e1f4ab9502f27b93bbc"
+}
