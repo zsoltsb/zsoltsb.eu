@@ -51,7 +51,8 @@
       "wss://git.shakespeare.diy",
       "wss://gitnostr.com",
       "wss://vault.iris.to",
-      "wss://temp.iris.to"
+      "wss://temp.iris.to",
+      "wss://relay.44billion.net"
     ]
   }
 }
