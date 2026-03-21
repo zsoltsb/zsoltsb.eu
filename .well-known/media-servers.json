@@ -1,0 +1,199 @@
+{
+  "version": "1.0",
+  "updated": "2026-03-21",
+  "description": "Free Blossom and NIP-96 media servers for Nostr",
+  "servers": [
+    {
+      "name": "Nostrcheck.me Blossom",
+      "url": "https://cdn.nostrcheck.me",
+      "type": "blossom",
+      "description": "Nostrcheck.me blossom server",
+      "access": "free"
+    },
+    {
+      "name": "UID OVH Blossom 01",
+      "url": "https://blossom-01.uid.ovh",
+      "type": "blossom",
+      "description": "Accept everything forever",
+      "access": "free"
+    },
+    {
+      "name": "UID OVH Blossom 02",
+      "url": "https://blossom-02.uid.ovh",
+      "type": "blossom",
+      "description": "Accept everything forever",
+      "access": "free"
+    },
+    {
+      "name": "24242.io",
+      "url": "https://24242.io",
+      "type": "blossom",
+      "description": "Free and open Blossom server. 30 days retention",
+      "access": "free",
+      "retention": "30 days"
+    },
+    {
+      "name": "Nostr.hu Blossom",
+      "url": "https://blossom.nostr.hu",
+      "type": "blossom",
+      "description": "Eastern Europe United (ran by Lez)",
+      "access": "free"
+    },
+    {
+      "name": "NoGood Blossom",
+      "url": "https://blossom.nogood.studio",
+      "type": "blossom",
+      "description": "NoGood's Blossom server",
+      "access": "free"
+    },
+    {
+      "name": "Primal Blossom",
+      "url": "https://blossom.primal.net",
+      "type": "blossom",
+      "description": "Primal's Blossom server",
+      "access": "free"
+    },
+    {
+      "name": "Route96",
+      "url": "https://files.v0l.io",
+      "type": "blossom",
+      "description": "Route96 file server",
+      "access": "free"
+    },
+    {
+      "name": "Pablo's Blossom",
+      "url": "https://blossom.f7z.io",
+      "type": "blossom",
+      "description": "Pablo's blossom server",
+      "access": "free"
+    },
+    {
+      "name": "Nosto.re",
+      "url": "https://nosto.re",
+      "type": "blossom",
+      "description": "Nosto.re Blossom server",
+      "access": "free"
+    },
+    {
+      "name": "Nostr.Download",
+      "url": "https://nostr.download",
+      "type": "blossom",
+      "description": "Formerly void.cat. Ran by Kieran",
+      "access": "free"
+    },
+    {
+      "name": "Poster.place Blossom",
+      "url": "https://blossom.poster.place",
+      "type": "blossom",
+      "description": "A free-speech Blossom Server",
+      "access": "free"
+    },
+    {
+      "name": "NostrCheck Blossom",
+      "url": "https://nostrcheck.me",
+      "type": "blossom",
+      "description": "NostrCheck Blossom server",
+      "access": "free"
+    },
+    {
+      "name": "Divine CDN Blossom",
+      "url": "https://cdn.divine.video",
+      "type": "blossom",
+      "description": "Content-addressable blob storage with AI-powered content moderation. Requires Nostr authentication",
+      "access": "free_with_auth",
+      "max_upload": "50 GB",
+      "features": ["AI moderation", "BUD-01", "BUD-02", "BUD-04", "BUD-06", "BUD-09"]
+    },
+    {
+      "name": "Divine Media Blossom",
+      "url": "https://media.divine.video",
+      "type": "blossom",
+      "description": "FASTLY-backed content-addressable blob storage with AI-powered content moderation. Requires Nostr authentication",
+      "access": "free_with_auth",
+      "max_upload": "50 GB",
+      "features": ["AI moderation", "CDN-backed", "BUD-01", "BUD-02", "BUD-04", "BUD-06", "BUD-09"]
+    },
+    {
+      "name": "Nostria EU Blossom",
+      "url": "https://mibo.eu.nostria.app",
+      "type": "blossom",
+      "description": "European Nostria Blossom server with file upload interface",
+      "access": "free",
+      "note": "Part of Nostria Nostr client infrastructure"
+    },
+    {
+      "name": "Nostria US Blossom",
+      "url": "https://mibo.us.nostria.app",
+      "type": "blossom",
+      "description": "US-based Nostria Blossom server with file upload interface",
+      "access": "free",
+      "note": "Part of Nostria Nostr client infrastructure"
+    },
+    {
+      "name": "Dreamith Blossom",
+      "url": "https://blossom.dreamith.to",
+      "type": "blossom",
+      "description": "Dreamith Blossom server",
+      "access": "verify_required",
+      "note": "Access policies should be verified before use"
+    },
+    {
+      "name": "NostrCheck NIP-96",
+      "url": "https://nostrcheck.me",
+      "type": "nip96",
+      "description": "NostrCheck NIP-96 file hosting with free registration",
+      "access": "free"
+    },
+    {
+      "name": "Nostr.build",
+      "url": "https://nostr.build",
+      "type": "nip96",
+      "description": "Popular Nostr media uploader with free tier",
+      "access": "free_tier"
+    },
+    {
+      "name": "Sovbit Files",
+      "url": "https://files.sovbit.host",
+      "type": "nip96",
+      "description": "Fast, scalable Nostr file hosting with free registration",
+      "access": "free"
+    },
+    {
+      "name": "NostPic",
+      "url": "https://nostpic.com",
+      "type": "nip96",
+      "description": "Sovereign data hosting with free registration",
+      "access": "free"
+    },
+    {
+      "name": "MockingYou",
+      "url": "https://mockingyou.com",
+      "type": "nip96",
+      "description": "Fast, scalable Nostr file hosting with free registration",
+      "access": "free"
+    }
+  ],
+  "protocol_info": {
+    "blossom": {
+      "description": "Blossom is a newer protocol for file storage on Nostr",
+      "advantages": ["Simpler protocol", "Better integration with Nostr", "Growing adoption"]
+    },
+    "nip96": {
+      "description": "NIP-96 is the established standard for HTTP file storage servers",
+      "advantages": ["Mature protocol", "Wide client support", "REST API"]
+    }
+  },
+  "usage_notes": [
+    "23 total servers: 18 Blossom + 5 NIP-96 for maximum redundancy",
+    "All servers listed are free to use or have free tiers",
+    "Nostria servers are part of the Nostria Nostr client infrastructure",
+    "Divine.video servers require Nostr authentication but are free to use",
+    "Some servers may require registration for file management features",
+    "Consider using multiple servers for important files",
+    "Server availability may vary - test before relying on any single server",
+    "Always respect server terms of service and usage policies",
+    "Verify access policies for servers marked as 'verify_required'",
+    "Blossom protocol is newer but growing in adoption",
+    "NIP-96 has broader client support currently"
+  ]
+}
