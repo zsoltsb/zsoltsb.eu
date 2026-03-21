@@ -5,14 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>zsoltsb.eu</title>
 
-  <!-- rel-me static anchors; more injected dynamically after profile loads -->
+  <!-- Static rel-me; more injected dynamically -->
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
-  <link rel="me" href="https://mastodon.social/@zsoltsb" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <!-- Font Awesome 6 Free via cdnjs -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
@@ -26,6 +24,7 @@
       --accent-2: #a78bfa;
       --text:     #e8e8e8;
       --muted:    #888;
+      --gold:     #f59e0b;
       --green:    #34d399;
       --radius:   14px;
     }
@@ -81,12 +80,19 @@
     /* ── Body ── */
     .body { padding: 62px 24px 28px; }
 
-    /* ── Pill buttons row ── */
+    .display-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--text);
+    }
+
+    /* ── Pills ── */
     .pills {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-top: 4px;
+      margin-top: 12px;
     }
 
     .pill {
@@ -100,34 +106,44 @@
       font-size: 0.8rem;
       color: var(--accent-2);
       text-decoration: none;
-      cursor: pointer;
-      transition: background 0.18s, border-color 0.18s;
       font-family: inherit;
       line-height: 1;
+      transition: background 0.18s, border-color 0.18s;
+      cursor: pointer;
     }
-    .pill:hover { background: rgba(139,92,246,0.22); border-color: rgba(139,92,246,0.55); }
-    .pill i, .pill svg { font-size: 0.85rem; flex-shrink: 0; }
+    .pill:hover {
+      background: rgba(139,92,246,0.22);
+      border-color: rgba(139,92,246,0.55);
+    }
 
-    /* verified tick */
+    /* ── Verification ticks ── */
     .tick {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       width: 15px; height: 15px;
-      background: var(--green);
       border-radius: 50%;
       flex-shrink: 0;
     }
-    .tick svg { width: 9px; height: 9px; fill: #0f0f0f; }
+    .tick svg {
+      width: 9px; height: 9px;
+      fill: none;
+      stroke: #0f0f0f;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .tick.gold  { background: var(--gold);  }
+    .tick.green { background: var(--green); }
 
-    /* ── Social link buttons ── */
+    /* ── Social buttons ── */
     .section-title {
       font-size: 0.68rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.09em;
       color: var(--muted);
-      margin-top: 22px;
+      margin-top: 24px;
       margin-bottom: 10px;
     }
 
@@ -140,7 +156,7 @@
     .social-btn {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
+      gap: 8px;
       background: var(--bg);
       border: 1px solid var(--border);
       border-radius: 8px;
@@ -148,18 +164,19 @@
       font-size: 0.82rem;
       color: var(--text);
       text-decoration: none;
-      transition: border-color 0.18s, background 0.18s;
       white-space: nowrap;
+      transition: border-color 0.18s, background 0.18s;
     }
-    .social-btn:hover { border-color: var(--accent); background: rgba(139,92,246,0.06); }
-    .social-btn i { font-size: 1rem; width: 16px; text-align: center; }
-    .social-btn img.si {
-      width: 16px; height: 16px;
-      object-fit: contain;
-      filter: brightness(0) invert(1);
-      opacity: 0.75;
+    .social-btn:hover {
+      border-color: var(--accent);
+      background: rgba(139,92,246,0.06);
     }
-    .social-btn:hover img.si { opacity: 1; }
+    .social-btn i {
+      font-size: 1rem;
+      width: 16px;
+      text-align: center;
+      flex-shrink: 0;
+    }
 
     /* ── Footer ── */
     .footer-link {
@@ -192,7 +209,10 @@
       padding: 28px; color: #f87171;
       font-size: 0.875rem; text-align: center; line-height: 1.7;
     }
-    .error code { display: block; margin-top: 8px; font-size: 0.72rem; color: var(--muted); word-break: break-all; }
+    .error code {
+      display: block; margin-top: 8px;
+      font-size: 0.72rem; color: var(--muted); word-break: break-all;
+    }
   </style>
 </head>
 <body>
@@ -203,18 +223,23 @@
     </div>
   </div>
   <div class="body" id="body">
-    <div class="sk" style="width:44%;height:20px;"></div>
-    <div class="sk" style="width:60%;height:32px;margin-top:10px;border-radius:20px;"></div>
-    <div class="sk" style="width:50%;height:32px;margin-top:0;border-radius:20px;display:inline-block;"></div>
-    <div class="sk" style="width:96%;height:13px;margin-top:18px;"></div>
-    <div class="sk" style="width:80%;height:13px;"></div>
+    <div class="sk" style="width:44%;height:22px;"></div>
+    <div class="sk" style="width:62%;height:32px;margin-top:12px;border-radius:20px;display:inline-block;"></div>
+    <div class="sk" style="width:52%;height:32px;margin-top:0;border-radius:20px;display:inline-block;margin-left:8px;"></div>
+    <div class="sk" style="width:30%;height:13px;margin-top:24px;"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+      <div class="sk" style="width:90px;height:36px;border-radius:8px;margin:0;"></div>
+      <div class="sk" style="width:110px;height:36px;border-radius:8px;margin:0;"></div>
+      <div class="sk" style="width:80px;height:36px;border-radius:8px;margin:0;"></div>
+    </div>
   </div>
 </div>
 
 <script>
 (async () => {
-  const DOMAIN = 'zsoltsb.eu';
-  const DITTO  = 'https://ditto.pub';
+  const DOMAIN  = 'zsoltsb.eu';
+  const DITTO   = 'https://ditto.pub';
+  const GRAVATAR_USER = 'zsoltsb'; // gravatar.com/zsoltsb
 
   const RELAYS = [
     'wss://relay.damus.io',
@@ -226,206 +251,221 @@
     'wss://relay.snort.social',
   ];
 
+  // ── Helpers ───────────────────────────────────────────────────────────────
   const esc = s => String(s ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-  const tickSvg = `<span class="tick" title="Verified"><svg viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5" stroke="#0f0f0f" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></span>`;
+  function tickHtml(level, title) {
+    // level: 'gold' | 'green' | null
+    if (!level) return '';
+    return `<span class="tick ${level}" title="${title}">
+      <svg viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+    </span>`;
+  }
 
   function showError(msg, detail) {
     document.getElementById('body').innerHTML =
-      `<div class="error">⚠️ Could not load profile.<br>${esc(msg)}${detail ? `<code>${esc(detail)}</code>` : ''}</div>`;
+      `<div class="error">⚠️ Could not load profile.<br>${esc(msg)}${detail?`<code>${esc(detail)}</code>`:''}</div>`;
   }
 
-  // ── Hex pubkey → npub (bech32) without external lib ──────────────────────
-  // Minimal bech32 encoder for npub
+  // ── Minimal bech32 encoder (npub) ─────────────────────────────────────────
   function hexToNpub(hex) {
     try {
       const CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-      function convertbits(data, frombits, tobits, pad) {
-        let acc = 0, bits = 0;
-        const result = [];
-        for (const val of data) {
-          acc = (acc << frombits) | val;
-          bits += frombits;
-          while (bits >= tobits) { bits -= tobits; result.push((acc >> bits) & ((1 << tobits) - 1)); }
+      const convertbits = (data, from, to, pad) => {
+        let acc = 0, bits = 0; const r = [];
+        for (const v of data) {
+          acc = (acc << from) | v; bits += from;
+          while (bits >= to) { bits -= to; r.push((acc >> bits) & ((1<<to)-1)); }
         }
-        if (pad && bits > 0) result.push((acc << (tobits - bits)) & ((1 << tobits) - 1));
-        return result;
-      }
-      function polymod(values) {
-        const GEN = [0x3b6a57b2,0x26508e6d,0x1ea119fa,0x3d4233dd,0x2a1462b3];
-        let chk = 1;
-        for (const v of values) {
-          const b = chk >> 25;
-          chk = ((chk & 0x1ffffff) << 5) ^ v;
-          for (let i = 0; i < 5; i++) if ((b >> i) & 1) chk ^= GEN[i];
-        }
-        return chk;
-      }
-      function hrpExpand(hrp) {
-        const ret = [];
-        for (const c of hrp) ret.push(c.charCodeAt(0) >> 5);
-        ret.push(0);
-        for (const c of hrp) ret.push(c.charCodeAt(0) & 31);
-        return ret;
-      }
-      function createChecksum(hrp, data) {
-        const values = hrpExpand(hrp).concat(data).concat([0,0,0,0,0,0]);
-        const mod = polymod(values) ^ 1;
-        const ret = [];
-        for (let p = 0; p < 6; p++) ret.push((mod >> (5 * (5 - p))) & 31);
-        return ret;
-      }
-      const bytes = hex.match(/.{1,2}/g).map(b => parseInt(b, 16));
-      const data  = convertbits(bytes, 8, 5, true);
+        if (pad && bits > 0) r.push((acc << (to-bits)) & ((1<<to)-1));
+        return r;
+      };
+      const polymod = vals => {
+        const G=[0x3b6a57b2,0x26508e6d,0x1ea119fa,0x3d4233dd,0x2a1462b3]; let c=1;
+        for (const v of vals) { const b=c>>25; c=((c&0x1ffffff)<<5)^v; for(let i=0;i<5;i++) if((b>>i)&1) c^=G[i]; }
+        return c;
+      };
+      const hrpExpand = h => { const r=[]; for(const c of h) r.push(c.charCodeAt(0)>>5); r.push(0); for(const c of h) r.push(c.charCodeAt(0)&31); return r; };
+      const checksum = (hrp, data) => { const v=hrpExpand(hrp).concat(data).concat([0,0,0,0,0,0]); const m=polymod(v)^1; const r=[]; for(let p=0;p<6;p++) r.push((m>>(5*(5-p)))&31); return r; };
+      const bytes = hex.match(/.{1,2}/g).map(b=>parseInt(b,16));
+      const data  = convertbits(bytes,8,5,true);
       const hrp   = 'npub';
-      const enc   = data.concat(createChecksum(hrp, data));
-      return hrp + '1' + enc.map(d => CHARSET[d]).join('');
+      return hrp+'1'+data.concat(checksum(hrp,data)).map(d=>CHARSET[d]).join('');
     } catch { return null; }
   }
 
-  // ── WebSocket query ───────────────────────────────────────────────────────
+  // ── WebSocket relay query ─────────────────────────────────────────────────
   function queryRelay(url, pubkey) {
     return new Promise((resolve, reject) => {
       let done = false;
       let ws;
       try { ws = new WebSocket(url); } catch(e) { return reject(e); }
-      const timer = setTimeout(() => { if (!done) { done=true; try{ws.close();}catch{} reject(new Error(`timeout:${url}`)); }}, 7000);
-      ws.onopen = () => ws.send(JSON.stringify(['REQ','p',{ kinds:[0], authors:[pubkey], limit:1 }]));
+      const t = setTimeout(() => { if(!done){done=true;try{ws.close();}catch{}reject(new Error(`timeout:${url}`));} }, 7000);
+      ws.onopen = () => ws.send(JSON.stringify(['REQ','p',{kinds:[0],authors:[pubkey],limit:1}]));
       ws.onmessage = e => {
         try {
-          const msg = JSON.parse(e.data);
-          if (msg[0]==='EVENT' && msg[1]==='p' && msg[2]?.kind===0 && !done) {
-            done=true; clearTimeout(timer); try{ws.close();}catch{}
-            try { resolve({ meta: JSON.parse(msg[2].content), pubkey: msg[2].pubkey }); }
-            catch(pe) { reject(pe); }
-          } else if (msg[0]==='EOSE' && !done) {
-            done=true; clearTimeout(timer); try{ws.close();}catch{}
+          const m = JSON.parse(e.data);
+          if (m[0]==='EVENT'&&m[1]==='p'&&m[2]?.kind===0&&!done) {
+            done=true; clearTimeout(t); try{ws.close();}catch{}
+            try { resolve({meta:JSON.parse(m[2].content), pubkey:m[2].pubkey}); }
+            catch(pe){reject(pe);}
+          } else if (m[0]==='EOSE'&&!done) {
+            done=true; clearTimeout(t); try{ws.close();}catch{}
             reject(new Error(`no-event:${url}`));
           }
         } catch {}
       };
-      ws.onerror = () => { if(!done){done=true;clearTimeout(timer);reject(new Error(`ws-err:${url}`));} };
-      ws.onclose = () => { if(!done){done=true;clearTimeout(timer);reject(new Error(`ws-close:${url}`));} };
+      ws.onerror = ()=>{ if(!done){done=true;clearTimeout(t);reject(new Error(`ws-err:${url}`));} };
+      ws.onclose = ()=>{ if(!done){done=true;clearTimeout(t);reject(new Error(`ws-close:${url}`));} };
     });
   }
 
-  // ── Step 1: resolve pubkey via NIP-05 (same-origin) ──────────────────────
+  // ── Fetch with timeout ────────────────────────────────────────────────────
+  async function fetchJSON(url, ms=5000) {
+    const r = await fetch(url, {signal: AbortSignal.timeout(ms)});
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  }
+
+  // ── Step 1: Resolve pubkey via NIP-05 (same-origin, no CORS) ─────────────
   let pubkey = '';
+  let nip05DomainMatch = false; // true = pubkey confirmed on OUR domain
   try {
-    const r = await fetch(`https://${DOMAIN}/.well-known/nostr.json?name=_`, { signal: AbortSignal.timeout(4000) });
-    if (r.ok) {
-      const j = await r.json();
-      pubkey = j?.names?.['_'] || Object.values(j?.names||{})[0] || '';
-    }
+    const j = await fetchJSON(`https://${DOMAIN}/.well-known/nostr.json?name=_`, 4000);
+    const pk = j?.names?.['_'] || Object.values(j?.names||{})[0] || '';
+    if (pk) { pubkey = pk; nip05DomainMatch = true; }
   } catch {}
 
   if (!pubkey) { showError('Could not resolve pubkey from NIP-05.'); return; }
 
-  // ── Step 2: race relays ───────────────────────────────────────────────────
+  // ── Step 2: Race relays for kind:0 ───────────────────────────────────────
   let result;
   try {
     result = await Promise.any(RELAYS.map(r => queryRelay(r, pubkey)));
   } catch(agg) {
-    const reasons = agg?.errors?.map(e=>e.message).join(' | ') ?? String(agg);
-    showError('All relays failed.', reasons);
+    showError('All relays failed.', agg?.errors?.map(e=>e.message).join(' | ') ?? String(agg));
     return;
   }
 
   const { meta } = result;
   const npub = hexToNpub(pubkey);
 
-  // ── Step 3: parallel validation ───────────────────────────────────────────
-  // NIP-05: verify pubkey matches what /.well-known/nostr.json returns
-  // (already resolved above — if we got here, it matched)
-  let nip05Verified = true; // pubkey came from our own domain's nostr.json
+  // ── Step 3: Parallel validation ───────────────────────────────────────────
 
-  // Lightning: validate by fetching LNURL well-known (same-origin-ish or CORS-open)
+  // 3a. NIP-05 handle verification
+  // Golden: pubkey in meta.nip05 matches our own /.well-known/nostr.json (already confirmed above)
+  // Green:  meta.nip05 domain resolves externally (we skip re-fetching; same-origin already passed)
+  const nip05 = meta.nip05 || `_@${DOMAIN}`;
+  const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
+  // Check if the nip05 identifier's domain matches our own domain
+  const nip05Domain = nip05.includes('@') ? nip05.split('@')[1] : '';
+  const handleTickLevel = nip05DomainMatch && nip05Domain === DOMAIN ? 'gold'
+    : nip05DomainMatch ? 'green'
+    : null;
+  const handleTickTitle = handleTickLevel === 'gold'
+    ? 'Verified: pubkey confirmed in /.well-known/nostr.json on this domain'
+    : 'Verified: NIP-05 identity confirmed';
+
+  // 3b. Lightning address verification
   const lightning = meta.lud16 || meta.lud06 || '';
-  let lnVerified = false;
+  let lnTickLevel = null;
+  let lnTickTitle = '';
   if (lightning && lightning.includes('@')) {
     const [lnUser, lnDomain] = lightning.split('@');
     try {
-      const lnRes = await fetch(
-        `https://${lnDomain}/.well-known/lnurlp/${lnUser}`,
-        { signal: AbortSignal.timeout(5000) }
-      );
-      if (lnRes.ok) {
-        const lnJson = await lnRes.json();
-        // Valid LNURL-pay response must have callback + tag=payRequest
-        lnVerified = lnJson?.tag === 'payRequest' && !!lnJson?.callback;
+      const lnJson = await fetchJSON(`https://${lnDomain}/.well-known/lnurlp/${lnUser}`, 5000);
+      if (lnJson?.tag === 'payRequest' && lnJson?.callback) {
+        // Golden if lightning domain matches our own domain (self-hosted wallet)
+        // Green if it resolves on any external domain
+        lnTickLevel = lnDomain === DOMAIN ? 'gold' : 'green';
+        lnTickTitle = lnTickLevel === 'gold'
+          ? 'Verified: Lightning address confirmed via /.well-known/lnurlp on this domain'
+          : 'Verified: Lightning address resolves to a valid LNURL-pay endpoint';
       }
     } catch {}
   }
 
-  // ── Step 4: parse social fields ───────────────────────────────────────────
-  const name      = meta.display_name || meta.name || DOMAIN;
-  const avatarUrl = meta.picture || '';
-  const bannerUrl = meta.banner  || '';
-  const nip05     = meta.nip05   || `_@${DOMAIN}`;
-  const website   = meta.website || '';
+  // ── Step 4: Gravatar social links ─────────────────────────────────────────
+  // Gravatar public API — no auth required for public profiles
+  // Returns verified_accounts array with service_type, service_label, url
+  let gravatarLinks = [];
+  try {
+    // Try slug-based endpoint first (public, no API key)
+    const gData = await fetchJSON(`https://api.gravatar.com/v3/profiles/${GRAVATAR_USER}`, 6000);
+    // verified_accounts is the array of verified social links
+    const verified = gData?.verified_accounts || gData?.accounts || [];
+    gravatarLinks = verified
+      .filter(a => a?.url || a?.profile_url)
+      .map(a => ({
+        url:   a.url || a.profile_url,
+        label: a.service_label || a.service_type || '',
+        type:  (a.service_type || '').toLowerCase(),
+      }));
+  } catch {
+    // Gravatar API may require auth; try legacy JSON endpoint as fallback
+    try {
+      const gLegacy = await fetchJSON(`https://www.gravatar.com/${GRAVATAR_USER}.json`, 6000);
+      const accts = gLegacy?.entry?.[0]?.accounts || [];
+      gravatarLinks = accts
+        .filter(a => a?.url)
+        .map(a => ({
+          url:   a.url,
+          label: a.display || a.shortname || a.domain || '',
+          type:  (a.shortname || '').toLowerCase(),
+        }));
+    } catch {}
+  }
 
-  // Ditto stores extra links as array of [name, value] pairs in meta.fields
-  const rawFields = meta.fields || meta.links || [];
-  const extraLinks = Array.isArray(rawFields)
-    ? rawFields.map(f => Array.isArray(f) ? { name: f[0], value: f[1] } : f)
-               .filter(f => f?.name && f?.value)
-    : [];
-
-  // ── Social platform detection ─────────────────────────────────────────────
+  // ── Step 5: Platform icon mapping ─────────────────────────────────────────
   const PLATFORMS = [
-    { key:'mastodon',   test: u => /mastodon|fosstodon|hachyderm|infosec\.exchange|social\.coop|techhub\.social/i.test(u), icon:'fa-brands fa-mastodon',   label:'Mastodon',   color:'#6364ff' },
-    { key:'bluesky',    test: u => /bsky\.app|bsky\.social/i.test(u),                                                       icon:'fa-brands fa-bluesky',    label:'Bluesky',    color:'#0085ff' },
-    { key:'instagram',  test: u => /instagram\.com/i.test(u),                                                               icon:'fa-brands fa-instagram',  label:'Instagram',  color:'#e1306c' },
-    { key:'threads',    test: u => /threads\.net/i.test(u),                                                                 icon:'fa-brands fa-threads',    label:'Threads',    color:'#e8e8e8' },
-    { key:'twitter',    test: u => /twitter\.com|x\.com/i.test(u),                                                          icon:'fa-brands fa-x-twitter',  label:'X',          color:'#e8e8e8' },
-    { key:'github',     test: u => /github\.com/i.test(u),                                                                  icon:'fa-brands fa-github',     label:'GitHub',     color:'#e8e8e8' },
-    { key:'youtube',    test: u => /youtube\.com|youtu\.be/i.test(u),                                                       icon:'fa-brands fa-youtube',    label:'YouTube',    color:'#ff0000' },
-    { key:'twitch',     test: u => /twitch\.tv/i.test(u),                                                                   icon:'fa-brands fa-twitch',     label:'Twitch',     color:'#9146ff' },
-    { key:'tiktok',     test: u => /tiktok\.com/i.test(u),                                                                  icon:'fa-brands fa-tiktok',     label:'TikTok',     color:'#e8e8e8' },
-    { key:'linkedin',   test: u => /linkedin\.com/i.test(u),                                                                icon:'fa-brands fa-linkedin',   label:'LinkedIn',   color:'#0a66c2' },
-    { key:'facebook',   test: u => /facebook\.com|fb\.com/i.test(u),                                                        icon:'fa-brands fa-facebook',   label:'Facebook',   color:'#1877f2' },
-    { key:'reddit',     test: u => /reddit\.com/i.test(u),                                                                  icon:'fa-brands fa-reddit',     label:'Reddit',     color:'#ff4500' },
-    { key:'telegram',   test: u => /t\.me|telegram\.me/i.test(u),                                                           icon:'fa-brands fa-telegram',   label:'Telegram',   color:'#2ca5e0' },
-    { key:'discord',    test: u => /discord\.gg|discord\.com/i.test(u),                                                     icon:'fa-brands fa-discord',    label:'Discord',    color:'#5865f2' },
-    { key:'farcaster',  test: u => /warpcast\.com|farcaster\.xyz/i.test(u),                                                 icon:'fa-solid fa-circle-nodes',label:'Farcaster',  color:'#8a63d2' },
-    { key:'nostr',      test: u => /nostr\.|njump\.me|snort\.social|primal\.net|ditto\.pub/i.test(u),                       icon:'fa-solid fa-bolt',        label:'Nostr',      color:'#a78bfa' },
-    { key:'substack',   test: u => /substack\.com/i.test(u),                                                                icon:'fa-solid fa-newspaper',   label:'Substack',   color:'#ff6719' },
-    { key:'medium',     test: u => /medium\.com/i.test(u),                                                                  icon:'fa-brands fa-medium',     label:'Medium',     color:'#e8e8e8' },
-    { key:'tumblr',     test: u => /tumblr\.com/i.test(u),                                                                  icon:'fa-brands fa-tumblr',     label:'Tumblr',     color:'#35465c' },
-    { key:'pinterest',  test: u => /pinterest\.com/i.test(u),                                                               icon:'fa-brands fa-pinterest',  label:'Pinterest',  color:'#e60023' },
-    { key:'snapchat',   test: u => /snapchat\.com/i.test(u),                                                                icon:'fa-brands fa-snapchat',   label:'Snapchat',   color:'#fffc00' },
-    { key:'spotify',    test: u => /spotify\.com/i.test(u),                                                                 icon:'fa-brands fa-spotify',    label:'Spotify',    color:'#1db954' },
-    { key:'soundcloud', test: u => /soundcloud\.com/i.test(u),                                                              icon:'fa-brands fa-soundcloud', label:'SoundCloud', color:'#ff5500' },
-    { key:'patreon',    test: u => /patreon\.com/i.test(u),                                                                 icon:'fa-brands fa-patreon',    label:'Patreon',    color:'#ff424d' },
-    { key:'ko-fi',      test: u => /ko-fi\.com/i.test(u),                                                                   icon:'fa-solid fa-mug-hot',     label:'Ko-fi',      color:'#ff5e5b' },
-    { key:'website',    test: () => false,                                                                                   icon:'fa-solid fa-globe',       label:'Website',    color:'#888'    },
+    { key:'mastodon',   test: u => /mastodon|fosstodon|hachyderm|infosec\.exchange|social\.coop|techhub\.social|mstdn\./i.test(u), icon:'fa-brands fa-mastodon',   color:'#6364ff' },
+    { key:'bluesky',    test: u => /bsky\.app|bsky\.social/i.test(u),                                                              icon:'fa-brands fa-bluesky',    color:'#0085ff' },
+    { key:'instagram',  test: u => /instagram\.com/i.test(u),                                                                      icon:'fa-brands fa-instagram',  color:'#e1306c' },
+    { key:'threads',    test: u => /threads\.net/i.test(u),                                                                        icon:'fa-brands fa-threads',    color:'#e8e8e8' },
+    { key:'twitter',    test: u => /twitter\.com|x\.com/i.test(u),                                                                 icon:'fa-brands fa-x-twitter',  color:'#e8e8e8' },
+    { key:'github',     test: u => /github\.com/i.test(u),                                                                         icon:'fa-brands fa-github',     color:'#e8e8e8' },
+    { key:'youtube',    test: u => /youtube\.com|youtu\.be/i.test(u),                                                              icon:'fa-brands fa-youtube',    color:'#ff0000' },
+    { key:'twitch',     test: u => /twitch\.tv/i.test(u),                                                                          icon:'fa-brands fa-twitch',     color:'#9146ff' },
+    { key:'tiktok',     test: u => /tiktok\.com/i.test(u),                                                                         icon:'fa-brands fa-tiktok',     color:'#e8e8e8' },
+    { key:'linkedin',   test: u => /linkedin\.com/i.test(u),                                                                       icon:'fa-brands fa-linkedin',   color:'#0a66c2' },
+    { key:'facebook',   test: u => /facebook\.com|fb\.com/i.test(u),                                                               icon:'fa-brands fa-facebook',   color:'#1877f2' },
+    { key:'reddit',     test: u => /reddit\.com/i.test(u),                                                                         icon:'fa-brands fa-reddit',     color:'#ff4500' },
+    { key:'telegram',   test: u => /t\.me|telegram\.me/i.test(u),                                                                  icon:'fa-brands fa-telegram',   color:'#2ca5e0' },
+    { key:'discord',    test: u => /discord\.gg|discord\.com/i.test(u),                                                            icon:'fa-brands fa-discord',    color:'#5865f2' },
+    { key:'farcaster',  test: u => /warpcast\.com|farcaster\.xyz/i.test(u),                                                        icon:'fa-solid fa-circle-nodes',color:'#8a63d2' },
+    { key:'nostr',      test: u => /nostr\.|njump\.me|snort\.social|primal\.net|ditto\.pub/i.test(u),                              icon:'fa-solid fa-bolt',        color:'#a78bfa' },
+    { key:'substack',   test: u => /substack\.com/i.test(u),                                                                       icon:'fa-solid fa-newspaper',   color:'#ff6719' },
+    { key:'medium',     test: u => /medium\.com/i.test(u),                                                                         icon:'fa-brands fa-medium',     color:'#e8e8e8' },
+    { key:'tumblr',     test: u => /tumblr\.com/i.test(u),                                                                         icon:'fa-brands fa-tumblr',     color:'#35465c' },
+    { key:'pinterest',  test: u => /pinterest\.com/i.test(u),                                                                      icon:'fa-brands fa-pinterest',  color:'#e60023' },
+    { key:'spotify',    test: u => /spotify\.com/i.test(u),                                                                        icon:'fa-brands fa-spotify',    color:'#1db954' },
+    { key:'soundcloud', test: u => /soundcloud\.com/i.test(u),                                                                     icon:'fa-brands fa-soundcloud', color:'#ff5500' },
+    { key:'patreon',    test: u => /patreon\.com/i.test(u),                                                                        icon:'fa-brands fa-patreon',    color:'#ff424d' },
+    { key:'ko-fi',      test: u => /ko-fi\.com/i.test(u),                                                                          icon:'fa-solid fa-mug-hot',     color:'#ff5e5b' },
+    { key:'website',    test: () => false,                                                                                          icon:'fa-solid fa-globe',       color:'#888'    },
   ];
 
   function detectPlatform(url) {
     return PLATFORMS.find(p => p.test(url)) || PLATFORMS[PLATFORMS.length - 1];
   }
 
-  // Build social links list from extraFields + website
-  const socialLinks = [];
-  if (website) socialLinks.push({ url: website, name: 'Website' });
-  for (const f of extraLinks) {
-    const val = String(f.value).trim();
-    if (val.startsWith('http')) socialLinks.push({ url: val, name: f.name });
-  }
-  // Deduplicate by URL
-  const seen = new Set();
-  const uniqueLinks = socialLinks.filter(l => { if (seen.has(l.url)) return false; seen.add(l.url); return true; });
-
-  // ── Inject rel=me links into <head> ───────────────────────────────────────
-  for (const { url } of uniqueLinks) {
+  // ── Step 6: Inject rel=me into <head> ─────────────────────────────────────
+  for (const { url } of gravatarLinks) {
     const l = document.createElement('link');
     l.rel = 'me'; l.href = url;
     document.head.appendChild(l);
   }
+  // Also inject Nostr profile link
+  if (npub) {
+    const l = document.createElement('link');
+    l.rel = 'me'; l.href = `https://njump.me/${npub}`;
+    document.head.appendChild(l);
+  }
 
-  // ── Banner ────────────────────────────────────────────────────────────────
+  // ── Step 7: Banner ────────────────────────────────────────────────────────
+  const bannerUrl = meta.banner || '';
   const banner = document.getElementById('banner');
   if (bannerUrl) {
     const img = new Image();
@@ -437,7 +477,9 @@
     img.src = bannerUrl;
   }
 
-  // ── Avatar ────────────────────────────────────────────────────────────────
+  // ── Step 8: Avatar ────────────────────────────────────────────────────────
+  const avatarUrl = meta.picture || '';
+  const name      = meta.display_name || meta.name || DOMAIN;
   const avatarWrap = document.getElementById('avatarWrap');
   const makeFallback = n => {
     const d = document.createElement('div');
@@ -456,49 +498,36 @@
     avatarWrap.replaceChildren(makeFallback(name));
   }
 
-  // ── Handle display ────────────────────────────────────────────────────────
-  const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
-  const nostrUri      = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
+  // ── Step 9: Social buttons HTML ───────────────────────────────────────────
+  const nostrUri = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
 
-  // Nostr SVG logo (simple lightning-bolt style used by Nostr ecosystem)
-  const nostrLogoSvg = `<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0"><path d="M13 2L4.5 13.5H11L10 22L19.5 10.5H13Z"/></svg>`;
-
-  // ── Social buttons HTML ───────────────────────────────────────────────────
   let socialHtml = '';
-  if (uniqueLinks.length) {
-    const btns = uniqueLinks.map(({ url, name: fieldName }) => {
-      const p = detectPlatform(url);
-      // Use field name if it's meaningful, else platform label
-      const label = (fieldName && fieldName.toLowerCase() !== 'website' && fieldName.length < 24)
-        ? fieldName : p.label;
-      return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me" title="${esc(label)}">
+  if (gravatarLinks.length) {
+    const btns = gravatarLinks.map(({ url, label, type }) => {
+      const p = PLATFORMS.find(pl => pl.key === type) || detectPlatform(url);
+      const displayLabel = label || p.key;
+      return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me">
         <i class="${esc(p.icon)}" style="color:${esc(p.color)};"></i>
-        ${esc(label)}
+        ${esc(displayLabel)}
       </a>`;
     }).join('');
     socialHtml = `<div class="section-title">Find me on</div><div class="social-row">${btns}</div>`;
   }
 
-  // ── Render body ───────────────────────────────────────────────────────────
+  // ── Step 10: Render ───────────────────────────────────────────────────────
   document.getElementById('body').innerHTML = `
-    <div style="font-size:1.3rem;font-weight:700;line-height:1.2;color:var(--text);">${esc(name)}</div>
+    <div class="display-name">${esc(name)}</div>
 
-    <div class="pills" style="margin-top:12px;">
-
-      <!-- Nostr handle button → opens in default Nostr client via NIP-21 -->
+    <div class="pills">
       <a class="pill" href="${esc(nostrUri)}" title="Open in your Nostr client">
-        ${nostrLogoSvg}
         @${esc(displayHandle)}
-        ${nip05Verified ? tickSvg : ''}
+        ${tickHtml(handleTickLevel, handleTickTitle)}
       </a>
 
-      <!-- Lightning address button -->
       ${lightning ? `<a class="pill" href="lightning:${esc(lightning)}" title="Pay via Lightning Network">
-        <i class="fa-solid fa-bolt"></i>
-        ${esc(lightning)}
-        ${lnVerified ? tickSvg : ''}
+        ⚡ ${esc(lightning)}
+        ${tickHtml(lnTickLevel, lnTickTitle)}
       </a>` : ''}
-
     </div>
 
     ${socialHtml}
