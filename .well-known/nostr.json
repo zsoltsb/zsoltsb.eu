@@ -49,7 +49,9 @@
       "wss://purplepag.es",
       "wss://relay.ngit.dev",
       "wss://git.shakespeare.diy",
-      "wss://gitnostr.com"
+      "wss://gitnostr.com",
+      "wss://vault.iris.to",
+      "wss://temp.iris.to"
     ]
   }
 }
