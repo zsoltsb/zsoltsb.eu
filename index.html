@@ -56,11 +56,20 @@
       position: relative;
     }
 
+    /* Banner media tick — bottom-right of banner */
+    .banner-tick {
+      position: absolute;
+      bottom: 8px;
+      right: 10px;
+    }
+
     /* ── Avatar ── */
     .avatar-wrap {
       position: absolute;
       bottom: -48px;
       left: 24px;
+      /* needed so the tick badge is relative to this */
+      display: inline-block;
     }
     .avatar-img, .avatar-fallback {
       width: 96px; height: 96px;
@@ -73,6 +82,13 @@
       background: var(--accent);
       display: flex; align-items: center; justify-content: center;
       font-size: 2.4rem; font-weight: 700; color: #fff;
+    }
+
+    /* Avatar media tick — bottom-right of avatar circle */
+    .avatar-tick {
+      position: absolute;
+      bottom: 2px;
+      right: 2px;
     }
 
     /* ── Body ── */
@@ -134,6 +150,13 @@
     .tick.gold  { background: var(--gold); }
     .tick.green { background: var(--green); }
 
+    /* Larger tick for media badges */
+    .tick.lg {
+      width: 20px; height: 20px;
+      box-shadow: 0 0 0 2px var(--surface);
+    }
+    .tick.lg svg { width: 11px; height: 11px; }
+
     /* ── Footer ── */
     .footer-link {
       display: block;
@@ -186,15 +209,15 @@
 </div>
 
 <script>
-(async () => {
-  const DOMAIN = 'zsoltsb.eu';
-  const DITTO  = 'https://ditto.pub';
+void (async () => {
 
-  // Lightning address local part — hardcoded, known to be wallet@zsoltsb.eu
+  // ── Constants ──────────────────────────────────────────────────────────────
+  const DOMAIN    = 'zsoltsb.eu';
+  const DITTO     = 'https://ditto.pub';
   const LN_USER   = 'wallet';
-  const LN_DOMAIN = DOMAIN; // same domain = self-hosted
+  const LN_DOMAIN = DOMAIN;
 
-  const RELAYS = [
+  const FALLBACK_RELAYS = [
     'wss://relay.damus.io',
     'wss://relay.nostr.band',
     'wss://nos.lol',
@@ -209,135 +232,186 @@
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
 
-  // ── Helpers ───────────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────────────────────────
   const esc = s => String(s ?? '')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;')
     .replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-  function tickHtml(level, title) {
-    if (!level) return '';
-    return `<span class="tick ${esc(level)}" title="${esc(title)}">
-      <svg viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
-    </span>`;
-  }
+  const tickHtml = (level, title, large = false) => !level ? '' :
+    `<span class="tick ${large ? 'lg ' : ''}${esc(level)}" title="${esc(title)}">
+       <svg viewBox="0 0 10 10"><polyline points="1.5,5 4,7.5 8.5,2.5"/></svg>
+     </span>`;
 
-  function showError(msg, detail) {
+  const showError = (msg, detail) => {
     document.getElementById('body').innerHTML =
-      `<div class="error">⚠️ Could not load profile.<br>${esc(msg)}${detail?`<code>${esc(detail)}</code>`:''}</div>`;
-  }
+      `<div class="error">⚠️ Could not load profile.<br>${esc(msg)}${
+        detail ? `<code>${esc(detail)}</code>` : ''}</div>`;
+  };
 
-  async function fetchJSON(url, ms = 5000) {
+  const fetchJSON = async (url, ms = 5000) => {
     const r = await fetch(url, { signal: AbortSignal.timeout(ms) });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
-  }
+  };
 
-  // ── DNS-over-HTTPS TXT lookup ─────────────────────────────────────────────
-  async function dohTxtLookup(hostname) {
+  // ── DNS-over-HTTPS TXT lookup ──────────────────────────────────────────────
+  const dohTxtLookup = async hostname => {
     for (const resolver of DOH_RESOLVERS) {
       try {
         const data = await fetchJSON(resolver(hostname), 4000);
         const answers = (data?.Answer || []).filter(a => a.type === 16);
-        if (answers.length) {
+        if (answers.length)
           return answers.map(a => String(a.data).replace(/^"|"$/g, '').trim());
-        }
       } catch {}
     }
     return [];
-  }
+  };
 
-  // ── Minimal bech32 encoder → npub ─────────────────────────────────────────
-  function hexToNpub(hex) {
+  // ── Minimal bech32 → npub ─────────────────────────────────────────────────
+  const hexToNpub = hex => {
     try {
       const CS = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
       const cb = (d,f,t,p) => { let a=0,b=0,r=[]; for(const v of d){a=(a<<f)|v;b+=f;while(b>=t){b-=t;r.push((a>>b)&((1<<t)-1));}}if(p&&b>0)r.push((a<<(t-b))&((1<<t)-1));return r; };
       const pm = v => { const G=[0x3b6a57b2,0x26508e6d,0x1ea119fa,0x3d4233dd,0x2a1462b3];let c=1;for(const x of v){const b=c>>25;c=((c&0x1ffffff)<<5)^x;for(let i=0;i<5;i++)if((b>>i)&1)c^=G[i];}return c; };
       const he = h => { const r=[];for(const c of h)r.push(c.charCodeAt(0)>>5);r.push(0);for(const c of h)r.push(c.charCodeAt(0)&31);return r; };
       const cs = (h,d) => { const v=he(h).concat(d).concat([0,0,0,0,0,0]);const m=pm(v)^1;const r=[];for(let p=0;p<6;p++)r.push((m>>(5*(5-p)))&31);return r; };
-      const bytes = hex.match(/.{1,2}/g).map(b=>parseInt(b,16));
-      const data  = cb(bytes,8,5,true);
+      const bytes = hex.match(/.{1,2}/g).map(b => parseInt(b, 16));
+      const data  = cb(bytes, 8, 5, true);
       const hrp   = 'npub';
-      return hrp+'1'+data.concat(cs(hrp,data)).map(d=>CS[d]).join('');
+      return hrp + '1' + data.concat(cs(hrp, data)).map(d => CS[d]).join('');
     } catch { return null; }
-  }
+  };
 
-  // ── WebSocket relay query ─────────────────────────────────────────────────
-  function queryRelay(url, pubkey) {
-    return new Promise((resolve, reject) => {
+  // ── Media hosting check ────────────────────────────────────────────────────
+  // Returns 'gold' if URL is served from DOMAIN,
+  // 'green' if from a trusted media server listed in /.well-known/media-servers.json,
+  // null otherwise.
+  const checkMediaHost = (() => {
+    // Fetch media-servers.json once, cache the result
+    let mediaServersPromise = null;
+    const getMediaServers = () => {
+      if (!mediaServersPromise) {
+        mediaServersPromise = fetchJSON(
+          `https://${DOMAIN}/.well-known/media-servers.json`, 4000
+        ).then(j => {
+          // Format per NIP-96 / Blossom: { servers: ["https://..."] }
+          // Also handle flat array format
+          const raw = Array.isArray(j) ? j : (j?.servers || j?.media_servers || []);
+          return raw.map(s => {
+            try { return new URL(s).hostname.toLowerCase(); } catch { return null; }
+          }).filter(Boolean);
+        }).catch(() => []);
+      }
+      return mediaServersPromise;
+    };
+
+    return async (url) => {
+      if (!url) return null;
+      let hostname;
+      try { hostname = new URL(url).hostname.toLowerCase(); } catch { return null; }
+
+      // Golden: served directly from own domain
+      if (hostname === DOMAIN || hostname.endsWith(`.${DOMAIN}`)) return 'gold';
+
+      // Green: listed in /.well-known/media-servers.json
+      const trusted = await getMediaServers();
+      if (trusted.some(h => hostname === h || hostname.endsWith(`.${h}`))) return 'green';
+
+      return null;
+    };
+  })();
+
+  // ── Race all relays — keep all pings alive, resolve on first win ───────────
+  // Losers are NOT closed; they continue running passively.
+  // Only the winning socket is explicitly closed after resolving.
+  const raceRelays = (async (relays, pubkey) => {
+    const SUB = 'p';
+    return Promise.any(relays.map(url => new Promise((resolve, reject) => {
       let done = false;
       let ws;
       try { ws = new WebSocket(url); } catch(e) { return reject(e); }
-      const t = setTimeout(() => {
-        if (!done) { done=true; try{ws.close();}catch{} reject(new Error(`timeout:${url}`)); }
-      }, 7000);
-      ws.onopen = () => ws.send(JSON.stringify(['REQ','p',{kinds:[0],authors:[pubkey],limit:1}]));
+
+      const fail  = r => { if (!done) { done = true; try{ws.close();}catch{} reject(new Error(r)); } };
+      const timer = setTimeout(() => fail(`timeout:${url}`), 7000);
+
+      ws.onopen = () =>
+        ws.send(JSON.stringify(['REQ', SUB, { kinds: [0], authors: [pubkey], limit: 1 }]));
+
       ws.onmessage = e => {
         try {
           const m = JSON.parse(e.data);
-          if (m[0]==='EVENT' && m[1]==='p' && m[2]?.kind===0 && !done) {
-            done=true; clearTimeout(t); try{ws.close();}catch{}
+          if (m[0] === 'EVENT' && m[1] === SUB && m[2]?.kind === 0 && !done) {
+            done = true;
+            clearTimeout(timer);
+            // Close only the winning socket — losers remain open passively
+            try { ws.close(); } catch {}
             try { resolve({ meta: JSON.parse(m[2].content), pubkey: m[2].pubkey }); }
             catch(pe) { reject(pe); }
-          } else if (m[0]==='EOSE' && !done) {
-            done=true; clearTimeout(t); try{ws.close();}catch{}
-            reject(new Error(`no-event:${url}`));
+          } else if (m[0] === 'EOSE' && !done) {
+            fail(`no-event:${url}`);
           }
         } catch {}
       };
-      ws.onerror = () => { if(!done){done=true;clearTimeout(t);reject(new Error(`ws-err:${url}`));} };
-      ws.onclose = () => { if(!done){done=true;clearTimeout(t);reject(new Error(`ws-close:${url}`));} };
-    });
-  }
 
-  // ═════════════════════════════════════════════════════════════════════════
+      ws.onerror = () => fail(`ws-err:${url}`);
+      ws.onclose = () => { if (!done) fail(`ws-close:${url}`); };
+    })));
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // MAIN
-  // ═════════════════════════════════════════════════════════════════════════
+  // ═══════════════════════════════════════════════════════════════════════════
 
-  // ── 1. Resolve pubkey via same-origin /.well-known/nostr.json ─────────────
-  let pubkey = '';
+  // ── 1. Fetch nostr.json — pubkey + relay hints ─────────────────────────────
+  let pubkey           = '';
   let wellKnownNostrOk = false;
+  let relayHints       = [];
+
   try {
     const j = await fetchJSON(`https://${DOMAIN}/.well-known/nostr.json?name=_`, 4000);
     const pk = j?.names?.['_'] || Object.values(j?.names || {})[0] || '';
-    if (pk) { pubkey = pk; wellKnownNostrOk = true; }
+    if (pk) {
+      pubkey           = pk;
+      wellKnownNostrOk = true;
+      const hintMap    = j?.relays?.[pk] || [];
+      relayHints       = Array.isArray(hintMap) ? hintMap : [];
+    }
   } catch {}
 
   if (!pubkey) { showError('Could not resolve pubkey from NIP-05.'); return; }
 
-  // ── 2. Race relays for kind:0 ─────────────────────────────────────────────
+  // Relay hints first (most likely to have the event), then fallbacks, deduped
+  const allRelays = [...new Set([...relayHints, ...FALLBACK_RELAYS])];
+
+  // ── 2. Race all relays simultaneously (losers stay alive) ─────────────────
   let result;
   try {
-    result = await Promise.any(RELAYS.map(r => queryRelay(r, pubkey)));
+    result = await raceRelays(allRelays, pubkey);
   } catch(agg) {
-    showError('All relays failed.', agg?.errors?.map(e=>e.message).join(' | ') ?? String(agg));
+    showError('All relays failed.',
+      agg?.errors?.map(e => e.message).join(' | ') ?? String(agg));
     return;
   }
 
-  const { meta } = result;
-  const npub = hexToNpub(pubkey);
-  const nip05 = meta.nip05 || `_@${DOMAIN}`;
-  const nip05Domain = nip05.includes('@') ? nip05.split('@')[1] : '';
+  const { meta }      = result;
+  const npub          = hexToNpub(pubkey);
+  const nip05         = meta.nip05 || `_@${DOMAIN}`;
+  const nip05Domain   = nip05.includes('@') ? nip05.split('@')[1] : '';
   const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
 
   // ── 3. All verification checks in parallel ────────────────────────────────
-
-  // 3a. DNS TXT for NIP-05 — check _nostr.zsoltsb.eu and _nip05.zsoltsb.eu
-  //     for a record containing the hex pubkey or npub <kcite ref="1"/>
   const dnsNostrPromise = (async () => {
     const npubVal = npub || '';
     for (const name of [`_nostr.${DOMAIN}`, `_nip05.${DOMAIN}`, DOMAIN]) {
       try {
         const txts = await dohTxtLookup(name);
-        if (txts.some(t => t.includes(pubkey) || (npubVal && t.includes(npubVal)))) {
+        if (txts.some(t => t.includes(pubkey) || (npubVal && t.includes(npubVal))))
           return true;
-        }
       } catch {}
     }
     return false;
   })();
 
-  // 3b. DNS TXT for Lightning — check _lnurlp.zsoltsb.eu
-  //     Standard: TXT value contains lnurlp= or the username <kcite ref="2"/>
   const dnsLnPromise = (async () => {
     try {
       const txts = await dohTxtLookup(`_lnurlp.${LN_DOMAIN}`);
@@ -349,8 +423,6 @@
     } catch { return false; }
   })();
 
-  // 3c. LNURL-pay well-known — hardcoded to wallet@zsoltsb.eu
-  //     This is self-hosted (LN_DOMAIN === DOMAIN) so always golden if it resolves
   const lnWellKnownPromise = (async () => {
     try {
       const j = await fetchJSON(
@@ -360,24 +432,26 @@
     } catch { return false; }
   })();
 
-  const [dnsNostrOk, dnsLnOk, lnWellKnownOk] = await Promise.all([
+  // Media host checks run in parallel with everything else
+  const avatarMediaPromise = checkMediaHost(meta.picture || '');
+  const bannerMediaPromise = checkMediaHost(meta.banner  || '');
+
+  const [
+    dnsNostrOk,
+    dnsLnOk,
+    lnWellKnownOk,
+    avatarMediaLevel,
+    bannerMediaLevel,
+  ] = await Promise.all([
     dnsNostrPromise,
     dnsLnPromise,
     lnWellKnownPromise,
+    avatarMediaPromise,
+    bannerMediaPromise,
   ]);
 
-  // ── 4. Determine tick levels ──────────────────────────────────────────────
-  //
-  // Priority rule: file present (self-hosted) = golden, always.
-  // DNS TXT is additive — it adds detail to the tooltip but cannot downgrade.
-  // External-only (no self-hosted file) = green.
-  //
-  // Handle:
-  //   Golden = /.well-known/nostr.json present on own domain AND nip05 domain matches
-  //   Green  = relay-confirmed only (no self-hosted file)
-  let handleTickLevel = null;
-  let handleTickTitle = '';
-
+  // ── 4. Tick levels ─────────────────────────────────────────────────────────
+  let handleTickLevel = null, handleTickTitle = '';
   if (wellKnownNostrOk && nip05Domain === DOMAIN) {
     handleTickLevel = 'gold';
     const parts = ['/.well-known/nostr.json ✓'];
@@ -391,80 +465,98 @@
     handleTickTitle = 'Verified: NIP-05 identity confirmed via relay';
   }
 
-  // Lightning:
-  //   Golden = /.well-known/lnurlp/wallet resolves (self-hosted, LN_DOMAIN === DOMAIN)
-  //            DNS TXT adds to tooltip only
-  //   No tick = file doesn't resolve
-  let lnTickLevel = null;
-  let lnTickTitle = '';
-
+  let lnTickLevel = null, lnTickTitle = '';
   if (lnWellKnownOk) {
-    // LN_DOMAIN === DOMAIN is always true here (hardcoded), so always golden
     lnTickLevel = 'gold';
     const parts = ['/.well-known/lnurlp ✓'];
     if (dnsLnOk) parts.push('DNS TXT _lnurlp record ✓');
     lnTickTitle = 'Verified: ' + parts.join('  ');
   }
 
-  // ── 5. Inject rel=me into <head> ──────────────────────────────────────────
+  // Media tick tooltips
+  const avatarTickTitle = avatarMediaLevel === 'gold'
+    ? `Avatar served from ${DOMAIN} ✓`
+    : avatarMediaLevel === 'green'
+      ? 'Avatar served from a trusted media server ✓'
+      : '';
+
+  const bannerTickTitle = bannerMediaLevel === 'gold'
+    ? `Header image served from ${DOMAIN} ✓`
+    : bannerMediaLevel === 'green'
+      ? 'Header image served from a trusted media server ✓'
+      : '';
+
+  // ── 5. rel=me injection ────────────────────────────────────────────────────
   if (npub) {
     const l = document.createElement('link');
     l.rel = 'me'; l.href = `https://njump.me/${npub}`;
     document.head.appendChild(l);
   }
 
-  // ── 6. Banner ─────────────────────────────────────────────────────────────
-  const bannerUrl = meta.banner || '';
-  if (bannerUrl) {
+  // ── 6. Banner ──────────────────────────────────────────────────────────────
+  const bannerEl = document.getElementById('banner');
+  if (meta.banner) {
     const img = new Image();
     img.onload = () => {
-      const b = document.getElementById('banner');
-      b.style.backgroundImage    = `url(${bannerUrl})`;
-      b.style.backgroundSize     = 'cover';
-      b.style.backgroundPosition = 'center';
+      bannerEl.style.backgroundImage    = `url(${meta.banner})`;
+      bannerEl.style.backgroundSize     = 'cover';
+      bannerEl.style.backgroundPosition = 'center';
     };
-    img.src = bannerUrl;
+    img.src = meta.banner;
+  }
+  // Inject banner media tick
+  if (bannerMediaLevel) {
+    const bt = document.createElement('div');
+    bt.className = 'banner-tick';
+    bt.innerHTML = tickHtml(bannerMediaLevel, bannerTickTitle, true);
+    bannerEl.appendChild(bt);
   }
 
-  // ── 7. Avatar ─────────────────────────────────────────────────────────────
-  const avatarUrl = meta.picture || '';
-  const name      = meta.display_name || meta.name || DOMAIN;
+  // ── 7. Avatar ──────────────────────────────────────────────────────────────
+  const name       = meta.display_name || meta.name || DOMAIN;
   const avatarWrap = document.getElementById('avatarWrap');
+
   const makeFallback = n => {
     const d = document.createElement('div');
-    d.className = 'avatar-fallback';
+    d.className   = 'avatar-fallback';
     d.textContent = (n || '?')[0].toUpperCase();
     return d;
   };
-  if (avatarUrl) {
+
+  if (meta.picture) {
     const img = document.createElement('img');
     img.className = 'avatar-img'; img.alt = name;
-    img.onerror = () => img.replaceWith(makeFallback(name));
-    img.src = avatarUrl;
+    img.onerror   = () => img.replaceWith(makeFallback(name));
+    img.src       = meta.picture;
     avatarWrap.replaceChildren(img);
   } else {
     avatarWrap.replaceChildren(makeFallback(name));
   }
 
-  // ── 8. Render ─────────────────────────────────────────────────────────────
-  const nostrUri = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
+  // Inject avatar media tick
+  if (avatarMediaLevel) {
+    const at = document.createElement('div');
+    at.className = 'avatar-tick';
+    at.innerHTML = tickHtml(avatarMediaLevel, avatarTickTitle, true);
+    avatarWrap.appendChild(at);
+  }
+
+  // ── 8. Render body ─────────────────────────────────────────────────────────
+  const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
   const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
   document.getElementById('body').innerHTML = `
     <div class="display-name">${esc(name)}</div>
-
     <div class="pills">
       <a class="pill" href="${esc(nostrUri)}" title="Open in your Nostr client">
         @${esc(displayHandle)}
         ${tickHtml(handleTickLevel, handleTickTitle)}
       </a>
-
       <a class="pill" href="lightning:${esc(lightning)}" title="Pay via Lightning Network">
         ⚡ ${esc(lightning)}
         ${tickHtml(lnTickLevel, lnTickTitle)}
       </a>
     </div>
-
     <a class="footer-link" href="${DITTO}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
