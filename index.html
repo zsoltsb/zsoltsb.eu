@@ -10,7 +10,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Font Awesome: primary CDN with two fallbacks injected by JS if needed -->
+  <link id="fa-css"
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,7 +53,6 @@
       overflow: hidden;
     }
 
-    /* ── Banner ── */
     .banner {
       height: 160px;
       background: linear-gradient(135deg, #1e1040 0%, #2d1b69 50%, #1a0f3d 100%);
@@ -56,13 +60,8 @@
       background-position: center;
       position: relative;
     }
-    .banner-tick {
-      position: absolute;
-      bottom: 8px;
-      right: 10px;
-    }
+    .banner-tick { position: absolute; bottom: 8px; right: 10px; }
 
-    /* ── Avatar ── */
     .avatar-wrap {
       position: absolute;
       bottom: -48px;
@@ -81,13 +80,8 @@
       display: flex; align-items: center; justify-content: center;
       font-size: 2.4rem; font-weight: 700; color: #fff;
     }
-    .avatar-tick {
-      position: absolute;
-      bottom: 2px;
-      right: 2px;
-    }
+    .avatar-tick { position: absolute; bottom: 2px; right: 2px; }
 
-    /* ── Body ── */
     .body { padding: 62px 24px 28px; }
 
     .display-name {
@@ -97,7 +91,6 @@
       color: var(--text);
     }
 
-    /* ── Pills ── */
     .pills {
       display: flex;
       flex-wrap: wrap;
@@ -125,7 +118,6 @@
       border-color: rgba(139,92,246,0.55);
     }
 
-    /* ── Verification ticks ── */
     .tick {
       display: inline-flex;
       align-items: center;
@@ -145,10 +137,7 @@
     }
     .tick.gold  { background: var(--gold); }
     .tick.green { background: var(--green); }
-    .tick.lg {
-      width: 20px; height: 20px;
-      box-shadow: 0 0 0 2px var(--surface);
-    }
+    .tick.lg    { width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--surface); }
     .tick.lg svg { width: 11px; height: 11px; }
 
     /* ── Social section ── */
@@ -168,7 +157,6 @@
       gap: 10px;
     }
 
-    /* Icon-only square button, comfortable tap target */
     .social-btn {
       display: inline-flex;
       align-items: center;
@@ -183,6 +171,7 @@
       font-size: 1.2rem;
       transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
       position: relative;
+      flex-shrink: 0;
     }
     .social-btn:hover {
       background: rgba(139,92,246,0.10);
@@ -190,12 +179,14 @@
       color: var(--accent-2);
       transform: translateY(-2px);
     }
-    .social-btn i {
-      /* single colour — inherit from parent, no per-platform colour */
-      line-height: 1;
+    .social-btn i { line-height: 1; }
+
+    /* SVG icon fallback for when FA fails entirely */
+    .social-btn svg.icon-svg {
+      width: 20px; height: 20px;
+      fill: currentColor;
     }
 
-    /* ── Footer ── */
     .footer-link {
       display: block;
       text-align: center;
@@ -209,7 +200,6 @@
     .footer-link span { color: var(--accent-2); }
     .footer-link:hover span { text-decoration: underline; }
 
-    /* ── Skeleton ── */
     .sk {
       background: linear-gradient(90deg, var(--border) 25%, #2e2e2e 50%, var(--border) 75%);
       background-size: 200% 100%;
@@ -271,7 +261,6 @@ void (async () => {
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
 
-  // Messaging / IM platforms to exclude — we only want social/content platforms
   const MESSAGING_TYPES = new Set([
     'whatsapp','telegram','signal','messenger','wechat','line','viber',
     'skype','discord','slack','matrix','xmpp','imessage','sms','kik',
@@ -279,78 +268,109 @@ void (async () => {
     'element','rocketchat','mattermost','teams','hangouts','gchat',
   ]);
 
-  // Platform → Font Awesome 6 icon class map
-  // Keyed on Gravatar service_type (lowercased, spaces→hyphens)
+  // ── Font Awesome CDN fallback chain ────────────────────────────────────────
+  // Verify FA loaded; if not, try alternate CDNs in sequence
+  const FA_CDNS = [
+    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css',
+    'https://use.fontawesome.com/releases/v6.5.2/css/all.css',
+    'https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.2/css/all.min.css',
+    'https://unpkg.com/@fortawesome/fontawesome-free@6.5.2/css/all.min.css',
+  ];
+
+  const ensureFontAwesome = () => new Promise(resolve => {
+    // Test if FA is already working by checking a known glyph renders
+    const probe = document.createElement('i');
+    probe.className = 'fa-solid fa-check';
+    probe.style.cssText = 'position:absolute;visibility:hidden;font-family:unset';
+    document.body.appendChild(probe);
+
+    const check = () => {
+      const computed = window.getComputedStyle(probe, '::before').fontFamily;
+      if (computed && computed.toLowerCase().includes('font awesome')) {
+        document.body.removeChild(probe);
+        resolve(true);
+        return true;
+      }
+      return false;
+    };
+
+    if (check()) return;
+
+    // FA not yet loaded — try each CDN in turn
+    let idx = 0;
+    const tryNext = () => {
+      if (idx >= FA_CDNS.length) {
+        document.body.removeChild(probe);
+        resolve(false); // all CDNs failed
+        return;
+      }
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = FA_CDNS[idx++];
+      link.crossOrigin = 'anonymous';
+      link.onload = () => {
+        // Give browser a frame to apply styles
+        requestAnimationFrame(() => {
+          if (!check()) tryNext();
+        });
+      };
+      link.onerror = tryNext;
+      document.head.appendChild(link);
+    };
+
+    // Wait briefly for the already-injected primary CDN link to finish
+    setTimeout(() => { if (!check()) tryNext(); }, 800);
+  });
+
+  // ── Platform icon map ──────────────────────────────────────────────────────
+  // Maps Gravatar service_type (normalised) → FA6 class + inline SVG fallback path
   const PLATFORM_ICONS = {
-    'twitter':        'fa-brands fa-x-twitter',
-    'x':              'fa-brands fa-x-twitter',
-    'x-twitter':      'fa-brands fa-x-twitter',
-    'mastodon':       'fa-brands fa-mastodon',
-    'bluesky':        'fa-brands fa-bluesky',
-    'instagram':      'fa-brands fa-instagram',
-    'threads':        'fa-brands fa-threads',
-    'facebook':       'fa-brands fa-facebook',
-    'linkedin':       'fa-brands fa-linkedin',
-    'github':         'fa-brands fa-github',
-    'gitlab':         'fa-brands fa-gitlab',
-    'youtube':        'fa-brands fa-youtube',
-    'twitch':         'fa-brands fa-twitch',
-    'tiktok':         'fa-brands fa-tiktok',
-    'reddit':         'fa-brands fa-reddit',
-    'pinterest':      'fa-brands fa-pinterest',
-    'tumblr':         'fa-brands fa-tumblr',
-    'medium':         'fa-brands fa-medium',
-    'substack':       'fa-solid fa-newspaper',
-    'wordpress':      'fa-brands fa-wordpress',
-    'soundcloud':     'fa-brands fa-soundcloud',
-    'spotify':        'fa-brands fa-spotify',
-    'patreon':        'fa-brands fa-patreon',
-    'ko-fi':          'fa-solid fa-mug-hot',
-    'kofi':           'fa-solid fa-mug-hot',
-    'twitch':         'fa-brands fa-twitch',
-    'vimeo':          'fa-brands fa-vimeo',
-    'flickr':         'fa-brands fa-flickr',
-    'deviantart':     'fa-brands fa-deviantart',
-    'behance':        'fa-brands fa-behance',
-    'dribbble':       'fa-brands fa-dribbble',
-    'stackexchange':  'fa-brands fa-stack-exchange',
-    'stackoverflow':  'fa-brands fa-stack-overflow',
-    'hackernews':     'fa-brands fa-hacker-news',
-    'producthunt':    'fa-brands fa-product-hunt',
-    'farcaster':      'fa-solid fa-circle-nodes',
-    'nostr':          'fa-solid fa-bolt',
-    'peertube':       'fa-solid fa-play',
-    'pixelfed':       'fa-solid fa-camera',
-    'lemmy':          'fa-solid fa-comments',
-    'diaspora':       'fa-brands fa-diaspora',
-    'vk':             'fa-brands fa-vk',
-    'odnoklassniki':  'fa-brands fa-odnoklassniki',
-    'xing':           'fa-brands fa-xing',
-    'quora':          'fa-brands fa-quora',
-    'goodreads':      'fa-brands fa-goodreads',
-    'last-fm':        'fa-brands fa-lastfm',
-    'lastfm':         'fa-brands fa-lastfm',
-    'strava':         'fa-brands fa-strava',
-    'steam':          'fa-brands fa-steam',
-    'itch-io':        'fa-brands fa-itch-io',
-    'twitch':         'fa-brands fa-twitch',
-    'bandcamp':       'fa-brands fa-bandcamp',
-    'mixcloud':       'fa-brands fa-mixcloud',
-    'researchgate':   'fa-brands fa-researchgate',
-    'orcid':          'fa-brands fa-orcid',
-    'academia':       'fa-solid fa-graduation-cap',
-    'angellist':      'fa-brands fa-angellist',
-    'crunchbase':     'fa-solid fa-building',
-    'gravatar':       'fa-solid fa-user-circle',
-    // fallback
-    '_default':       'fa-solid fa-globe',
+    'twitter':       { fa: 'fa-brands fa-x-twitter',    svg: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' },
+    'x':             { fa: 'fa-brands fa-x-twitter',    svg: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' },
+    'x-twitter':     { fa: 'fa-brands fa-x-twitter',    svg: 'M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z' },
+    'mastodon':      { fa: 'fa-brands fa-mastodon',     svg: 'M21.327 8.566c0-4.339-2.843-5.61-2.843-5.61-1.433-.658-3.894-.935-6.451-.956h-.063c-2.557.021-5.016.298-6.45.956 0 0-2.843 1.272-2.843 5.61 0 .993-.019 2.181.012 3.441.103 4.243.778 8.425 4.701 9.463 1.809.479 3.362.579 4.612.51 2.268-.126 3.541-.809 3.541-.809l-.075-1.646s-1.621.511-3.441.449c-1.804-.062-3.707-.194-3.999-2.409a4.523 4.523 0 0 1-.04-.621s1.77.433 4.014.536c1.372.063 2.658-.08 3.965-.236 2.506-.299 4.688-1.843 4.962-3.254.434-2.223.398-5.424.398-5.424zm-3.353 5.59h-2.081V9.057c0-1.075-.452-1.62-1.357-1.62-1 0-1.501.647-1.501 1.927v2.791h-2.069V9.364c0-1.28-.501-1.927-1.502-1.927-.905 0-1.357.546-1.357 1.62v5.099H6.026V8.903c0-1.074.273-1.927.823-2.558.567-.631 1.307-.955 2.228-.955 1.065 0 1.872.409 2.405 1.228l.518.869.519-.869c.533-.819 1.34-1.228 2.4-1.228.92 0 1.66.324 2.233.955.549.631.822 1.484.822 2.558v5.253z' },
+    'bluesky':       { fa: 'fa-brands fa-bluesky',      svg: 'M12 10.8c-1.087-2.114-4.046-6.053-6.798-7.995C2.566.944 1.561 1.266.902 1.565.139 1.908 0 3.08 0 3.768c0 .69.378 5.65.624 6.479.815 2.736 3.713 3.66 6.383 3.364.136-.02.275-.039.415-.056-.138.022-.276.04-.415.056-3.912.58-7.387 2.005-2.83 7.078 5.013 5.19 6.87-1.113 7.823-4.308.953 3.195 2.05 9.271 7.733 4.308 4.267-4.308 1.172-6.498-2.74-7.078a8.741 8.741 0 0 1-.415-.056c.14.017.279.036.415.056 2.67.297 5.568-.628 6.383-3.364.246-.828.624-5.79.624-6.478 0-.69-.139-1.861-.902-2.206-.659-.298-1.664-.62-4.3 1.24C16.046 4.748 13.087 8.687 12 10.8z' },
+    'instagram':     { fa: 'fa-brands fa-instagram',    svg: 'M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 1 0 0 12.324 6.162 6.162 0 0 0 0-12.324zM12 16a4 4 0 1 1 0-8 4 4 0 0 1 0 8zm6.406-11.845a1.44 1.44 0 1 0 0 2.881 1.44 1.44 0 0 0 0-2.881z' },
+    'threads':       { fa: 'fa-brands fa-threads',      svg: 'M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.509 5.467l-2.04.569c-1.104-3.96-3.898-5.984-8.304-6.015-2.91.022-5.11.936-6.54 2.717C4.307 6.504 3.616 8.914 3.589 12c.027 3.086.718 5.496 2.057 7.164 1.43 1.783 3.631 2.698 6.54 2.717 2.623-.02 4.358-.631 5.8-2.045 1.647-1.613 1.618-3.593 1.09-4.798-.31-.71-.873-1.3-1.634-1.75-.192 1.352-.622 2.446-1.284 3.272-.886 1.102-2.14 1.704-3.73 1.79-1.202.065-2.361-.218-3.259-.801-1.063-.689-1.685-1.74-1.752-2.964-.065-1.19.408-2.285 1.33-3.082.88-.76 2.119-1.207 3.583-1.291a13.853 13.853 0 0 1 3.02.142c-.126-.742-.375-1.332-.75-1.757-.513-.586-1.308-.883-2.359-.89h-.029c-.844 0-1.992.232-2.721 1.32L7.734 7.847c.98-1.454 2.568-2.256 4.478-2.256h.044c3.194.02 5.097 1.975 5.287 5.388.108.046.216.094.321.142 1.49.7 2.58 1.761 3.154 3.07.797 1.829.64 4.335-1.215 6.145-1.846 1.797-4.083 2.67-7.617 2.663z' },
+    'facebook':      { fa: 'fa-brands fa-facebook',     svg: 'M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z' },
+    'linkedin':      { fa: 'fa-brands fa-linkedin',     svg: 'M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z' },
+    'github':        { fa: 'fa-brands fa-github',       svg: 'M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12' },
+    'youtube':       { fa: 'fa-brands fa-youtube',      svg: 'M23.495 6.205a3.007 3.007 0 0 0-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 0 0 .527 6.205a31.247 31.247 0 0 0-.522 5.805 31.247 31.247 0 0 0 .522 5.783 3.007 3.007 0 0 0 2.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 0 0 2.088-2.088 31.247 31.247 0 0 0 .5-5.783 31.247 31.247 0 0 0-.5-5.805zM9.609 15.601V8.408l6.264 3.602z' },
+    'reddit':        { fa: 'fa-brands fa-reddit',       svg: 'M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .898.196 1.207.49 1.207-.883 2.878-1.43 4.744-1.487l.885-4.182a.342.342 0 0 1 .14-.197.35.35 0 0 1 .238-.042l2.906.617a1.214 1.214 0 0 1 1.108-.701zM9.25 12C8.561 12 8 12.562 8 13.25c0 .687.561 1.248 1.25 1.248.687 0 1.248-.561 1.248-1.249 0-.688-.561-1.249-1.249-1.249zm5.5 0c-.687 0-1.248.561-1.248 1.25 0 .687.561 1.248 1.249 1.248.688 0 1.249-.561 1.249-1.249 0-.687-.562-1.249-1.25-1.249zm-5.466 3.99a.327.327 0 0 0-.231.094.33.33 0 0 0 0 .463c.842.842 2.484.913 2.961.913.477 0 2.105-.056 2.961-.913a.361.361 0 0 0 .029-.463.33.33 0 0 0-.464 0c-.547.533-1.684.73-2.512.73-.828 0-1.979-.196-2.512-.73a.326.326 0 0 0-.232-.095z' },
+    'twitch':        { fa: 'fa-brands fa-twitch',       svg: 'M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714z' },
+    'tiktok':        { fa: 'fa-brands fa-tiktok',       svg: 'M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z' },
+    'pinterest':     { fa: 'fa-brands fa-pinterest',    svg: 'M12 0C5.373 0 0 5.372 0 12c0 5.084 3.163 9.426 7.627 11.174-.105-.949-.2-2.405.042-3.441.218-.937 1.407-5.965 1.407-5.965s-.359-.719-.359-1.782c0-1.668.967-2.914 2.171-2.914 1.023 0 1.518.769 1.518 1.69 0 1.029-.655 2.568-.994 3.995-.283 1.194.599 2.169 1.777 2.169 2.133 0 3.772-2.249 3.772-5.495 0-2.873-2.064-4.882-5.012-4.882-3.414 0-5.418 2.561-5.418 5.207 0 1.031.397 2.138.893 2.738a.36.36 0 0 1 .083.345l-.333 1.36c-.053.22-.174.267-.402.161-1.499-.698-2.436-2.889-2.436-4.649 0-3.785 2.75-7.262 7.929-7.262 4.163 0 7.398 2.967 7.398 6.931 0 4.136-2.607 7.464-6.227 7.464-1.216 0-2.359-.632-2.75-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0z' },
+    'medium':        { fa: 'fa-brands fa-medium',       svg: 'M13.54 12a6.8 6.8 0 0 1-6.77 6.82A6.8 6.8 0 0 1 0 12a6.8 6.8 0 0 1 6.77-6.82A6.8 6.8 0 0 1 13.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z' },
+    'substack':      { fa: 'fa-solid fa-newspaper',     svg: 'M22.539 8.242H1.46V5.406h21.08v2.836zM1.46 10.812V24L12 18.11 22.54 24V10.812H1.46zM22.54 0H1.46v2.836h21.08V0z' },
+    'soundcloud':    { fa: 'fa-brands fa-soundcloud',   svg: 'M1.175 12.225c-.015 0-.023.01-.024.025l-.315 2.005.315 1.99c.001.016.01.025.024.025.015 0 .023-.01.024-.025l.35-1.99-.35-2.005c-.001-.016-.01-.025-.024-.025zm.59-.8c-.02 0-.032.014-.033.033l-.27 2.8.27 2.772c.001.02.014.033.033.033.02 0 .032-.014.033-.033l.305-2.772-.305-2.8c-.001-.02-.014-.033-.033-.033zm.6-.2c-.024 0-.04.017-.04.04l-.24 3.0.24 2.97c0 .024.016.04.04.04.024 0 .04-.017.04-.04l.27-2.97-.27-3.0c0-.024-.016-.04-.04-.04zm.61-.1c-.028 0-.048.02-.048.048l-.21 3.1.21 3.06c0 .028.02.048.048.048.028 0 .048-.02.048-.048l.235-3.06-.235-3.1c0-.028-.02-.048-.048-.048zm.62-.05c-.032 0-.055.023-.055.055l-.18 3.15.18 3.11c0 .032.023.055.055.055.032 0 .055-.023.055-.055l.2-3.11-.2-3.15c0-.032-.023-.055-.055-.055zm.63 0c-.036 0-.063.027-.063.063l-.15 3.15.15 3.12c0 .036.027.063.063.063.036 0 .063-.027.063-.063l.17-3.12-.17-3.15c0-.036-.027-.063-.063-.063zm.64.05c-.04 0-.07.03-.07.07l-.12 3.1.12 3.09c0 .04.03.07.07.07.04 0 .07-.03.07-.07l.135-3.09-.135-3.1c0-.04-.03-.07-.07-.07zm.65.1c-.044 0-.077.033-.077.077l-.09 3.0.09 3.0c0 .044.033.077.077.077.044 0 .077-.033.077-.077l.1-3.0-.1-3.0c0-.044-.033-.077-.077-.077zm.66.2c-.048 0-.084.036-.084.084l-.06 2.9.06 2.9c0 .048.036.084.084.084.048 0 .084-.036.084-.084l.065-2.9-.065-2.9c0-.048-.036-.084-.084-.084zm.67.3c-.052 0-.09.038-.09.09l-.03 2.8.03 2.8c0 .052.038.09.09.09.052 0 .09-.038.09-.09l.035-2.8-.035-2.8c0-.052-.038-.09-.09-.09zM12 5.5c-.056 0-.098.042-.098.098l0 8.8c0 .056.042.098.098.098h9.5c1.38 0 2.5-1.12 2.5-2.5S22.88 9.5 21.5 9.5c-.138 0-.272.012-.402.034C20.89 7.09 19.1 5.5 17 5.5c-.5 0-.98.1-1.42.27C14.9 4.4 13.54 3.5 12 3.5c-1.1 0-2.1.45-2.83 1.17C8.6 5.1 8.1 5.5 8.1 5.5H12z' },
+    'spotify':       { fa: 'fa-brands fa-spotify',      svg: 'M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z' },
+    'patreon':       { fa: 'fa-brands fa-patreon',      svg: 'M15.386.524a8.168 8.168 0 0 0-8.143 8.143 8.168 8.168 0 0 0 8.143 8.143 8.168 8.168 0 0 0 8.143-8.143A8.168 8.168 0 0 0 15.386.524zM.471 23.476h4.134V.524H.471z' },
+    'ko-fi':         { fa: 'fa-solid fa-mug-hot',       svg: 'M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 7.71c0 2.78-2.26 5.08-5.04 5.29C8.64 13.18 6 10.76 6 7.71V5h10v2.71zm2.5 0H18V5h.5c.83 0 1.5.67 1.5 1.5S19.33 7.71 18.5 7.71zM4 19h16v2H4z' },
+    'kofi':          { fa: 'fa-solid fa-mug-hot',       svg: 'M18.5 3H6c-1.1 0-2 .9-2 2v5.71c0 3.83 2.95 7.18 6.78 7.29 3.96.12 7.22-3.06 7.22-7v-1h.5c1.93 0 3.5-1.57 3.5-3.5S20.43 3 18.5 3zM16 7.71c0 2.78-2.26 5.08-5.04 5.29C8.64 13.18 6 10.76 6 7.71V5h10v2.71zm2.5 0H18V5h.5c.83 0 1.5.67 1.5 1.5S19.33 7.71 18.5 7.71zM4 19h16v2H4z' },
+    'vimeo':         { fa: 'fa-brands fa-vimeo',        svg: 'M23.977 6.416c-.105 2.338-1.739 5.543-4.894 9.609-3.268 4.247-6.026 6.37-8.29 6.37-1.409 0-2.578-1.294-3.553-3.881L5.322 11.4C4.603 8.816 3.834 7.522 3.01 7.522c-.179 0-.806.378-1.881 1.132L0 7.197a315.065 315.065 0 0 0 3.501-3.128C5.08 2.701 6.266 1.984 7.055 1.91c1.867-.18 3.016 1.1 3.447 3.838.465 2.953.789 4.789.971 5.507.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.48 4.807z' },
+    'flickr':        { fa: 'fa-brands fa-flickr',       svg: 'M0 12c0 3.074 2.494 5.568 5.568 5.568 3.074 0 5.568-2.494 5.568-5.568 0-3.074-2.494-5.568-5.568-5.568C2.494 6.432 0 8.926 0 12zm12.864 0c0 3.074 2.494 5.568 5.568 5.568C21.506 17.568 24 15.074 24 12c0-3.074-2.494-5.568-5.568-5.568-3.074 0-5.568 2.494-5.568 5.568z' },
+    'behance':       { fa: 'fa-brands fa-behance',      svg: 'M22.228 14.009c0-3.705-2.635-6.252-6.232-6.252-3.705 0-6.34 2.547-6.34 6.252 0 3.813 2.635 6.252 6.34 6.252 2.851 0 5.052-1.426 5.92-4.061h-2.743c-.434.977-1.627 1.518-3.068 1.518-1.844 0-3.163-1.085-3.38-2.96h9.395c.054-.217.108-.542.108-.749zm-9.395-1.302c.217-1.627 1.302-2.743 3.163-2.743 1.735 0 2.96 1.085 3.068 2.743H12.833zM15.996 5.7h-5.92V7.11h5.92V5.7zM0 4.832v14.336h6.557c3.38 0 5.486-1.627 5.486-4.495 0-1.844-.868-3.163-2.418-3.813 1.085-.65 1.735-1.735 1.735-3.163C11.36 5.7 9.3 4.832 6.557 4.832H0zm2.743 2.418h3.38c1.302 0 2.093.65 2.093 1.844 0 1.085-.76 1.735-2.093 1.735H2.743V7.25zm0 5.92h3.705c1.518 0 2.418.76 2.418 2.093 0 1.302-.9 2.093-2.418 2.093H2.743v-4.186z' },
+    'dribbble':      { fa: 'fa-brands fa-dribbble',     svg: 'M12 24C5.385 24 0 18.615 0 12S5.385 0 12 0s12 5.385 12 12-5.385 12-12 12zm10.12-10.358c-.35-.11-3.17-.953-6.384-.438 1.34 3.684 1.887 6.684 1.992 7.308 2.3-1.555 3.936-4.02 4.395-6.87zm-6.115 7.808c-.153-.9-.75-4.032-2.19-7.77l-.066.02c-5.79 2.015-7.86 6.025-8.04 6.4 1.73 1.358 3.92 2.166 6.29 2.166 1.42 0 2.77-.29 4-.816zm-11.62-2.073c.232-.4 3.045-5.055 8.332-6.765.135-.045.27-.084.405-.12-.26-.585-.54-1.167-.832-1.74C7.17 11.775 2.206 11.71 1.756 11.7l-.004.312c0 2.633.998 5.037 2.634 6.855zm-2.42-8.955c.46.008 4.683.026 9.477-1.248-1.698-3.018-3.53-5.558-3.8-5.928-2.868 1.35-5.01 3.99-5.676 7.176zM9.6 2.052c.282.38 2.145 2.914 3.822 6 3.645-1.365 5.19-3.44 5.373-3.702-1.81-1.61-4.19-2.586-6.795-2.586-.477 0-.946.04-1.4.111zm4.268 8.177c.19.39.37.784.54 1.18 1.99-.25 3.99.19 4.19.234-.02-1.88-.71-3.6-1.86-4.93-1.19 1.63-2.87 3.516-2.87 3.516z' },
+    'stackoverflow': { fa: 'fa-brands fa-stack-overflow', svg: 'M15.725 0l-1.72 1.277 6.39 8.588 1.716-1.277L15.725 0zm-3.94 3.418l-1.369 1.644 8.225 6.85 1.369-1.644-8.225-6.85zm-3.15 4.465l-.905 1.94 9.702 4.517.904-1.94-9.701-4.517zm-1.85 4.86l-.44 2.093 10.473 2.201.44-2.092-10.473-2.203zM1.89 15.47V24h19.19v-8.53h-2.133v6.397H4.021v-6.396H1.89zm4.265 2.133v2.13h10.66v-2.13H6.154Z' },
+    'hackernews':    { fa: 'fa-brands fa-hacker-news',  svg: 'M0 24V0h24v24H0zM6.951 5.896l4.112 7.708v5.064h1.583v-4.972l4.148-7.799h-1.749l-2.457 4.875c-.372.745-.688 1.434-.688 1.434s-.297-.708-.651-1.434L8.831 5.896h-1.88z' },
+    'farcaster':     { fa: 'fa-solid fa-circle-nodes',  svg: 'M11.648 3.079c-5.88.136-10.6 4.949-10.6 10.862 0 5.998 4.863 10.862 10.862 10.862 5.998 0 10.862-4.864 10.862-10.862 0-.357-.017-.71-.05-1.059H11.648V3.079zm.862-1.079v8.862H23.91A10.862 10.862 0 0 0 12.51 2z' },
+    'nostr':         { fa: 'fa-solid fa-bolt',          svg: 'M13 0L4.5 13.5H11L9 24l10.5-14H13L13 0z' },
+    'peertube':      { fa: 'fa-solid fa-play',          svg: 'M8 5v14l11-7z' },
+    'pixelfed':      { fa: 'fa-solid fa-camera',        svg: 'M12 15.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4z M9 2L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2h-3.17L15 2H9zm3 15c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z' },
+    'strava':        { fa: 'fa-brands fa-strava',       svg: 'M15.387 17.944l-2.089-4.116h-3.065L15.387 24l5.15-10.172h-3.066m-7.008-5.599l2.836 5.598h4.172L10.463 0l-7 13.828h4.169' },
+    'steam':         { fa: 'fa-brands fa-steam',        svg: 'M11.979 0C5.678 0 .511 4.86.022 11.037l6.432 2.658c.545-.371 1.203-.59 1.912-.59.063 0 .125.004.188.006l2.861-4.142V8.91c0-2.495 2.028-4.524 4.524-4.524 2.494 0 4.524 2.031 4.524 4.527s-2.03 4.525-4.524 4.525h-.105l-4.076 2.911c0 .052.004.105.004.159 0 1.875-1.515 3.396-3.39 3.396-1.635 0-3.016-1.173-3.331-2.727L.436 15.27C1.862 20.307 6.486 24 11.979 24c6.627 0 11.999-5.373 11.999-12S18.605 0 11.979 0zM7.54 18.21l-1.473-.61c.262.543.714.999 1.314 1.25 1.297.539 2.793-.076 3.332-1.375.263-.63.264-1.319.005-1.949s-.75-1.121-1.377-1.383c-.624-.26-1.29-.249-1.878-.03l1.523.63c.956.4 1.409 1.5 1.009 2.455-.397.957-1.497 1.41-2.454 1.012H7.54zm11.415-9.303c0-1.662-1.353-3.015-3.015-3.015-1.665 0-3.015 1.353-3.015 3.015 0 1.665 1.35 3.015 3.015 3.015 1.663 0 3.015-1.35 3.015-3.015zm-5.273-.005c0-1.252 1.013-2.266 2.265-2.266 1.249 0 2.266 1.014 2.266 2.266 0 1.251-1.017 2.265-2.266 2.265-1.252 0-2.265-1.014-2.265-2.265z' },
+    'goodreads':     { fa: 'fa-brands fa-goodreads',    svg: 'M11.648 0C5.41 0 .34 5.07.34 11.308c0 6.237 5.07 11.307 11.308 11.307 6.237 0 11.307-5.07 11.307-11.307C22.955 5.07 17.885 0 11.648 0zm.36 17.04c-2.27 0-3.974-1.02-4.93-2.86v2.56H5.47V5.4h1.608v2.56c.956-1.84 2.66-2.86 4.93-2.86 3.22 0 5.48 2.56 5.48 5.97s-2.26 5.97-5.48 5.97zm0-10.44c-2.46 0-4.27 1.9-4.27 4.47s1.81 4.47 4.27 4.47c2.46 0 4.27-1.9 4.27-4.47s-1.81-4.47-4.27-4.47z' },
+    'lastfm':        { fa: 'fa-brands fa-lastfm',       svg: 'M10.584 17.21l-.88-2.392s-1.43 1.595-3.573 1.595c-1.897 0-3.244-1.65-3.244-4.296 0-3.381 1.704-4.596 3.381-4.596 2.42 0 3.189 1.567 3.849 3.574l.88 2.75c.88 2.667 2.53 4.807 7.296 4.807 3.409 0 5.72-1.044 5.72-3.793 0-2.22-1.265-3.37-3.629-3.926l-1.76-.385c-1.21-.275-1.567-.77-1.567-1.594 0-.935.742-1.485 1.952-1.485 1.32 0 2.035.495 2.145 1.677l2.75-.33c-.22-2.475-1.925-3.49-4.73-3.49-2.475 0-4.84.935-4.84 3.93 0 1.87.907 3.05 3.19 3.602l1.87.44c1.375.33 1.87.88 1.87 1.76 0 1.045-.99 1.485-2.86 1.485-2.75 0-3.904-1.457-4.564-3.464l-.907-2.75C12.178 7.37 10.474 5.5 6.9 5.5 3.079 5.5.5 7.975.5 12.2c0 4.07 2.42 6.38 5.995 6.38 3.1 0 4.09-1.37 4.09-1.37z' },
+    'bandcamp':      { fa: 'fa-brands fa-bandcamp',     svg: 'M0 18.75l7.437-13.5H24l-7.438 13.5z' },
+    'vk':            { fa: 'fa-brands fa-vk',           svg: 'M15.684 0H8.316C1.592 0 0 1.592 0 8.316v7.368C0 22.408 1.592 24 8.316 24h7.368C22.408 24 24 22.408 24 15.684V8.316C24 1.592 22.391 0 15.684 0zm3.692 17.123h-1.744c-.66 0-.864-.525-2.05-1.727-1.033-1-1.49-1.135-1.744-1.135-.356 0-.458.102-.458.593v1.575c0 .424-.135.678-1.253.678-1.846 0-3.896-1.118-5.335-3.202C4.624 10.857 4.03 8.57 4.03 8.096c0-.254.102-.491.593-.491h1.744c.44 0 .61.203.78.677.863 2.49 2.303 4.675 2.896 4.675.22 0 .322-.102.322-.66V9.721c-.068-1.186-.695-1.287-.695-1.71 0-.204.17-.407.44-.407h2.744c.373 0 .508.203.508.643v3.473c0 .372.17.508.271.508.22 0 .407-.136.813-.542 1.27-1.422 2.168-3.607 2.168-3.607.119-.254.322-.491.763-.491h1.744c.525 0 .644.27.525.643-.22 1.017-2.354 4.031-2.354 4.031-.186.305-.254.44 0 .78.186.254.796.779 1.203 1.253.745.847 1.32 1.558 1.473 2.05.17.49-.085.744-.576.744z' },
+    'xing':          { fa: 'fa-brands fa-xing',         svg: 'M10.201 16.03L6.004 8.96l-.001-.001c-.1-.18-.298-.29-.504-.29H2.62c-.19 0-.358.1-.451.26-.094.16-.09.358.01.514l4.217 7.11c.003.005.003.01 0 .015L3.17 21.26c-.1.155-.1.352-.005.51.094.16.263.26.452.26h2.879c.21 0 .41-.115.51-.3l3.195-5.7zm11.43-14.27c-.094-.16-.263-.26-.452-.26h-2.88c-.21 0-.41.115-.51.3L11.97 9.74c-.003.005-.003.01 0 .015l5.44 9.72c.1.18.298.29.504.29h2.879c.19 0 .358-.1.451-.26.094-.16.09-.358-.01-.514L15.8 9.755l5.84-7.48c.1-.155.1-.352.005-.51l-.014-.005z' },
+    'quora':         { fa: 'fa-brands fa-quora',        svg: 'M12.555 18.368c-.473-1.015-1.01-2.03-2.204-2.03-.29 0-.58.058-.812.174l-.522-1.073c.58-.406 1.45-.696 2.378-.696 1.74 0 2.84.87 3.596 2.204.58-.928.928-2.146.928-3.654 0-3.596-1.74-5.916-4.35-5.916-2.61 0-4.35 2.32-4.35 5.916 0 3.596 1.74 5.916 4.35 5.916.348 0 .696-.058 1.044-.116l-.058-.725zm2.204 2.088c-1.044.58-2.204.928-3.422.928C7.57 21.384 4.8 18.03 4.8 13.29c0-4.74 2.77-8.094 6.537-8.094 3.77 0 6.537 3.354 6.537 8.094 0 2.088-.522 3.886-1.45 5.22.638.87 1.218 1.218 1.914 1.218.58 0 1.044-.232 1.392-.638l.928 1.392c-.696.754-1.624 1.218-2.726 1.218-1.218 0-2.204-.522-3.073-1.45l-.116-.174-.043.412z' },
+    '_default':      { fa: 'fa-solid fa-globe',         svg: 'M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z' },
   };
 
-  // Derive icon from service_type, falling back to URL hostname sniffing
-  function resolveIcon(serviceType, url) {
+  const resolveIcon = (serviceType, url) => {
     const key = (serviceType || '').toLowerCase().replace(/[\s_]+/g, '-');
     if (PLATFORM_ICONS[key]) return PLATFORM_ICONS[key];
-    // Hostname sniff fallback
     try {
       const host = new URL(url).hostname.replace(/^www\./, '');
       for (const [k, v] of Object.entries(PLATFORM_ICONS)) {
@@ -358,7 +378,7 @@ void (async () => {
       }
     } catch {}
     return PLATFORM_ICONS['_default'];
-  }
+  };
 
   // ── Helpers ────────────────────────────────────────────────────────────────
   const esc = s => String(s ?? '')
@@ -380,6 +400,50 @@ void (async () => {
     const r = await fetch(url, { signal: AbortSignal.timeout(ms) });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
+  };
+
+  // ── JSONP helper — bypasses CORS entirely via script injection ─────────────
+  const fetchJSONP = (url, callbackParam = 'callback', ms = 8000) =>
+    new Promise((resolve, reject) => {
+      const cbName = '__gjp_' + Math.random().toString(36).slice(2);
+      const timer  = setTimeout(() => {
+        delete window[cbName];
+        script.remove();
+        reject(new Error('jsonp-timeout'));
+      }, ms);
+      window[cbName] = data => {
+        clearTimeout(timer);
+        delete window[cbName];
+        script.remove();
+        resolve(data);
+      };
+      const script = document.createElement('script');
+      script.src   = `${url}${url.includes('?') ? '&' : '?'}${callbackParam}=${cbName}`;
+      script.onerror = () => {
+        clearTimeout(timer);
+        delete window[cbName];
+        script.remove();
+        reject(new Error('jsonp-error'));
+      };
+      document.head.appendChild(script);
+    });
+
+  // ── CORS proxy chain ───────────────────────────────────────────────────────
+  const CORS_PROXIES = [
+    u => `https://corsproxy.io/?${encodeURIComponent(u)}`,
+    u => `https://api.allorigins.win/raw?url=${encodeURIComponent(u)}`,
+    u => `https://thingproxy.freeboard.io/fetch/${u}`,
+    u => `https://cors.sh/${u}`,
+  ];
+
+  const fetchViaProxy = async (url, ms = 6000) => {
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const r = await fetch(proxy(url), { signal: AbortSignal.timeout(ms) });
+        if (r.ok) return r.json();
+      } catch {}
+    }
+    throw new Error('all-proxies-failed');
   };
 
   // ── DNS-over-HTTPS TXT lookup ──────────────────────────────────────────────
@@ -444,40 +508,33 @@ void (async () => {
       let done = false;
       let ws;
       try { ws = new WebSocket(url); } catch(e) { return reject(e); }
-
       const fail  = r => { if (!done) { done = true; try{ws.close();}catch{} reject(new Error(r)); } };
       const timer = setTimeout(() => fail(`timeout:${url}`), 7000);
-
       ws.onopen = () =>
         ws.send(JSON.stringify(['REQ', SUB, { kinds: [0], authors: [pubkey], limit: 1 }]));
-
       ws.onmessage = e => {
         try {
           const m = JSON.parse(e.data);
           if (m[0] === 'EVENT' && m[1] === SUB && m[2]?.kind === 0 && !done) {
-            done = true;
-            clearTimeout(timer);
-            // Close only the winning socket; losers remain open passively
+            done = true; clearTimeout(timer);
             try { ws.close(); } catch {}
             try { resolve({ meta: JSON.parse(m[2].content), pubkey: m[2].pubkey }); }
             catch(pe) { reject(pe); }
-          } else if (m[0] === 'EOSE' && !done) {
-            fail(`no-event:${url}`);
-          }
+          } else if (m[0] === 'EOSE' && !done) { fail(`no-event:${url}`); }
         } catch {}
       };
-
       ws.onerror = () => fail(`ws-err:${url}`);
       ws.onclose = () => { if (!done) fail(`ws-close:${url}`); };
     })));
   };
 
-  // ── Gravatar verified accounts ─────────────────────────────────────────────
-  // Returns array of { url, label, serviceType } filtered to non-messaging only.
-  // Tries v3 REST API first, falls back to legacy unauthenticated endpoint.
-  // Note: unauthenticated requests return max 4 verified accounts. <kcite ref="75"/>
+  // ── Gravatar fetch — 4-strategy waterfall ─────────────────────────────────
+  // Strategy 1: JSONP (no CORS, native Gravatar support) <kcite ref="1"/>
+  // Strategy 2: Direct fetch (works if browser/server allows)
+  // Strategy 3: CORS proxy chain
+  // Strategy 4: Gravatar v3 REST API via proxy
   const fetchGravatarAccounts = async () => {
-    const normalise = accts => accts
+    const normalise = (accts = []) => accts
       .filter(a => {
         if (!a?.url && !a?.profile_url) return false;
         const t = (a.service_type || a.shortname || '').toLowerCase().replace(/[\s_]+/g, '-');
@@ -490,25 +547,68 @@ void (async () => {
       }))
       .filter(a => a.url);
 
-    // v3 REST API
+    // Strategy 1: JSONP — Gravatar wraps the response in the callback fn <kcite ref="2"/>
     try {
-      const d = await fetchJSON(
+      const data = await fetchJSONP(`https://gravatar.com/${GRAVATAR_SLUG}.json`);
+      const accts = data?.entry?.[0]?.accounts || [];
+      if (accts.length) { console.log('[gravatar] jsonp ok'); return normalise(accts); }
+    } catch(e) { console.warn('[gravatar] jsonp failed:', e.message); }
+
+    // Strategy 2: Direct fetch (may work depending on browser/CDN)
+    try {
+      const data = await fetchJSON(`https://gravatar.com/${GRAVATAR_SLUG}.json`, 5000);
+      const accts = data?.entry?.[0]?.accounts || [];
+      if (accts.length) { console.log('[gravatar] direct ok'); return normalise(accts); }
+    } catch(e) { console.warn('[gravatar] direct failed:', e.message); }
+
+    // Strategy 3: v3 REST API direct
+    try {
+      const data = await fetchJSON(
         `https://api.gravatar.com/v3/profiles/${GRAVATAR_SLUG}`, 6000
       );
-      const accts = d?.verified_accounts || d?.accounts || [];
-      if (accts.length) return normalise(accts);
-    } catch {}
+      const accts = data?.verified_accounts || data?.accounts || [];
+      if (accts.length) { console.log('[gravatar] v3 direct ok'); return normalise(accts); }
+    } catch(e) { console.warn('[gravatar] v3 direct failed:', e.message); }
 
-    // Legacy unauthenticated endpoint
+    // Strategy 4: legacy endpoint via CORS proxy chain
     try {
-      const d = await fetchJSON(
-        `https://gravatar.com/${GRAVATAR_SLUG}.json`, 6000
-      );
-      const accts = d?.entry?.[0]?.accounts || [];
-      if (accts.length) return normalise(accts);
-    } catch {}
+      const data = await fetchViaProxy(`https://gravatar.com/${GRAVATAR_SLUG}.json`);
+      const accts = data?.entry?.[0]?.accounts || [];
+      if (accts.length) { console.log('[gravatar] proxy ok'); return normalise(accts); }
+    } catch(e) { console.warn('[gravatar] proxy failed:', e.message); }
 
+    // Strategy 5: v3 via CORS proxy chain
+    try {
+      const data = await fetchViaProxy(
+        `https://api.gravatar.com/v3/profiles/${GRAVATAR_SLUG}`
+      );
+      const accts = data?.verified_accounts || data?.accounts || [];
+      if (accts.length) { console.log('[gravatar] v3 proxy ok'); return normalise(accts); }
+    } catch(e) { console.warn('[gravatar] v3 proxy failed:', e.message); }
+
+    console.warn('[gravatar] all strategies failed');
     return [];
+  };
+
+  // ── Render social icons — with FA + inline SVG dual rendering ─────────────
+  // Each button renders both an <i> (FA) and an inline <svg> (fallback).
+  // Once FA is confirmed loaded, SVG fallbacks are hidden; otherwise FA <i> are hidden.
+  const renderSocialButtons = (accounts, faLoaded) => {
+    if (!accounts.length) return '';
+    const buttons = accounts.map(({ url, label, serviceType }) => {
+      const { fa, svg } = resolveIcon(serviceType, url);
+      const tip = label || serviceType || (() => { try { return new URL(url).hostname; } catch { return url; } })();
+      return `<a class="social-btn" href="${esc(url)}" target="_blank"
+                 rel="noopener me" title="${esc(tip)}">
+                <i class="${esc(fa)}" style="display:${faLoaded ? 'block' : 'none'}"></i>
+                <svg class="icon-svg" viewBox="0 0 24 24"
+                     style="display:${faLoaded ? 'none' : 'block'}">
+                  <path d="${esc(svg)}"/>
+                </svg>
+              </a>`;
+    }).join('');
+    return `<div class="section-title">Follow me on</div>
+            <div class="social-row">${buttons}</div>`;
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -535,11 +635,10 @@ void (async () => {
 
   const allRelays = [...new Set([...relayHints, ...FALLBACK_RELAYS])];
 
-  // ── 2. Race relays + Gravatar in parallel ──────────────────────────────────
-  // Both network operations start at the same time; we don't wait for one
-  // before starting the other.
+  // ── 2. Kick off all network ops in parallel ────────────────────────────────
   const relayPromise    = raceRelays(allRelays, pubkey);
   const gravatarPromise = fetchGravatarAccounts();
+  const faPromise       = ensureFontAwesome();
 
   let result;
   try {
@@ -599,6 +698,7 @@ void (async () => {
     avatarMediaLevel,
     bannerMediaLevel,
     gravatarAccounts,
+    faLoaded,
   ] = await Promise.all([
     dnsNostrPromise,
     dnsLnPromise,
@@ -606,6 +706,7 @@ void (async () => {
     avatarMediaPromise,
     bannerMediaPromise,
     gravatarPromise,
+    faPromise,
   ]);
 
   // ── 4. Tick levels ─────────────────────────────────────────────────────────
@@ -633,13 +734,11 @@ void (async () => {
 
   const avatarTickTitle = avatarMediaLevel === 'gold'
     ? `Avatar served from ${DOMAIN} ✓`
-    : avatarMediaLevel === 'green'
-      ? 'Avatar served from a trusted media server ✓' : '';
+    : avatarMediaLevel === 'green' ? 'Avatar served from a trusted media server ✓' : '';
 
   const bannerTickTitle = bannerMediaLevel === 'gold'
     ? `Header image served from ${DOMAIN} ✓`
-    : bannerMediaLevel === 'green'
-      ? 'Header image served from a trusted media server ✓' : '';
+    : bannerMediaLevel === 'green' ? 'Header image served from a trusted media server ✓' : '';
 
   // ── 5. rel=me injection ────────────────────────────────────────────────────
   if (npub) {
@@ -696,23 +795,7 @@ void (async () => {
     avatarWrap.appendChild(at);
   }
 
-  // ── 8. Social icons HTML ───────────────────────────────────────────────────
-  let socialHtml = '';
-  if (gravatarAccounts.length) {
-    const buttons = gravatarAccounts.map(({ url, label, serviceType }) => {
-      const icon    = resolveIcon(serviceType, url);
-      const tipText = label || serviceType || new URL(url).hostname;
-      return `<a class="social-btn" href="${esc(url)}" target="_blank"
-                 rel="noopener me" title="${esc(tipText)}">
-                <i class="${esc(icon)}"></i>
-              </a>`;
-    }).join('');
-    socialHtml = `
-      <div class="section-title">Follow me on</div>
-      <div class="social-row">${buttons}</div>`;
-  }
-
-  // ── 9. Render body ─────────────────────────────────────────────────────────
+  // ── 8. Render body ─────────────────────────────────────────────────────────
   const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
   const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
@@ -728,7 +811,7 @@ void (async () => {
         ${tickHtml(lnTickLevel, lnTickTitle)}
       </a>
     </div>
-    ${socialHtml}
+    ${renderSocialButtons(gravatarAccounts, faLoaded)}
     <a class="footer-link" href="${DITTO}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
