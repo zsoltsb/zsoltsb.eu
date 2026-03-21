@@ -52,13 +52,11 @@
       line-height: 1; transition: background .18s, border-color .18s; white-space: nowrap;
     }
     .pill:hover { background: rgba(139,92,246,.22); border-color: rgba(139,92,246,.55); }
-    /* Dropdowns */
     .dropdown { position: relative; margin-left: auto; flex-shrink: 0; }
     .dropdown-btn {
       display: inline-flex; align-items: center; gap: 6px;
       border-radius: 20px; padding: 6px 12px; font-size: .75rem;
-      font-family: inherit; cursor: pointer;
-      transition: filter .15s;
+      font-family: inherit; cursor: pointer; transition: filter .15s;
       white-space: nowrap; user-select: none;
     }
     .dropdown-btn:hover { filter: brightness(1.2); }
@@ -77,14 +75,12 @@
       text-decoration: none; transition: background .12s; font-family: inherit;
     }
     .dropdown-item:hover { background: rgba(255,255,255,.06); }
-    /* Icon: no background, no border, just colored SVG */
     .di-icon {
       width: 20px; height: 20px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
     }
     .di-icon svg { width: 18px; height: 18px; fill: currentColor; }
     .di-label { flex: 1; }
-    /* Ticks */
     .tick {
       display: inline-flex; align-items: center; justify-content: center;
       width: 15px; height: 15px; border-radius: 50%; flex-shrink: 0; cursor: help;
@@ -94,7 +90,6 @@
     .tick.green { background: var(--green); }
     .tick.lg { width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--surface); }
     .tick.lg svg { width: 11px; height: 11px; }
-    /* Social */
     .section-title {
       font-size: .65rem; font-weight: 600; text-transform: uppercase;
       letter-spacing: .1em; color: var(--muted); margin-top: 24px; margin-bottom: 10px;
@@ -109,7 +104,11 @@
     }
     .social-btn:hover { color: var(--text); transform: translateY(-2px); }
     .social-btn svg { width: 22px; height: 22px; fill: currentColor; }
-    .btn-icon { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+    .btn-icon {
+      display: inline-flex; align-items: center;
+      width: 14px; height: 14px; flex-shrink: 0;
+    }
+    .btn-icon svg { width: 14px; height: 14px; fill: currentColor; }
     .footer-link {
       display: block; text-align: center; margin-top: 26px; padding-top: 18px;
       border-top: 1px solid var(--border); font-size: .72rem;
@@ -144,11 +143,12 @@
 void (async () => {
 
   // ── CONFIG ────────────────────────────────────────────────────────────────
-  const DOMAIN        = 'zsoltsb.eu';
-  const DITTO_URL     = 'https://ditto.pub';
-  const LN_USER       = 'wallet';
-  const LN_DOMAIN     = DOMAIN;
-  const GRAVATAR_SLUG = 'zsoltsb';
+  const DOMAIN          = 'zsoltsb.eu';
+  const DITTO_URL       = 'https://ditto.pub';
+  const LN_USER         = 'wallet';
+  const LN_DOMAIN       = DOMAIN;
+  const GRAVATAR_SLUG   = 'zsoltsb';
+  const KEYTRACE_HANDLE = 'zsoltsb.eu'; // resolves to keytrace.dev/@zsoltsb.eu
 
   const AUTHORITY_RELAY = 'wss://relay.ditto.pub';
   const OPENVIBE_RELAYS = [
@@ -161,6 +161,55 @@ void (async () => {
     n => `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(n)}&type=TXT`,
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
+
+  // ── SOCIAL ORDERING ───────────────────────────────────────────────────────
+  // Category weights define sort order per spec:
+  // 0: ATProto open social, 1: ActivityPub open social, 2: text kind-of-open (Threads),
+  // 3: mixed kind-of-open (Tumblr), 4: ATProto git (future), 5: kind-of-open git (GitLab),
+  // 6: bigtech git (GitHub)
+  const SOCIAL_ORDER = {
+    'bluesky':   0,
+    'mastodon':  1,
+    'pixelfed':  1,
+    'threads':   2,
+    'tumblr':    3,
+    'gitlab':    5,
+    'github':    6,
+  };
+
+  // Git fallbacks shown only if not provided by primary/secondary sources
+  const GIT_FALLBACKS = [
+    { shortname:'gitlab', url:'https://gitlab.com/zsoltsb',  name:'GitLab',  source:'fallback' },
+    { shortname:'github', url:'https://github.com/zsoltsb', name:'GitHub',   source:'fallback' },
+  ];
+
+  // Messaging shortnames → "Drop me a line" dropdown
+  const MESSAGING_KEYS = new Set([
+    'whatsapp','telegram','signal','messenger','wechat','line','viber',
+    'skype','discord','slack','matrix','imessage','sms','kik','snapchat',
+    'kakaotalk','zalo','imo','threema','wire','session','element',
+    'rocketchat','mattermost','teams','hangouts','gchat',
+  ]);
+
+  // Hardcoded Telegram (always first in messaging)
+  const TELEGRAM_ENTRY = { shortname:'telegram', url:'https://t.me/zsoltsb', name:'Telegram' };
+
+  // Friendly payment labels
+  const PAYMENT_LABELS = {
+    'paypal':'PayPal','paypalme':'PayPal','venmo':'Venmo','cashapp':'Cash App',
+    'patreon':'Patreon','kofi':'Ko-fi','ko-fi':'Ko-fi',
+    'buymeacoffee':'Buy Me a Coffee','liberapay':'Liberapay',
+    'opencollective':'Open Collective','bitcoin':'Bitcoin','ethereum':'Ethereum',
+    'revolut':'Revolut','stripe':'Stripe','gofundme':'GoFundMe',
+  };
+
+  // Shortnames with no icon in any public icon set — omit entirely
+  const NO_ICON_SHORTNAMES = new Set(['sentz']);
+
+  const friendlyPaymentName = (key, fallback) => {
+    const k = (key||'').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
+    return PAYMENT_LABELS[k] || fallback || key;
+  };
 
   // ── BRAND COLORS ─────────────────────────────────────────────────────────
   const BRAND_COLORS = {
@@ -186,6 +235,7 @@ void (async () => {
     'revolut':        '#7F84F6',
     'bluesky':        '#0085FF',
     'mastodon':       '#6364FF',
+    'pixelfed':       '#FF425B',
     'tumblr':         '#35465C',
     'threads':        '#AAAAAA',
     'github':         '#6E8B9E',
@@ -230,54 +280,16 @@ void (async () => {
     const h = hex.replace('#','');
     return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
   };
-
   const avgColors = hexArr => {
     if (!hexArr.length) return '#555555';
     const sum = hexArr.reduce((acc,h) => {
-      const [r,g,b] = hexToRgb(h);
-      return [acc[0]+r, acc[1]+g, acc[2]+b];
+      const [r,g,b] = hexToRgb(h); return [acc[0]+r,acc[1]+g,acc[2]+b];
     }, [0,0,0]);
-    return '#' + sum.map(v => Math.round(v/hexArr.length).toString(16).padStart(2,'0')).join('');
+    return '#'+sum.map(v=>Math.round(v/hexArr.length).toString(16).padStart(2,'0')).join('');
   };
-
-  // Blend hex toward dark bg (#1a1a1a) at given alpha — for button bg only
   const blendWithBg = (hex, alpha=0.18) => {
-    const [r,g,b] = hexToRgb(hex);
-    const bg = 26;
+    const [r,g,b] = hexToRgb(hex); const bg=26;
     return `rgb(${Math.round(bg+(r-bg)*alpha)},${Math.round(bg+(g-bg)*alpha)},${Math.round(bg+(b-bg)*alpha)})`;
-  };
-
-  // ── SOCIAL ORDER ─────────────────────────────────────────────────────────
-  const SOCIAL_ORDER = { bluesky:0, mastodon:1, tumblr:2, threads:3, github:4, gitlab:5 };
-  const GIT_FALLBACKS = [
-    { shortname:'github', url:'https://github.com/zsoltsb',  name:'GitHub' },
-    { shortname:'gitlab', url:'https://gitlab.com/zsoltsb',  name:'GitLab' },
-  ];
-
-  const MESSAGING_KEYS = new Set([
-    'whatsapp','telegram','signal','messenger','wechat','line','viber',
-    'skype','discord','slack','matrix','imessage','sms','kik','snapchat',
-    'kakaotalk','zalo','imo','threema','wire','session','element',
-    'rocketchat','mattermost','teams','hangouts','gchat',
-  ]);
-
-  const TELEGRAM_ENTRY = { shortname:'telegram', url:'https://t.me/zsoltsb', name:'Telegram' };
-
-  // Friendly payment labels — "sentz" intentionally omitted (no icon available)
-  const PAYMENT_LABELS = {
-    'paypal':'PayPal','paypalme':'PayPal','venmo':'Venmo','cashapp':'Cash App',
-    'patreon':'Patreon','kofi':'Ko-fi','ko-fi':'Ko-fi',
-    'buymeacoffee':'Buy Me a Coffee','liberapay':'Liberapay',
-    'opencollective':'Open Collective','bitcoin':'Bitcoin','ethereum':'Ethereum',
-    'revolut':'Revolut','stripe':'Stripe','gofundme':'GoFundMe',
-  };
-
-  // Shortnames with no icon in any icon set — skip entirely from dropdowns
-  const NO_ICON_SHORTNAMES = new Set(['sentz']);
-
-  const friendlyPaymentName = (key, fallback) => {
-    const k = (key||'').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
-    return PAYMENT_LABELS[k] || fallback || key;
   };
 
   // ── ICONIFY SVG FETCHER ───────────────────────────────────────────────────
@@ -288,10 +300,12 @@ void (async () => {
     try {
       const r = await fetch(
         `https://api.iconify.design/${collection}/${name}.svg?width=1em&height=1em`,
-        { signal: AbortSignal.timeout(4000) }
+        { signal: AbortSignal.timeout(5000) }
       );
       if (!r.ok) throw new Error('not found');
       const svg = (await r.text()).replace(/\s(width|height)="[^"]*"/g,'');
+      // Validate it's actually SVG
+      if (!svg.includes('<svg')) throw new Error('not svg');
       iconCache.set(key, svg);
       return svg;
     } catch {
@@ -300,55 +314,57 @@ void (async () => {
     }
   };
 
+  // Icon candidates: shortname → [[collection, icon], ...] tried in order
   const ICON_LOOKUP = {
-    'bluesky':          [['fa6-brands','bluesky'],              ['simple-icons','bluesky']],
-    'mastodon':         [['fa6-brands','mastodon'],             ['simple-icons','mastodon']],
-    'tumblr':           [['fa6-brands','tumblr'],               ['simple-icons','tumblr']],
-    'threads':          [['fa6-brands','threads'],              ['simple-icons','threads']],
-    'github':           [['fa6-brands','github'],               ['simple-icons','github']],
-    'gitlab':           [['fa6-brands','gitlab'],               ['simple-icons','gitlab']],
-    'twitter':          [['fa6-brands','x-twitter'],            ['simple-icons','x']],
-    'x':                [['fa6-brands','x-twitter'],            ['simple-icons','x']],
-    'instagram':        [['fa6-brands','instagram'],            ['simple-icons','instagram']],
-    'facebook':         [['fa6-brands','facebook'],             ['simple-icons','facebook']],
-    'linkedin':         [['fa6-brands','linkedin'],             ['simple-icons','linkedin']],
-    'pinterest':        [['fa6-brands','pinterest'],            ['simple-icons','pinterest']],
-    'reddit':           [['fa6-brands','reddit'],               ['simple-icons','reddit']],
-    'tiktok':           [['fa6-brands','tiktok'],               ['simple-icons','tiktok']],
-    'youtube':          [['fa6-brands','youtube'],              ['simple-icons','youtube']],
-    'twitch':           [['fa6-brands','twitch'],               ['simple-icons','twitch']],
-    'soundcloud':       [['fa6-brands','soundcloud'],           ['simple-icons','soundcloud']],
-    'spotify':          [['fa6-brands','spotify'],              ['simple-icons','spotify']],
-    'medium':           [['fa6-brands','medium'],               ['simple-icons','medium']],
-    'substack':         [['simple-icons','substack']],
-    'telegram':         [['fa6-brands','telegram'],             ['simple-icons','telegram']],
-    'whatsapp':         [['fa6-brands','whatsapp'],             ['simple-icons','whatsapp']],
-    'signal':           [['simple-icons','signal']],
-    'discord':          [['fa6-brands','discord'],              ['simple-icons','discord']],
-    'slack':            [['fa6-brands','slack'],                ['simple-icons','slack']],
-    'skype':            [['fa6-brands','skype'],                ['simple-icons','skype']],
-    'matrix':           [['simple-icons','matrix']],
-    'paypal':           [['fa6-brands','paypal'],               ['simple-icons','paypal']],
-    'paypalme':         [['fa6-brands','paypal'],               ['simple-icons','paypal']],
-    'venmo':            [['simple-icons','venmo']],
-    'cashapp':          [['simple-icons','cashapp']],
-    'patreon':          [['fa6-brands','patreon'],              ['simple-icons','patreon']],
-    'kofi':             [['simple-icons','kofi']],
-    'ko-fi':            [['simple-icons','kofi']],
-    'buymeacoffee':     [['simple-icons','buymeacoffee']],
-    'liberapay':        [['simple-icons','liberapay']],
-    'opencollective':   [['fa6-brands','opencollective'],       ['simple-icons','opencollective']],
-    'bitcoin':          [['fa6-brands','bitcoin'],              ['simple-icons','bitcoin']],
-    'ethereum':         [['simple-icons','ethereum']],
-    'revolut':          [['simple-icons','revolut']],
-    'strava':           [['fa6-brands','strava'],               ['simple-icons','strava']],
-    'steam':            [['fa6-brands','steam'],                ['simple-icons','steam']],
-    'codepen':          [['fa6-brands','codepen'],              ['simple-icons','codepen']],
-    'npm':              [['fa6-brands','npm'],                  ['simple-icons','npm']],
-    'docker':           [['fa6-brands','docker'],               ['simple-icons','docker']],
-    '_link':            [['fa6-solid','link']],
-    '_plane':           [['fa6-solid','paper-plane']],
-    '_hand-dollar':     [['fa6-solid','hand-holding-dollar']],
+    'bluesky':        [['fa6-brands','bluesky'],          ['simple-icons','bluesky']],
+    'mastodon':       [['fa6-brands','mastodon'],          ['simple-icons','mastodon']],
+    'pixelfed':       [['simple-icons','pixelfed']],
+    'tumblr':         [['fa6-brands','tumblr'],            ['simple-icons','tumblr']],
+    'threads':        [['fa6-brands','threads'],           ['simple-icons','threads']],
+    'github':         [['fa6-brands','github'],            ['simple-icons','github']],
+    'gitlab':         [['fa6-brands','gitlab'],            ['simple-icons','gitlab']],
+    'twitter':        [['fa6-brands','x-twitter'],         ['simple-icons','x']],
+    'x':              [['fa6-brands','x-twitter'],         ['simple-icons','x']],
+    'instagram':      [['fa6-brands','instagram'],         ['simple-icons','instagram']],
+    'facebook':       [['fa6-brands','facebook'],          ['simple-icons','facebook']],
+    'linkedin':       [['fa6-brands','linkedin'],          ['simple-icons','linkedin']],
+    'pinterest':      [['fa6-brands','pinterest'],         ['simple-icons','pinterest']],
+    'reddit':         [['fa6-brands','reddit'],            ['simple-icons','reddit']],
+    'tiktok':         [['fa6-brands','tiktok'],            ['simple-icons','tiktok']],
+    'youtube':        [['fa6-brands','youtube'],           ['simple-icons','youtube']],
+    'twitch':         [['fa6-brands','twitch'],            ['simple-icons','twitch']],
+    'soundcloud':     [['fa6-brands','soundcloud'],        ['simple-icons','soundcloud']],
+    'spotify':        [['fa6-brands','spotify'],           ['simple-icons','spotify']],
+    'medium':         [['fa6-brands','medium'],            ['simple-icons','medium']],
+    'substack':       [['simple-icons','substack']],
+    'telegram':       [['fa6-brands','telegram'],          ['simple-icons','telegram']],
+    'whatsapp':       [['fa6-brands','whatsapp'],          ['simple-icons','whatsapp']],
+    'signal':         [['simple-icons','signal']],
+    'discord':        [['fa6-brands','discord'],           ['simple-icons','discord']],
+    'slack':          [['fa6-brands','slack'],             ['simple-icons','slack']],
+    'skype':          [['fa6-brands','skype'],             ['simple-icons','skype']],
+    'matrix':         [['simple-icons','matrix']],
+    'paypal':         [['fa6-brands','paypal'],            ['simple-icons','paypal']],
+    'paypalme':       [['fa6-brands','paypal'],            ['simple-icons','paypal']],
+    'venmo':          [['simple-icons','venmo']],
+    'cashapp':        [['simple-icons','cashapp']],
+    'patreon':        [['fa6-brands','patreon'],           ['simple-icons','patreon']],
+    'kofi':           [['simple-icons','kofi']],
+    'ko-fi':          [['simple-icons','kofi']],
+    'buymeacoffee':   [['simple-icons','buymeacoffee']],
+    'liberapay':      [['simple-icons','liberapay']],
+    'opencollective': [['fa6-brands','opencollective'],    ['simple-icons','opencollective']],
+    'bitcoin':        [['fa6-brands','bitcoin'],           ['simple-icons','bitcoin']],
+    'ethereum':       [['simple-icons','ethereum']],
+    'revolut':        [['simple-icons','revolut']],
+    'strava':         [['fa6-brands','strava'],            ['simple-icons','strava']],
+    'steam':          [['fa6-brands','steam'],             ['simple-icons','steam']],
+    'codepen':        [['fa6-brands','codepen'],           ['simple-icons','codepen']],
+    'npm':            [['fa6-brands','npm'],               ['simple-icons','npm']],
+    'docker':         [['fa6-brands','docker'],            ['simple-icons','docker']],
+    '_link':          [['fa6-solid','link']],
+    '_plane':         [['fa6-solid','paper-plane']],
+    '_hand-dollar':   [['fa6-solid','hand-holding-dollar']],
   };
 
   const resolveIconKey = (shortname, url) => {
@@ -371,7 +387,7 @@ void (async () => {
       const svg = await fetchIcon(col, name);
       if (svg) return svg;
     }
-    return `<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
+    return null; // no fallback SVG generation per spec
   };
 
   // ── HELPERS ───────────────────────────────────────────────────────────────
@@ -408,8 +424,8 @@ void (async () => {
     for (const resolver of DOH_RESOLVERS) {
       try {
         const data = await fetchJSON(resolver(hostname), 4000);
-        const answers = (data?.Answer||[]).filter(a => a.type===16);
-        if (answers.length) return answers.map(a => String(a.data).replace(/^"|"$/g,'').trim());
+        const answers = (data?.Answer||[]).filter(a=>a.type===16);
+        if (answers.length) return answers.map(a=>String(a.data).replace(/^"|"$/g,'').trim());
       } catch {}
     }
     return [];
@@ -433,8 +449,8 @@ void (async () => {
     let p = null;
     const get = () => {
       if (!p) p = fetchJSON(`https://${DOMAIN}/.well-known/media-servers.json`,4000)
-        .then(j => {
-          const raw = Array.isArray(j)?j:(j?.servers||j?.media_servers||[]);
+        .then(j=>{
+          const raw=Array.isArray(j)?j:(j?.servers||j?.media_servers||[]);
           return raw.map(s=>{try{return new URL(s).hostname.toLowerCase();}catch{return null;}}).filter(Boolean);
         }).catch(()=>[]);
       return p;
@@ -490,7 +506,66 @@ void (async () => {
     throw new Error('All relays failed');
   };
 
-  // ── GRAVATAR ──────────────────────────────────────────────────────────────
+  // ── KEYTRACE DATA FETCHER ─────────────────────────────────────────────────
+  // Keytrace is ATProto-based. The public profile page is keytrace.dev/@{handle}
+  // The developer API resolves handle → DID → PDS → dev.keytrace.* records.
+  // We fetch the public profile page and parse the JSON-LD / embedded data,
+  // OR use the @keytrace/claims package API endpoint.
+  // Primary API: https://keytrace.dev/api/claims/{handle}  (undocumented but consistent)
+  // Fallback: parse keytrace.dev/@{handle} HTML for embedded JSON
+  const fetchKeytraceData = async (handle) => {
+    const empty = { social:[], messaging:[], payments:[] };
+
+    // Try the claims API endpoint first
+    const apiUrls = [
+      `https://keytrace.dev/api/claims/${encodeURIComponent(handle)}`,
+      `https://keytrace.dev/api/profile/${encodeURIComponent(handle)}`,
+    ];
+
+    let claims = null;
+    for (const url of apiUrls) {
+      try {
+        const data = await fetchJSON(url, 6000);
+        if (data && (Array.isArray(data) || Array.isArray(data?.claims) || data?.accounts)) {
+          claims = data;
+          console.log('[keytrace] api ✓', url);
+          break;
+        }
+      } catch(e) { console.warn('[keytrace] api miss:', url, e.message); }
+    }
+
+    // Parse claims into account entries
+    // Keytrace claim structure: { platform, url, handle, verified }
+    const parseClaimsToAccounts = (raw) => {
+      const list = Array.isArray(raw) ? raw
+        : Array.isArray(raw?.claims) ? raw.claims
+        : Array.isArray(raw?.accounts) ? raw.accounts
+        : [];
+      return list
+        .filter(c => c?.url || c?.profile_url)
+        .map(c => {
+          const url = (c.url || c.profile_url || '').trim();
+          const platform = (c.platform || c.service || c.shortname || '').toLowerCase()
+            .replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+          const name = c.name || c.display_name || c.platform || platform;
+          return { shortname: platform, name, url, source: 'keytrace' };
+        })
+        .filter(a => a.url.startsWith('http') && a.shortname);
+    };
+
+    if (claims) {
+      const accounts = parseClaimsToAccounts(claims);
+      const social    = accounts.filter(a => !MESSAGING_KEYS.has(a.shortname));
+      const messaging = accounts.filter(a =>  MESSAGING_KEYS.has(a.shortname));
+      console.log(`[keytrace] social:${social.length} msg:${messaging.length}`);
+      return { social, messaging, payments: [] };
+    }
+
+    console.warn('[keytrace] all attempts failed, returning empty');
+    return empty;
+  };
+
+  // ── GRAVATAR DATA FETCHER ─────────────────────────────────────────────────
   const fetchGravatarData = async () => {
     const url = `https://gravatar.com/${GRAVATAR_SLUG}.json`;
     let entry = null;
@@ -515,12 +590,12 @@ void (async () => {
         shortname: (a.shortname||'').toLowerCase(),
         name:      a.name || a.shortname || '',
         url:       (a.url||'').trim(),
+        source:    'gravatar',
       }));
 
     const social    = rawAccounts.filter(a => !MESSAGING_KEYS.has(a.shortname));
     const messaging = rawAccounts.filter(a =>  MESSAGING_KEYS.has(a.shortname));
 
-    // payments{} is a plain object: { "paypalme": "https://...", "Revolut": "https://..." }
     const paymentsObj = entry.payments || {};
     const payments = Object.entries(paymentsObj)
       .map(([key, url]) => ({
@@ -529,11 +604,57 @@ void (async () => {
         url:       String(url),
       }))
       .filter(p => p.url.startsWith('http'))
-      // Remove entries with no icon (e.g. Sentz)
       .filter(p => !NO_ICON_SHORTNAMES.has(p.shortname));
 
     console.log(`[gravatar] social:${social.length} msg:${messaging.length} pay:${payments.length}`);
     return { social, messaging, payments };
+  };
+
+  // ── MERGE SOURCES ─────────────────────────────────────────────────────────
+  // Keytrace is primary for social links; Gravatar fills gaps.
+  // Dedup by shortname: keytrace wins over gravatar wins over fallback.
+  const mergeSocialSources = (keytrace, gravatar, fallbacks) => {
+    const seen = new Map(); // shortname → entry
+
+    // Priority 1: Keytrace
+    for (const a of keytrace) {
+      if (!seen.has(a.shortname)) seen.set(a.shortname, a);
+    }
+    // Priority 2: Gravatar (fill gaps)
+    for (const a of gravatar) {
+      if (!seen.has(a.shortname)) seen.set(a.shortname, a);
+    }
+    // Priority 3: Hardcoded fallbacks (only if not already present)
+    for (const a of fallbacks) {
+      if (!seen.has(a.shortname)) seen.set(a.shortname, a);
+    }
+
+    const all = [...seen.values()];
+
+    // Sort by SOCIAL_ORDER; items not in map go after, preserving relative order
+    const maxOrder = Math.max(...Object.values(SOCIAL_ORDER)) + 1;
+    // Assign stable secondary index for items not in SOCIAL_ORDER
+    const originalIdx = new Map(all.map((a,i) => [a.shortname, i]));
+    all.sort((a,b) => {
+      const oa = SOCIAL_ORDER[a.shortname] ?? (maxOrder + (originalIdx.get(a.shortname)||0));
+      const ob = SOCIAL_ORDER[b.shortname] ?? (maxOrder + (originalIdx.get(b.shortname)||0));
+      return oa - ob;
+    });
+
+    return all;
+  };
+
+  const mergeMessagingSources = (keytrace, gravatar) => {
+    const seen = new Map();
+    // Hardcoded Telegram always first
+    seen.set('telegram', TELEGRAM_ENTRY);
+    for (const a of keytrace) {
+      if (!seen.has(a.shortname)) seen.set(a.shortname, a);
+    }
+    for (const a of gravatar) {
+      if (!seen.has(a.shortname)) seen.set(a.shortname, a);
+    }
+    return [...seen.values()];
   };
 
   // ── MAIN ──────────────────────────────────────────────────────────────────
@@ -550,30 +671,23 @@ void (async () => {
     return;
   }
 
-  // 2. Parallel fetch
-  const metaPromise     = fetchNostrMeta(pubkey, relayHints);
-  const gravatarPromise = fetchGravatarData();
+  // 2. Parallel: Nostr meta + Keytrace + Gravatar
+  const [metaResult, keytraceData, gravatarData] = await Promise.all([
+    fetchNostrMeta(pubkey, relayHints).catch(e => { throw e; }),
+    fetchKeytraceData(KEYTRACE_HANDLE),
+    fetchGravatarData(),
+  ]);
 
-  // 3. Nostr meta
-  let result;
-  try{result=await metaPromise;}
-  catch(e){
-    document.getElementById('body').innerHTML=
-      `<div class="error">⚠️ All relays failed.<code>${esc(e.message)}</code></div>`;
-    return;
-  }
-
-  const {meta} = result;
+  const {meta} = metaResult;
   const npub          = hexToNpub(pubkey);
   const nip05         = meta.nip05||`_@${DOMAIN}`;
   const nip05Domain   = nip05.includes('@')?nip05.split('@')[1]:'';
   const displayHandle = nip05.startsWith('_@')?nip05.slice(2):nip05;
 
-  // 4. Parallel verification + gravatar
+  // 3. Parallel verification
   const [
     dnsNostrOk, dnsLnOk, lnWellKnownOk,
     avatarMediaLevel, bannerMediaLevel,
-    gravatarData,
   ] = await Promise.all([
     (async()=>{
       for(const name of[`_nostr.${DOMAIN}`,`_nip05.${DOMAIN}`,DOMAIN]){
@@ -598,29 +712,21 @@ void (async () => {
     })(),
     checkMediaHost(meta.picture||''),
     checkMediaHost(meta.banner||''),
-    gravatarPromise,
   ]);
 
-  const {social:socialRaw, messaging:messagingRaw, payments} = gravatarData;
+  // 4. Merge sources
+  const allSocial = mergeSocialSources(
+    keytraceData.social,
+    gravatarData.social,
+    GIT_FALLBACKS
+  );
+  const allMessaging = mergeMessagingSources(
+    keytraceData.messaging,
+    gravatarData.messaging
+  );
+  const payments = gravatarData.payments; // payments only from Gravatar
 
-  // 5. Build social list with hardcoded order + git fallbacks
-  const gravatarShortnames = new Set(socialRaw.map(a=>a.shortname));
-  const gitToAdd = GIT_FALLBACKS.filter(g=>!gravatarShortnames.has(g.shortname));
-  const allSocial = [...socialRaw, ...gitToAdd];
-  const maxOrder = Object.keys(SOCIAL_ORDER).length;
-  allSocial.sort((a,b)=>{
-    const oa = SOCIAL_ORDER[a.shortname]??maxOrder+allSocial.indexOf(a);
-    const ob = SOCIAL_ORDER[b.shortname]??maxOrder+allSocial.indexOf(b);
-    return oa-ob;
-  });
-
-  // Messaging: hardcoded Telegram first
-  const allMessaging = [
-    TELEGRAM_ENTRY,
-    ...messagingRaw.filter(a=>a.shortname!=='telegram'),
-  ];
-
-  // 6. Ticks
+  // 5. Ticks
   let handleTickLevel='green', handleTickTitle='Verified via relay';
   if(wellKnownNostrOk&&nip05Domain===DOMAIN){
     handleTickLevel='gold';
@@ -639,16 +745,16 @@ void (async () => {
   const bannerTickTitle = bannerMediaLevel==='gold'?`Banner hosted on ${DOMAIN} ✓`
     :bannerMediaLevel==='green'?'Banner on trusted media server ✓':'';
 
-  // 7. rel=me
+  // 6. rel=me
   if(npub){const l=document.createElement('link');l.rel='me';l.href=`https://njump.me/${npub}`;document.head.appendChild(l);}
   for(const{url}of allSocial){const l=document.createElement('link');l.rel='me';l.href=url;document.head.appendChild(l);}
 
-  // 8. Banner
+  // 7. Banner
   const bannerEl=document.getElementById('banner');
   if(meta.banner){const img=new Image();img.onload=()=>{bannerEl.style.backgroundImage=`url(${meta.banner})`;};img.src=meta.banner;}
   if(bannerMediaLevel){const bt=document.createElement('div');bt.className='banner-tick';bt.innerHTML=tickHtml(bannerMediaLevel,bannerTickTitle,true);bannerEl.appendChild(bt);}
 
-  // 9. Avatar
+  // 8. Avatar
   const name=meta.display_name||meta.name||DOMAIN;
   const avatarWrap=document.getElementById('avatarWrap');
   if(meta.picture){
@@ -660,11 +766,10 @@ void (async () => {
   }
   if(avatarMediaLevel){const at=document.createElement('div');at.className='avatar-tick';at.innerHTML=tickHtml(avatarMediaLevel,avatarTickTitle,true);avatarWrap.appendChild(at);}
 
-  // 10. Pre-fetch all icons concurrently
+  // 9. Pre-fetch all icons concurrently
   const nostrUri  = npub?`nostr:${npub}`:`https://njump.me/${nip05}`;
   const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
-  // Fetch button icons via Iconify too (consistent rendering)
   const [
     iconPlaneSvg, iconHandDollarSvg,
     socialIcons, messagingIcons, paymentIcons,
@@ -676,58 +781,57 @@ void (async () => {
     Promise.all(payments.map(p=>getIcon(p.shortname,p.url))),
   ]);
 
-  // Inline SVG fallbacks for button icons if Iconify fails
-  const PLANE_SVG = iconPlaneSvg ||
-    `<svg viewBox="0 0 512 512"><path fill="currentColor" d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z"/></svg>`;
-  const HAND_DOLLAR_SVG = iconHandDollarSvg ||
-    `<svg viewBox="0 0 576 512"><path fill="currentColor" d="M312 24V34.5c6.4 1.2 12.6 2.7 18.2 4.2c12.8 3.4 20.4 16.6 17 29.4s-16.6 20.4-29.4 17c-10.9-2.9-21.1-4.9-30.2-5c-7.3-.1-14.7 1.7-19.4 4.4c-2.1 1.3-3.1 2.4-3.5 3c-.3 .5-.7 1.2-.7 2.8c0 .3 0 .5 0 .6c.2 .2 .9 1.2 3.3 2.4c5.8 2.9 14.4 4.9 25.5 7.3l.6 .1c9.6 2.1 20.8 4.5 30.7 8.7c14.5 6.1 27.8 16.7 34.4 32.4c6.9 16.4 5.4 34.7-1.3 49.9c-5.8 13.3-16.5 23.6-29.3 30.3V232c0 13.3-10.7 24-24 24s-24-10.7-24-24V220.6c-9.5-2.3-18.2-5.3-25.6-7.8c-2.1-.7-4.1-1.4-6-2c-12.6-4.2-19.4-17.8-15.2-30.4s17.8-19.4 30.4-15.2c2.6 .9 5 1.7 7.3 2.5c13.6 4.6 23.4 7.9 33.9 8.3c8 .3 15.1-1.6 19.2-4.1c1.9-1.2 3.2-2.4 4-3.6c.8-1.2 1.3-2.7 1.3-4.8c0-.3 0-.5-.1-.6c-.2-.2-.9-1.1-3.2-2.3c-5.5-2.8-13.9-4.8-25-7.2l-1.1-.2c-9.4-2-20.3-4.4-30-8.5c-14.6-6.2-28.1-16.8-34.9-32.6c-7-16.3-5.6-34.9 1.1-50.1c5.6-12.9 15.8-23.2 28.3-30.1V24c0-13.3 10.7-24 24-24s24 10.7 24 24zM568.2 336.3c13.1 17.8 9.3 42.8-8.5 55.9L433.1 485.5c-23.4 17.2-51.6 26.5-80.7 26.5H192 32c-17.7 0-32-14.3-32-32V416c0-17.7 14.3-32 32-32H68.8l44.9-36c22.7-18.1 50.9-28 80.1-28H272h16 64c17.7 0 32 14.3 32 32s-14.3 32-32 32H288 272c-8.8 0-16 7.2-16 16s7.2 16 16 16H392.6l119.7-88.2c17.8-13.1 42.8-9.3 55.9 8.5zM193.6 384l0 0-.9 0c.3 0 .6 0 .9 0z"/></svg>`;
-
-  // 11. Compute button styles from brand colors
+  // 10. Button styles from averaged brand colors
   const msgColors   = allMessaging.map(a=>getBrandColor(a.shortname,a.url));
   const tipColors   = payments.map(p=>getBrandColor(p.shortname,p.url));
   const msgAvgColor = avgColors(msgColors);
   const tipAvgColor = avgColors(tipColors);
 
-  const makeBtnStyle = (avgHex) => {
-    const bg  = blendWithBg(avgHex, 0.20);
-    const border = avgHex + '66'; // ~40% opacity border
-    return `background:${bg};border:1px solid ${border};color:${avgHex};`;
+  const makeBtnStyle = avgHex => {
+    const bg = blendWithBg(avgHex, 0.20);
+    return `background:${bg};border:1px solid ${avgHex}66;color:${avgHex};`;
   };
 
-  // 12. Build HTML
-  const buildSocialRow = () => allSocial.map((a,i)=>
-    `<a class="social-btn" href="${esc(a.url)}" target="_blank" rel="noopener me" title="${esc(a.name)}">
-       ${socialIcons[i]||''}
-     </a>`
-  ).join('');
+  // 11. Build HTML
+  // Social buttons: only render if icon resolved (no SVG generation)
+  const buildSocialRow = () => allSocial
+    .map((a,i) => socialIcons[i]
+      ? `<a class="social-btn" href="${esc(a.url)}" target="_blank" rel="noopener me" title="${esc(a.name)}">${socialIcons[i]}</a>`
+      : ''
+    ).join('');
 
-  // Items: icon has NO background, NO border — just brand color fill
   const buildDropdown = (btnLabel, btnIconSvg, btnStyleStr, items, icons, colors) => {
-    if(!items.length) return '';
-    const itemsHtml = items.map((item,i)=>{
-      const color = colors[i] || '#888888';
-      return `<a class="dropdown-item" href="${esc(item.url)}" target="_blank" rel="noopener">
-         <span class="di-icon" style="color:${color};">${icons[i]||''}</span>
+    // Only include items where icon resolved
+    const validItems = items.map((item,i)=>({item,icon:icons[i],color:colors[i]}))
+      .filter(({icon})=>icon);
+    if(!validItems.length) return '';
+    const itemsHtml = validItems.map(({item,icon,color})=>
+      `<a class="dropdown-item" href="${esc(item.url)}" target="_blank" rel="noopener">
+         <span class="di-icon" style="color:${color||'#888'};">${icon}</span>
          <span class="di-label">${esc(item.name)}</span>
-       </a>`;
-    }).join('');
+       </a>`
+    ).join('');
+    const btnIcon = btnIconSvg
+      ? `<span class="btn-icon">${btnIconSvg}</span>`
+      : '';
     return `<div class="dropdown">
       <button class="dropdown-btn" type="button" style="${btnStyleStr}">
-        <span class="btn-icon" style="display:inline-flex;align-items:center;width:14px;height:14px;">${btnIconSvg}</span>
-        ${esc(btnLabel)} <span class="chevron">▾</span>
+        ${btnIcon}${esc(btnLabel)} <span class="chevron">▾</span>
       </button>
       <div class="dropdown-menu">${itemsHtml}</div>
     </div>`;
   };
 
   const msgDropdown = buildDropdown(
-    'Drop me a line', PLANE_SVG,      makeBtnStyle(msgAvgColor),
+    'Drop me a line', iconPlaneSvg, makeBtnStyle(msgAvgColor),
     allMessaging, messagingIcons, msgColors
   );
   const tipDropdown = buildDropdown(
-    'Drop me a dime', HAND_DOLLAR_SVG, makeBtnStyle(tipAvgColor),
+    'Drop me a dime', iconHandDollarSvg, makeBtnStyle(tipAvgColor),
     payments, paymentIcons, tipColors
   );
+
+  const socialRowHtml = buildSocialRow();
 
   document.getElementById('body').innerHTML = `
     <div class="display-name">${esc(name)}</div>
@@ -746,17 +850,17 @@ void (async () => {
       ${tipDropdown}
     </div>
 
-    ${allSocial.length?`
+    ${socialRowHtml ? `
       <div class="section-title">Follow me on</div>
-      <div class="social-row">${buildSocialRow()}</div>
-    `:''}
+      <div class="social-row">${socialRowHtml}</div>
+    ` : ''}
 
     <a class="footer-link" href="${DITTO_URL}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
   `;
 
-  // 13. Dropdown toggle
+  // 12. Dropdown toggle
   document.querySelectorAll('.dropdown-btn').forEach(btn=>{
     btn.addEventListener('click',e=>{
       e.stopPropagation();
