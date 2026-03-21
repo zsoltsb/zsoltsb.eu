@@ -24,7 +24,6 @@
       width: 100%; max-width: 600px; background: var(--surface);
       border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
     }
-    /* Banner */
     .banner {
       height: 160px; position: relative;
       background: linear-gradient(135deg,#1e1040 0%,#2d1b69 50%,#1a0f3d 100%);
@@ -42,10 +41,8 @@
       justify-content: center; font-size: 2.4rem; font-weight: 700; color: #fff;
     }
     .avatar-tick { position: absolute; bottom: 2px; right: 2px; }
-    /* Body */
     .body { padding: 62px 24px 28px; }
     .display-name { font-size: 1.25rem; font-weight: 700; }
-    /* Pill rows */
     .pill-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
     .pill {
       display: inline-flex; align-items: center; gap: 7px;
@@ -61,11 +58,10 @@
       display: inline-flex; align-items: center; gap: 6px;
       border-radius: 20px; padding: 6px 12px; font-size: .75rem;
       font-family: inherit; cursor: pointer;
-      transition: filter .15s, opacity .15s;
+      transition: filter .15s;
       white-space: nowrap; user-select: none;
-      /* color, background, border set dynamically via JS */
     }
-    .dropdown-btn:hover { filter: brightness(1.15); }
+    .dropdown-btn:hover { filter: brightness(1.2); }
     .dropdown-btn .chevron { font-size: .6rem; transition: transform .2s; }
     .dropdown.open .chevron { transform: rotate(180deg); }
     .dropdown-menu {
@@ -81,13 +77,12 @@
       text-decoration: none; transition: background .12s; font-family: inherit;
     }
     .dropdown-item:hover { background: rgba(255,255,255,.06); }
+    /* Icon: no background, no border, just colored SVG */
     .di-icon {
-      width: 24px; height: 24px; flex-shrink: 0;
+      width: 20px; height: 20px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      border-radius: 6px;
-      /* background & color set per-item via inline style */
     }
-    .di-icon svg { width: 14px; height: 14px; fill: currentColor; }
+    .di-icon svg { width: 18px; height: 18px; fill: currentColor; }
     .di-label { flex: 1; }
     /* Ticks */
     .tick {
@@ -114,9 +109,7 @@
     }
     .social-btn:hover { color: var(--text); transform: translateY(-2px); }
     .social-btn svg { width: 22px; height: 22px; fill: currentColor; }
-    /* Btn icon */
-    .btn-icon { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
-    /* Footer */
+    .btn-icon { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
     .footer-link {
       display: block; text-align: center; margin-top: 26px; padding-top: 18px;
       border-top: 1px solid var(--border); font-size: .72rem;
@@ -124,7 +117,6 @@
     }
     .footer-link span { color: var(--accent2); }
     .footer-link:hover span { text-decoration: underline; }
-    /* Skeleton */
     .sk {
       background: linear-gradient(90deg,var(--border) 25%,#2e2e2e 50%,var(--border) 75%);
       background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 6px;
@@ -171,7 +163,6 @@ void (async () => {
   ];
 
   // ── BRAND COLORS ─────────────────────────────────────────────────────────
-  // Primary brand color per service shortname/key
   const BRAND_COLORS = {
     'telegram':       '#0088CC',
     'whatsapp':       '#25D366',
@@ -193,7 +184,6 @@ void (async () => {
     'bitcoin':        '#F7931A',
     'ethereum':       '#627EEA',
     'revolut':        '#7F84F6',
-    'sentz':          '#888888',
     'bluesky':        '#0085FF',
     'mastodon':       '#6364FF',
     'tumblr':         '#35465C',
@@ -236,30 +226,24 @@ void (async () => {
     return BRAND_COLORS['_default'];
   };
 
-  // Parse hex color to [r,g,b]
   const hexToRgb = hex => {
     const h = hex.replace('#','');
-    return [
-      parseInt(h.slice(0,2),16),
-      parseInt(h.slice(2,4),16),
-      parseInt(h.slice(4,6),16),
-    ];
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
   };
 
-  // Average multiple hex colors → hex string
   const avgColors = hexArr => {
-    if (!hexArr.length) return '#444444';
-    const sum = hexArr.reduce((acc, h) => {
+    if (!hexArr.length) return '#555555';
+    const sum = hexArr.reduce((acc,h) => {
       const [r,g,b] = hexToRgb(h);
       return [acc[0]+r, acc[1]+g, acc[2]+b];
     }, [0,0,0]);
     return '#' + sum.map(v => Math.round(v/hexArr.length).toString(16).padStart(2,'0')).join('');
   };
 
-  // Blend a hex color toward dark background at given opacity (for button bg)
-  const blendWithBg = (hex, alpha = 0.18) => {
+  // Blend hex toward dark bg (#1a1a1a) at given alpha — for button bg only
+  const blendWithBg = (hex, alpha=0.18) => {
     const [r,g,b] = hexToRgb(hex);
-    const bg = 26; // #1a1a1a
+    const bg = 26;
     return `rgb(${Math.round(bg+(r-bg)*alpha)},${Math.round(bg+(g-bg)*alpha)},${Math.round(bg+(b-bg)*alpha)})`;
   };
 
@@ -270,7 +254,6 @@ void (async () => {
     { shortname:'gitlab', url:'https://gitlab.com/zsoltsb',  name:'GitLab' },
   ];
 
-  // Messaging → "Drop me a line" dropdown only
   const MESSAGING_KEYS = new Set([
     'whatsapp','telegram','signal','messenger','wechat','line','viber',
     'skype','discord','slack','matrix','imessage','sms','kik','snapchat',
@@ -280,14 +263,18 @@ void (async () => {
 
   const TELEGRAM_ENTRY = { shortname:'telegram', url:'https://t.me/zsoltsb', name:'Telegram' };
 
-  // Friendly payment labels
+  // Friendly payment labels — "sentz" intentionally omitted (no icon available)
   const PAYMENT_LABELS = {
     'paypal':'PayPal','paypalme':'PayPal','venmo':'Venmo','cashapp':'Cash App',
     'patreon':'Patreon','kofi':'Ko-fi','ko-fi':'Ko-fi',
     'buymeacoffee':'Buy Me a Coffee','liberapay':'Liberapay',
     'opencollective':'Open Collective','bitcoin':'Bitcoin','ethereum':'Ethereum',
-    'revolut':'Revolut','sentz':'Sentz','stripe':'Stripe','gofundme':'GoFundMe',
+    'revolut':'Revolut','stripe':'Stripe','gofundme':'GoFundMe',
   };
+
+  // Shortnames with no icon in any icon set — skip entirely from dropdowns
+  const NO_ICON_SHORTNAMES = new Set(['sentz']);
+
   const friendlyPaymentName = (key, fallback) => {
     const k = (key||'').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
     return PAYMENT_LABELS[k] || fallback || key;
@@ -314,55 +301,54 @@ void (async () => {
   };
 
   const ICON_LOOKUP = {
-    'bluesky':       [['fa6-brands','bluesky'],       ['simple-icons','bluesky']],
-    'mastodon':      [['fa6-brands','mastodon'],       ['simple-icons','mastodon']],
-    'tumblr':        [['fa6-brands','tumblr'],         ['simple-icons','tumblr']],
-    'threads':       [['fa6-brands','threads'],        ['simple-icons','threads']],
-    'github':        [['fa6-brands','github'],         ['simple-icons','github']],
-    'gitlab':        [['fa6-brands','gitlab'],         ['simple-icons','gitlab']],
-    'twitter':       [['fa6-brands','x-twitter'],      ['simple-icons','x']],
-    'x':             [['fa6-brands','x-twitter'],      ['simple-icons','x']],
-    'instagram':     [['fa6-brands','instagram'],      ['simple-icons','instagram']],
-    'facebook':      [['fa6-brands','facebook'],       ['simple-icons','facebook']],
-    'linkedin':      [['fa6-brands','linkedin'],       ['simple-icons','linkedin']],
-    'pinterest':     [['fa6-brands','pinterest'],      ['simple-icons','pinterest']],
-    'reddit':        [['fa6-brands','reddit'],         ['simple-icons','reddit']],
-    'tiktok':        [['fa6-brands','tiktok'],         ['simple-icons','tiktok']],
-    'youtube':       [['fa6-brands','youtube'],        ['simple-icons','youtube']],
-    'twitch':        [['fa6-brands','twitch'],         ['simple-icons','twitch']],
-    'soundcloud':    [['fa6-brands','soundcloud'],     ['simple-icons','soundcloud']],
-    'spotify':       [['fa6-brands','spotify'],        ['simple-icons','spotify']],
-    'medium':        [['fa6-brands','medium'],         ['simple-icons','medium']],
-    'substack':      [['simple-icons','substack']],
-    'telegram':      [['fa6-brands','telegram'],       ['simple-icons','telegram']],
-    'whatsapp':      [['fa6-brands','whatsapp'],       ['simple-icons','whatsapp']],
-    'signal':        [['simple-icons','signal']],
-    'discord':       [['fa6-brands','discord'],        ['simple-icons','discord']],
-    'slack':         [['fa6-brands','slack'],          ['simple-icons','slack']],
-    'skype':         [['fa6-brands','skype'],          ['simple-icons','skype']],
-    'matrix':        [['simple-icons','matrix']],
-    'paypal':        [['fa6-brands','paypal'],         ['simple-icons','paypal']],
-    'paypalme':      [['fa6-brands','paypal'],         ['simple-icons','paypal']],
-    'venmo':         [['simple-icons','venmo']],
-    'cashapp':       [['simple-icons','cashapp']],
-    'patreon':       [['fa6-brands','patreon'],        ['simple-icons','patreon']],
-    'kofi':          [['simple-icons','kofi']],
-    'ko-fi':         [['simple-icons','kofi']],
-    'buymeacoffee':  [['simple-icons','buymeacoffee']],
-    'liberapay':     [['simple-icons','liberapay']],
-    'opencollective':[['fa6-brands','opencollective'], ['simple-icons','opencollective']],
-    'bitcoin':       [['fa6-brands','bitcoin'],        ['simple-icons','bitcoin']],
-    'ethereum':      [['simple-icons','ethereum']],
-    'revolut':       [['simple-icons','revolut']],
-    'sentz':         [['fa6-solid','paper-plane'],     ['fa6-solid','money-bill']],
-    'strava':        [['fa6-brands','strava'],         ['simple-icons','strava']],
-    'steam':         [['fa6-brands','steam'],          ['simple-icons','steam']],
-    'codepen':       [['fa6-brands','codepen'],        ['simple-icons','codepen']],
-    'npm':           [['fa6-brands','npm'],            ['simple-icons','npm']],
-    'docker':        [['fa6-brands','docker'],         ['simple-icons','docker']],
-    '_link':         [['fa6-solid','link']],
-    '_plane':        [['fa6-solid','paper-plane']],
-    '_coin':         [['fa6-solid','coins']],
+    'bluesky':          [['fa6-brands','bluesky'],              ['simple-icons','bluesky']],
+    'mastodon':         [['fa6-brands','mastodon'],             ['simple-icons','mastodon']],
+    'tumblr':           [['fa6-brands','tumblr'],               ['simple-icons','tumblr']],
+    'threads':          [['fa6-brands','threads'],              ['simple-icons','threads']],
+    'github':           [['fa6-brands','github'],               ['simple-icons','github']],
+    'gitlab':           [['fa6-brands','gitlab'],               ['simple-icons','gitlab']],
+    'twitter':          [['fa6-brands','x-twitter'],            ['simple-icons','x']],
+    'x':                [['fa6-brands','x-twitter'],            ['simple-icons','x']],
+    'instagram':        [['fa6-brands','instagram'],            ['simple-icons','instagram']],
+    'facebook':         [['fa6-brands','facebook'],             ['simple-icons','facebook']],
+    'linkedin':         [['fa6-brands','linkedin'],             ['simple-icons','linkedin']],
+    'pinterest':        [['fa6-brands','pinterest'],            ['simple-icons','pinterest']],
+    'reddit':           [['fa6-brands','reddit'],               ['simple-icons','reddit']],
+    'tiktok':           [['fa6-brands','tiktok'],               ['simple-icons','tiktok']],
+    'youtube':          [['fa6-brands','youtube'],              ['simple-icons','youtube']],
+    'twitch':           [['fa6-brands','twitch'],               ['simple-icons','twitch']],
+    'soundcloud':       [['fa6-brands','soundcloud'],           ['simple-icons','soundcloud']],
+    'spotify':          [['fa6-brands','spotify'],              ['simple-icons','spotify']],
+    'medium':           [['fa6-brands','medium'],               ['simple-icons','medium']],
+    'substack':         [['simple-icons','substack']],
+    'telegram':         [['fa6-brands','telegram'],             ['simple-icons','telegram']],
+    'whatsapp':         [['fa6-brands','whatsapp'],             ['simple-icons','whatsapp']],
+    'signal':           [['simple-icons','signal']],
+    'discord':          [['fa6-brands','discord'],              ['simple-icons','discord']],
+    'slack':            [['fa6-brands','slack'],                ['simple-icons','slack']],
+    'skype':            [['fa6-brands','skype'],                ['simple-icons','skype']],
+    'matrix':           [['simple-icons','matrix']],
+    'paypal':           [['fa6-brands','paypal'],               ['simple-icons','paypal']],
+    'paypalme':         [['fa6-brands','paypal'],               ['simple-icons','paypal']],
+    'venmo':            [['simple-icons','venmo']],
+    'cashapp':          [['simple-icons','cashapp']],
+    'patreon':          [['fa6-brands','patreon'],              ['simple-icons','patreon']],
+    'kofi':             [['simple-icons','kofi']],
+    'ko-fi':            [['simple-icons','kofi']],
+    'buymeacoffee':     [['simple-icons','buymeacoffee']],
+    'liberapay':        [['simple-icons','liberapay']],
+    'opencollective':   [['fa6-brands','opencollective'],       ['simple-icons','opencollective']],
+    'bitcoin':          [['fa6-brands','bitcoin'],              ['simple-icons','bitcoin']],
+    'ethereum':         [['simple-icons','ethereum']],
+    'revolut':          [['simple-icons','revolut']],
+    'strava':           [['fa6-brands','strava'],               ['simple-icons','strava']],
+    'steam':            [['fa6-brands','steam'],                ['simple-icons','steam']],
+    'codepen':          [['fa6-brands','codepen'],              ['simple-icons','codepen']],
+    'npm':              [['fa6-brands','npm'],                  ['simple-icons','npm']],
+    'docker':           [['fa6-brands','docker'],               ['simple-icons','docker']],
+    '_link':            [['fa6-solid','link']],
+    '_plane':           [['fa6-solid','paper-plane']],
+    '_hand-dollar':     [['fa6-solid','hand-holding-dollar']],
   };
 
   const resolveIconKey = (shortname, url) => {
@@ -524,6 +510,7 @@ void (async () => {
 
     const rawAccounts = (entry.accounts||[])
       .filter(a => !a.is_hidden && a.verified && (a.url||'').trim())
+      .filter(a => !NO_ICON_SHORTNAMES.has((a.shortname||'').toLowerCase()))
       .map(a => ({
         shortname: (a.shortname||'').toLowerCase(),
         name:      a.name || a.shortname || '',
@@ -541,7 +528,9 @@ void (async () => {
         name:      friendlyPaymentName(key, key),
         url:       String(url),
       }))
-      .filter(p => p.url.startsWith('http'));
+      .filter(p => p.url.startsWith('http'))
+      // Remove entries with no icon (e.g. Sentz)
+      .filter(p => !NO_ICON_SHORTNAMES.has(p.shortname));
 
     console.log(`[gravatar] social:${social.length} msg:${messaging.length} pay:${payments.length}`);
     return { social, messaging, payments };
@@ -675,16 +664,23 @@ void (async () => {
   const nostrUri  = npub?`nostr:${npub}`:`https://njump.me/${nip05}`;
   const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
+  // Fetch button icons via Iconify too (consistent rendering)
   const [
-    iconPlane, iconCoin,
+    iconPlaneSvg, iconHandDollarSvg,
     socialIcons, messagingIcons, paymentIcons,
   ] = await Promise.all([
-    getIcon('_plane',''),
-    getIcon('_coin',''),
+    fetchIcon('fa6-solid','paper-plane'),
+    fetchIcon('fa6-solid','hand-holding-dollar'),
     Promise.all(allSocial.map(a=>getIcon(a.shortname,a.url))),
     Promise.all(allMessaging.map(a=>getIcon(a.shortname,a.url))),
     Promise.all(payments.map(p=>getIcon(p.shortname,p.url))),
   ]);
+
+  // Inline SVG fallbacks for button icons if Iconify fails
+  const PLANE_SVG = iconPlaneSvg ||
+    `<svg viewBox="0 0 512 512"><path fill="currentColor" d="M498.1 5.6c10.1 7 15.4 19.1 13.5 31.2l-64 416c-1.5 9.7-7.4 18.2-16 23s-18.9 5.4-28 1.6L284 427.7l-68.5 74.1c-8.9 9.7-22.9 12.9-35.2 8.1S160 493.2 160 480V396.4c0-4 1.5-7.8 4.2-10.7L331.8 202.8c5.8-6.3 5.6-16-.4-22s-15.7-6.4-22-.7L106 360.8 17.7 316.6C7.1 311.3 .3 300.7 0 288.9s5.9-22.8 16.1-28.7l448-256c10.7-6.1 23.9-5.5 34 1.4z"/></svg>`;
+  const HAND_DOLLAR_SVG = iconHandDollarSvg ||
+    `<svg viewBox="0 0 576 512"><path fill="currentColor" d="M312 24V34.5c6.4 1.2 12.6 2.7 18.2 4.2c12.8 3.4 20.4 16.6 17 29.4s-16.6 20.4-29.4 17c-10.9-2.9-21.1-4.9-30.2-5c-7.3-.1-14.7 1.7-19.4 4.4c-2.1 1.3-3.1 2.4-3.5 3c-.3 .5-.7 1.2-.7 2.8c0 .3 0 .5 0 .6c.2 .2 .9 1.2 3.3 2.4c5.8 2.9 14.4 4.9 25.5 7.3l.6 .1c9.6 2.1 20.8 4.5 30.7 8.7c14.5 6.1 27.8 16.7 34.4 32.4c6.9 16.4 5.4 34.7-1.3 49.9c-5.8 13.3-16.5 23.6-29.3 30.3V232c0 13.3-10.7 24-24 24s-24-10.7-24-24V220.6c-9.5-2.3-18.2-5.3-25.6-7.8c-2.1-.7-4.1-1.4-6-2c-12.6-4.2-19.4-17.8-15.2-30.4s17.8-19.4 30.4-15.2c2.6 .9 5 1.7 7.3 2.5c13.6 4.6 23.4 7.9 33.9 8.3c8 .3 15.1-1.6 19.2-4.1c1.9-1.2 3.2-2.4 4-3.6c.8-1.2 1.3-2.7 1.3-4.8c0-.3 0-.5-.1-.6c-.2-.2-.9-1.1-3.2-2.3c-5.5-2.8-13.9-4.8-25-7.2l-1.1-.2c-9.4-2-20.3-4.4-30-8.5c-14.6-6.2-28.1-16.8-34.9-32.6c-7-16.3-5.6-34.9 1.1-50.1c5.6-12.9 15.8-23.2 28.3-30.1V24c0-13.3 10.7-24 24-24s24 10.7 24 24zM568.2 336.3c13.1 17.8 9.3 42.8-8.5 55.9L433.1 485.5c-23.4 17.2-51.6 26.5-80.7 26.5H192 32c-17.7 0-32-14.3-32-32V416c0-17.7 14.3-32 32-32H68.8l44.9-36c22.7-18.1 50.9-28 80.1-28H272h16 64c17.7 0 32 14.3 32 32s-14.3 32-32 32H288 272c-8.8 0-16 7.2-16 16s7.2 16 16 16H392.6l119.7-88.2c17.8-13.1 42.8-9.3 55.9 8.5zM193.6 384l0 0-.9 0c.3 0 .6 0 .9 0z"/></svg>`;
 
   // 11. Compute button styles from brand colors
   const msgColors   = allMessaging.map(a=>getBrandColor(a.shortname,a.url));
@@ -692,9 +688,10 @@ void (async () => {
   const msgAvgColor = avgColors(msgColors);
   const tipAvgColor = avgColors(tipColors);
 
-  const btnStyle = (avgHex) => {
-    const bg = blendWithBg(avgHex, 0.20);
-    return `background:${bg};border:1px solid ${avgHex}55;color:${avgHex};`;
+  const makeBtnStyle = (avgHex) => {
+    const bg  = blendWithBg(avgHex, 0.20);
+    const border = avgHex + '66'; // ~40% opacity border
+    return `background:${bg};border:1px solid ${border};color:${avgHex};`;
   };
 
   // 12. Build HTML
@@ -704,36 +701,31 @@ void (async () => {
      </a>`
   ).join('');
 
-  const buildDropdown = (btnLabel, btnIconSvg, btnStyle_, items, icons, colors) => {
+  // Items: icon has NO background, NO border — just brand color fill
+  const buildDropdown = (btnLabel, btnIconSvg, btnStyleStr, items, icons, colors) => {
     if(!items.length) return '';
     const itemsHtml = items.map((item,i)=>{
-      const color = colors[i]||'#888';
-      const iconBg = blendWithBg(color, 0.25);
+      const color = colors[i] || '#888888';
       return `<a class="dropdown-item" href="${esc(item.url)}" target="_blank" rel="noopener">
-         <span class="di-icon" style="background:${iconBg};color:${color};">${icons[i]||''}</span>
+         <span class="di-icon" style="color:${color};">${icons[i]||''}</span>
          <span class="di-label">${esc(item.name)}</span>
        </a>`;
     }).join('');
     return `<div class="dropdown">
-      <button class="dropdown-btn" type="button" style="${btnStyle_}">
-        <svg class="btn-icon" viewBox="0 0 24 24">${btnIconSvg}</svg>
+      <button class="dropdown-btn" type="button" style="${btnStyleStr}">
+        <span class="btn-icon" style="display:inline-flex;align-items:center;width:14px;height:14px;">${btnIconSvg}</span>
         ${esc(btnLabel)} <span class="chevron">▾</span>
       </button>
       <div class="dropdown-menu">${itemsHtml}</div>
     </div>`;
   };
 
-  // Inline SVG paths for button icons (no external fetch needed)
-  const PLANE_PATH = `<path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>`;
-  const COIN_PATH  = `<path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
-<path fill="currentColor" d="M11.5 6C9.57 6 8 7.57 8 9.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 1.5-2.25 1.31-2.25 3.75h2.25c0-1.69 2.25-1.88 2.25-3.75C15.25 7.57 13.43 6 11.5 6z"/>`;
-
   const msgDropdown = buildDropdown(
-    'Drop me a line', PLANE_PATH, btnStyle(msgAvgColor),
+    'Drop me a line', PLANE_SVG,      makeBtnStyle(msgAvgColor),
     allMessaging, messagingIcons, msgColors
   );
   const tipDropdown = buildDropdown(
-    'Drop me a dime', COIN_PATH, btnStyle(tipAvgColor),
+    'Drop me a dime', HAND_DOLLAR_SVG, makeBtnStyle(tipAvgColor),
     payments, paymentIcons, tipColors
   );
 
