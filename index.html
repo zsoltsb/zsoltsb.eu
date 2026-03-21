@@ -19,8 +19,7 @@
     referrerpolicy="no-referrer"
   />
 
-  <!-- Simple Icons via cdnjs (brand icon fallback) -->
-  <!-- We use the CSS+font build from the simpleicons-font package -->
+  <!-- Simple Icons via cdnjs (brand fallback) -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/simple-icons/11.14.0/simple-icons.min.css"
@@ -70,15 +69,53 @@
     /* ── Body ── */
     .body { padding: 62px 24px 28px; }
     .display-name { font-size: 1.35rem; font-weight: 700; color: var(--text); }
-    .pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+    /* ── Pill rows ── */
+    .pill-row {
+      display: flex; align-items: center; gap: 8px; margin-top: 10px;
+    }
     .pill {
       display: inline-flex; align-items: center; gap: 7px;
       background: rgba(139,92,246,.10); border: 1px solid rgba(139,92,246,.28);
       border-radius: 20px; padding: 6px 14px; font-size: .8rem;
       color: var(--accent2); text-decoration: none; font-family: inherit;
-      line-height: 1; transition: background .18s, border-color .18s;
+      line-height: 1; transition: background .18s, border-color .18s; white-space: nowrap;
     }
     .pill:hover { background: rgba(139,92,246,.22); border-color: rgba(139,92,246,.55); }
+
+    /* ── Dropdown buttons ── */
+    .dropdown { position: relative; margin-left: auto; flex-shrink: 0; }
+    .dropdown-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.05); border: 1px solid var(--border);
+      border-radius: 20px; padding: 6px 12px; font-size: .78rem;
+      color: var(--muted); font-family: inherit; cursor: pointer;
+      transition: background .15s, border-color .15s, color .15s;
+      white-space: nowrap; user-select: none;
+    }
+    .dropdown-btn:hover { background: rgba(255,255,255,.09); border-color: #444; color: var(--text); }
+    .dropdown-btn .chevron {
+      font-size: .6rem; transition: transform .2s; display: inline-block;
+    }
+    .dropdown.open .chevron { transform: rotate(180deg); }
+    .dropdown-menu {
+      display: none; position: absolute; right: 0; top: calc(100% + 6px);
+      background: #222; border: 1px solid var(--border); border-radius: 10px;
+      min-width: 190px; z-index: 100; overflow: hidden;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+    }
+    .dropdown.open .dropdown-menu { display: block; }
+    .dropdown-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 14px; font-size: .82rem; color: var(--text);
+      text-decoration: none; transition: background .12s;
+    }
+    .dropdown-item:hover { background: rgba(139,92,246,.12); }
+    .dropdown-item .di-icon {
+      width: 22px; text-align: center; font-size: 1rem; color: var(--accent2); flex-shrink: 0;
+    }
+    .dropdown-item .di-label { flex: 1; }
+    .dropdown-item .di-sub { font-size: .7rem; color: var(--muted); }
 
     /* ── Tick badges ── */
     .tick {
@@ -91,10 +128,10 @@
     .tick.lg    { width: 20px; height: 20px; box-shadow: 0 0 0 2px var(--surface); }
     .tick.lg svg { width: 11px; height: 11px; }
 
-    /* ── Social ── */
+    /* ── Social sections ── */
     .section-title {
       font-size: .68rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: .09em; color: var(--muted); margin-top: 24px; margin-bottom: 12px;
+      letter-spacing: .09em; color: var(--muted); margin-top: 24px; margin-bottom: 10px;
     }
     .social-row { display: flex; flex-wrap: wrap; gap: 10px; }
     .social-btn {
@@ -108,8 +145,6 @@
       background: rgba(139,92,246,.10); border-color: var(--accent);
       color: var(--accent2); transform: translateY(-2px);
     }
-    /* Simple Icons font uses .si class + .si--{slug} */
-    .si { display: inline-block; font-size: 1.1rem; line-height: 1; }
 
     /* ── Footer ── */
     .footer-link {
@@ -138,9 +173,9 @@
     </div>
   </div>
   <div class="body" id="body">
-    <div class="sk" style="width:44%;height:22px;margin-bottom:8px"></div>
-    <div class="sk" style="width:62%;height:32px;border-radius:20px;display:inline-block"></div>
-    <div class="sk" style="width:52%;height:32px;border-radius:20px;display:inline-block;margin-left:8px"></div>
+    <div class="sk" style="width:44%;height:22px;margin-bottom:10px"></div>
+    <div class="sk" style="width:100%;height:34px;border-radius:20px;margin-bottom:8px"></div>
+    <div class="sk" style="width:100%;height:34px;border-radius:20px"></div>
   </div>
 </div>
 
@@ -157,124 +192,105 @@ void (async () => {
   const GRAVATAR_SLUG = 'zsoltsb';
 
   const AUTHORITY_RELAY = 'wss://relay.ditto.pub';
-
   const OPENVIBE_RELAYS = [
-    'wss://relay.damus.io',
-    'wss://relay.nostr.band',
-    'wss://nos.lol',
-    'wss://relay.primal.net',
-    'wss://nostr.wine',
-    'wss://relay.snort.social',
-    'wss://purplepag.es',
-    'wss://relay.nos.social',
+    'wss://relay.damus.io','wss://relay.nostr.band','wss://nos.lol',
+    'wss://relay.primal.net','wss://nostr.wine','wss://relay.snort.social',
+    'wss://purplepag.es','wss://relay.nos.social',
   ];
-
   const EXTRA_RELAYS = [
-    'wss://nostr.mom',
-    'wss://relay.nostr.bg',
-    'wss://nostr.oxtr.dev',
+    'wss://nostr.mom','wss://relay.nostr.bg','wss://nostr.oxtr.dev',
   ];
-
   const DOH_RESOLVERS = [
     n => `https://cloudflare-dns.com/dns-query?name=${encodeURIComponent(n)}&type=TXT`,
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
 
-  // ── Icon resolution ────────────────────────────────────────────────────────
-  // Strategy: try FA 6 brand first; fall back to Simple Icons CSS font.
-  // FA classes are injected via JS (never static HTML) to defeat adblocker
-  // filter-list CSS selectors.
-  //
-  // Simple Icons slug = lowercase, no spaces/punctuation (e.g. "stackoverflow")
-  // FA 6 Free brands class = "fa-brands fa-{name}"
-  // ──────────────────────────────────────────────────────────────────────────
+  // Messaging platforms — shown in "Message me" dropdown, not in social row
+  const MESSAGING_KEYS = new Set([
+    'whatsapp','telegram','signal','messenger','wechat','line','viber',
+    'skype','discord','slack','matrix','xmpp','imessage','sms','kik',
+    'snapchat','kakaotalk','zalo','imo','threema','wire','session',
+    'element','rocketchat','mattermost','teams','hangouts','gchat',
+  ]);
 
-  // Map: normalised service key → { fa: string|null, si: string|null }
-  // fa  = FA 6 class string (null = not in FA Free)
-  // si  = Simple Icons slug  (null = use fa only)
+  // Dev platforms — shown in "Git stuff" section
+  const GIT_KEYS = new Set(['github','gitlab','bitbucket','sourcehut','codeberg','gitea']);
+
+  // ── Icon map: FA first, Simple Icons slug fallback ──────────────────────
   const ICON_MAP = {
-    // ── Social networks ──
-    'twitter':          { fa: 'fa-brands fa-x-twitter',   si: 'x' },
-    'x':                { fa: 'fa-brands fa-x-twitter',   si: 'x' },
-    'x-twitter':        { fa: 'fa-brands fa-x-twitter',   si: 'x' },
-    'mastodon':         { fa: 'fa-brands fa-mastodon',     si: 'mastodon' },
-    'bluesky':          { fa: 'fa-brands fa-bluesky',      si: 'bluesky' },
-    'instagram':        { fa: 'fa-brands fa-instagram',    si: 'instagram' },
-    'threads':          { fa: 'fa-brands fa-threads',      si: 'threads' },
-    'facebook':         { fa: 'fa-brands fa-facebook',     si: 'facebook' },
-    'linkedin':         { fa: 'fa-brands fa-linkedin',     si: 'linkedin' },
-    'tumblr':           { fa: 'fa-brands fa-tumblr',       si: 'tumblr' },
-    'pinterest':        { fa: 'fa-brands fa-pinterest',    si: 'pinterest' },
-    'reddit':           { fa: 'fa-brands fa-reddit',       si: 'reddit' },
-    'snapchat':         { fa: 'fa-brands fa-snapchat',     si: 'snapchat' },
-    'tiktok':           { fa: 'fa-brands fa-tiktok',       si: 'tiktok' },
-    'vk':               { fa: 'fa-brands fa-vk',           si: 'vk' },
-    // ── Dev / tech ──
-    'github':           { fa: 'fa-brands fa-github',       si: 'github' },
-    'gitlab':           { fa: 'fa-brands fa-gitlab',       si: 'gitlab' },
-    'bitbucket':        { fa: 'fa-brands fa-bitbucket',    si: 'bitbucket' },
-    'stackoverflow':    { fa: 'fa-brands fa-stack-overflow', si: 'stackoverflow' },
-    'hackernews':       { fa: 'fa-brands fa-hacker-news',  si: 'ycombinator' },
-    'hacker-news':      { fa: 'fa-brands fa-hacker-news',  si: 'ycombinator' },
-    'dev':              { fa: 'fa-brands fa-dev',          si: 'devdotto' },
-    'devto':            { fa: 'fa-brands fa-dev',          si: 'devdotto' },
-    'codepen':          { fa: 'fa-brands fa-codepen',      si: 'codepen' },
-    'codesandbox':      { fa: null,                        si: 'codesandbox' },
-    'replit':           { fa: null,                        si: 'replit' },
-    'npm':              { fa: 'fa-brands fa-npm',          si: 'npm' },
-    'docker':           { fa: 'fa-brands fa-docker',       si: 'docker' },
-    // ── Video / streaming ──
-    'youtube':          { fa: 'fa-brands fa-youtube',      si: 'youtube' },
-    'twitch':           { fa: 'fa-brands fa-twitch',       si: 'twitch' },
-    'vimeo':            { fa: 'fa-brands fa-vimeo',        si: 'vimeo' },
-    'dailymotion':      { fa: null,                        si: 'dailymotion' },
-    'kick':             { fa: null,                        si: 'kick' },
-    // ── Music / audio ──
-    'soundcloud':       { fa: 'fa-brands fa-soundcloud',   si: 'soundcloud' },
-    'spotify':          { fa: 'fa-brands fa-spotify',      si: 'spotify' },
-    'bandcamp':         { fa: 'fa-brands fa-bandcamp',     si: 'bandcamp' },
-    'lastfm':           { fa: 'fa-brands fa-lastfm',       si: 'lastfm' },
-    'applemusic':       { fa: null,                        si: 'applemusic' },
-    'apple-music':      { fa: null,                        si: 'applemusic' },
-    // ── Writing / publishing ──
-    'medium':           { fa: 'fa-brands fa-medium',       si: 'medium' },
-    'substack':         { fa: null,                        si: 'substack' },
-    'wordpress':        { fa: 'fa-brands fa-wordpress',    si: 'wordpress' },
-    'ghost':            { fa: null,                        si: 'ghost' },
-    'hashnode':         { fa: null,                        si: 'hashnode' },
-    'goodreads':        { fa: 'fa-brands fa-goodreads',    si: 'goodreads' },
-    // ── Creative ──
-    'behance':          { fa: 'fa-brands fa-behance',      si: 'behance' },
-    'dribbble':         { fa: 'fa-brands fa-dribbble',     si: 'dribbble' },
-    'flickr':           { fa: 'fa-brands fa-flickr',       si: 'flickr' },
-    'deviantart':       { fa: 'fa-brands fa-deviantart',   si: 'deviantart' },
-    '500px':            { fa: 'fa-brands fa-500px',        si: '500px' },
-    'artstation':       { fa: null,                        si: 'artstation' },
-    'unsplash':         { fa: null,                        si: 'unsplash' },
-    // ── Support / funding ──
-    'patreon':          { fa: 'fa-brands fa-patreon',      si: 'patreon' },
-    'ko-fi':            { fa: null,                        si: 'kofi' },
-    'kofi':             { fa: null,                        si: 'kofi' },
-    'buymeacoffee':     { fa: null,                        si: 'buymeacoffee' },
-    'buy-me-a-coffee':  { fa: null,                        si: 'buymeacoffee' },
-    'opencollective':   { fa: 'fa-brands fa-opencollective', si: 'opencollective' },
-    'liberapay':        { fa: null,                        si: 'liberapay' },
-    // ── Decentralised / crypto ──
-    'nostr':            { fa: 'fa-solid fa-bolt',          si: null },
-    'farcaster':        { fa: null,                        si: 'farcaster' },
-    'lens':             { fa: null,                        si: 'lens' },
-    'ethereum':         { fa: null,                        si: 'ethereum' },
-    'bitcoin':          { fa: null,                        si: 'bitcoin' },
-    // ── Fitness / lifestyle ──
-    'strava':           { fa: 'fa-brands fa-strava',       si: 'strava' },
-    'steam':            { fa: 'fa-brands fa-steam',        si: 'steam' },
-    'xbox':             { fa: 'fa-brands fa-xbox',         si: 'xbox' },
-    'playstation':      { fa: 'fa-brands fa-playstation',  si: 'playstation' },
-    // ── Misc ──
-    'linktree':         { fa: null,                        si: 'linktree' },
-    'about-me':         { fa: null,                        si: 'aboutme' },
-    'gravatar':         { fa: null,                        si: 'gravatar' },
-    '_default':         { fa: 'fa-solid fa-link',          si: null },
+    'twitter':          { fa: 'fa-brands fa-x-twitter',      si: 'x' },
+    'x':                { fa: 'fa-brands fa-x-twitter',      si: 'x' },
+    'x-twitter':        { fa: 'fa-brands fa-x-twitter',      si: 'x' },
+    'mastodon':         { fa: 'fa-brands fa-mastodon',        si: 'mastodon' },
+    'bluesky':          { fa: 'fa-brands fa-bluesky',         si: 'bluesky' },
+    'instagram':        { fa: 'fa-brands fa-instagram',       si: 'instagram' },
+    'threads':          { fa: 'fa-brands fa-threads',         si: 'threads' },
+    'facebook':         { fa: 'fa-brands fa-facebook',        si: 'facebook' },
+    'linkedin':         { fa: 'fa-brands fa-linkedin',        si: 'linkedin' },
+    'tumblr':           { fa: 'fa-brands fa-tumblr',          si: 'tumblr' },
+    'pinterest':        { fa: 'fa-brands fa-pinterest',       si: 'pinterest' },
+    'reddit':           { fa: 'fa-brands fa-reddit',          si: 'reddit' },
+    'snapchat':         { fa: 'fa-brands fa-snapchat',        si: 'snapchat' },
+    'tiktok':           { fa: 'fa-brands fa-tiktok',          si: 'tiktok' },
+    'vk':               { fa: 'fa-brands fa-vk',              si: 'vk' },
+    'github':           { fa: 'fa-brands fa-github',          si: 'github' },
+    'gitlab':           { fa: 'fa-brands fa-gitlab',          si: 'gitlab' },
+    'bitbucket':        { fa: 'fa-brands fa-bitbucket',       si: 'bitbucket' },
+    'codeberg':         { fa: null,                           si: 'codeberg' },
+    'sourcehut':        { fa: null,                           si: 'sourcehut' },
+    'stackoverflow':    { fa: 'fa-brands fa-stack-overflow',  si: 'stackoverflow' },
+    'hackernews':       { fa: 'fa-brands fa-hacker-news',     si: 'ycombinator' },
+    'dev':              { fa: 'fa-brands fa-dev',             si: 'devdotto' },
+    'devto':            { fa: 'fa-brands fa-dev',             si: 'devdotto' },
+    'codepen':          { fa: 'fa-brands fa-codepen',         si: 'codepen' },
+    'npm':              { fa: 'fa-brands fa-npm',             si: 'npm' },
+    'docker':           { fa: 'fa-brands fa-docker',          si: 'docker' },
+    'youtube':          { fa: 'fa-brands fa-youtube',         si: 'youtube' },
+    'twitch':           { fa: 'fa-brands fa-twitch',          si: 'twitch' },
+    'vimeo':            { fa: 'fa-brands fa-vimeo',           si: 'vimeo' },
+    'kick':             { fa: null,                           si: 'kick' },
+    'soundcloud':       { fa: 'fa-brands fa-soundcloud',      si: 'soundcloud' },
+    'spotify':          { fa: 'fa-brands fa-spotify',         si: 'spotify' },
+    'bandcamp':         { fa: 'fa-brands fa-bandcamp',        si: 'bandcamp' },
+    'lastfm':           { fa: 'fa-brands fa-lastfm',          si: 'lastfm' },
+    'applemusic':       { fa: null,                           si: 'applemusic' },
+    'medium':           { fa: 'fa-brands fa-medium',          si: 'medium' },
+    'substack':         { fa: null,                           si: 'substack' },
+    'wordpress':        { fa: 'fa-brands fa-wordpress',       si: 'wordpress' },
+    'ghost':            { fa: null,                           si: 'ghost' },
+    'hashnode':         { fa: null,                           si: 'hashnode' },
+    'goodreads':        { fa: 'fa-brands fa-goodreads',       si: 'goodreads' },
+    'behance':          { fa: 'fa-brands fa-behance',         si: 'behance' },
+    'dribbble':         { fa: 'fa-brands fa-dribbble',        si: 'dribbble' },
+    'flickr':           { fa: 'fa-brands fa-flickr',          si: 'flickr' },
+    'deviantart':       { fa: 'fa-brands fa-deviantart',      si: 'deviantart' },
+    '500px':            { fa: 'fa-brands fa-500px',           si: '500px' },
+    'artstation':       { fa: null,                           si: 'artstation' },
+    'unsplash':         { fa: null,                           si: 'unsplash' },
+    'patreon':          { fa: 'fa-brands fa-patreon',         si: 'patreon' },
+    'ko-fi':            { fa: null,                           si: 'kofi' },
+    'kofi':             { fa: null,                           si: 'kofi' },
+    'buymeacoffee':     { fa: null,                           si: 'buymeacoffee' },
+    'opencollective':   { fa: 'fa-brands fa-opencollective',  si: 'opencollective' },
+    'liberapay':        { fa: null,                           si: 'liberapay' },
+    'paypal':           { fa: 'fa-brands fa-paypal',          si: 'paypal' },
+    'venmo':            { fa: null,                           si: 'venmo' },
+    'cashapp':          { fa: null,                           si: 'cashapp' },
+    'cash-app':         { fa: null,                           si: 'cashapp' },
+    'bitcoin':          { fa: 'fa-brands fa-bitcoin',         si: 'bitcoin' },
+    'ethereum':         { fa: null,                           si: 'ethereum' },
+    'farcaster':        { fa: null,                           si: 'farcaster' },
+    'nostr':            { fa: 'fa-solid fa-bolt',             si: null },
+    'strava':           { fa: 'fa-brands fa-strava',          si: 'strava' },
+    'steam':            { fa: 'fa-brands fa-steam',           si: 'steam' },
+    'telegram':         { fa: 'fa-brands fa-telegram',        si: 'telegram' },
+    'whatsapp':         { fa: 'fa-brands fa-whatsapp',        si: 'whatsapp' },
+    'signal':           { fa: null,                           si: 'signal' },
+    'discord':          { fa: 'fa-brands fa-discord',         si: 'discord' },
+    'slack':            { fa: 'fa-brands fa-slack',           si: 'slack' },
+    'matrix':           { fa: null,                           si: 'matrix' },
+    'linktree':         { fa: null,                           si: 'linktree' },
+    '_default':         { fa: 'fa-solid fa-link',             si: null },
   };
 
   const normaliseKey = s =>
@@ -283,17 +299,48 @@ void (async () => {
   const resolveIcon = (serviceType, url) => {
     const key = normaliseKey(serviceType);
     if (ICON_MAP[key]) return ICON_MAP[key];
-    // hostname-based fallback
     try {
       const host = new URL(url).hostname.replace(/^www\./, '').replace(/\.[^.]+$/, '');
       const hkey = normaliseKey(host);
       if (ICON_MAP[hkey]) return ICON_MAP[hkey];
-      // partial match
       for (const [k, v] of Object.entries(ICON_MAP)) {
         if (k !== '_default' && (hkey.includes(k) || k.includes(hkey))) return v;
       }
     } catch {}
     return ICON_MAP['_default'];
+  };
+
+  // Payment provider icon map (for "Tip me" dropdown)
+  const PAYMENT_ICON_MAP = {
+    'paypal':       { fa: 'fa-brands fa-paypal',   label: 'PayPal' },
+    'venmo':        { fa: null, si: 'venmo',        label: 'Venmo' },
+    'cashapp':      { fa: null, si: 'cashapp',      label: 'Cash App' },
+    'cash app':     { fa: null, si: 'cashapp',      label: 'Cash App' },
+    'patreon':      { fa: 'fa-brands fa-patreon',   label: 'Patreon' },
+    'ko-fi':        { fa: null, si: 'kofi',         label: 'Ko-fi' },
+    'kofi':         { fa: null, si: 'kofi',         label: 'Ko-fi' },
+    'buymeacoffee': { fa: null, si: 'buymeacoffee', label: 'Buy Me a Coffee' },
+    'liberapay':    { fa: null, si: 'liberapay',    label: 'Liberapay' },
+    'opencollective':{ fa: 'fa-brands fa-opencollective', label: 'Open Collective' },
+    'bitcoin':      { fa: 'fa-brands fa-bitcoin',   label: 'Bitcoin' },
+    'ethereum':     { fa: null, si: 'ethereum',     label: 'Ethereum' },
+    'stripe':       { fa: null, si: 'stripe',       label: 'Stripe' },
+    '_default':     { fa: 'fa-solid fa-money-bill', label: null },
+  };
+
+  const resolvePaymentIcon = (name, url) => {
+    const key = normaliseKey(name);
+    if (PAYMENT_ICON_MAP[key]) return { ...PAYMENT_ICON_MAP[key], label: PAYMENT_ICON_MAP[key].label || name };
+    try {
+      const host = new URL(url).hostname.replace(/^www\./, '').replace(/\.[^.]+$/, '');
+      const hkey = normaliseKey(host);
+      if (PAYMENT_ICON_MAP[hkey]) return { ...PAYMENT_ICON_MAP[hkey], label: PAYMENT_ICON_MAP[hkey].label || name };
+      for (const [k, v] of Object.entries(PAYMENT_ICON_MAP)) {
+        if (k !== '_default' && (hkey.includes(k) || k.includes(hkey)))
+          return { ...v, label: v.label || name };
+      }
+    } catch {}
+    return { ...PAYMENT_ICON_MAP['_default'], label: name };
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -379,8 +426,7 @@ void (async () => {
   // ═══════════════════════════════════════════════════════════════════════════
   const fetchFromRelay = (wsUrl, pubkey, timeoutMs = 8000) =>
     new Promise((resolve, reject) => {
-      let done = false;
-      let ws;
+      let done = false; let ws;
       try { ws = new WebSocket(wsUrl); } catch(e) { return reject(e); }
       const fail = r => { if (!done) { done = true; try { ws.close(); } catch {} reject(new Error(r)); } };
       const timer = setTimeout(() => fail(`timeout:${wsUrl}`), timeoutMs);
@@ -389,8 +435,7 @@ void (async () => {
         try {
           const m = JSON.parse(e.data);
           if (m[0]==='EVENT' && m[1]==='s' && m[2]?.kind===0 && !done) {
-            done = true; clearTimeout(timer);
-            try { ws.close(); } catch {}
+            done = true; clearTimeout(timer); try { ws.close(); } catch {}
             resolve({ meta: JSON.parse(m[2].content), relay: wsUrl });
           } else if (m[0]==='EOSE' && !done) { fail(`eose-empty:${wsUrl}`); }
         } catch {}
@@ -399,16 +444,14 @@ void (async () => {
       ws.onclose = () => { if (!done) fail(`ws-close:${wsUrl}`); };
     });
 
-  const metaConsistent = (authority, candidate) => {
-    const fields = ['name','display_name','picture','banner','nip05','lud16','lud06'];
-    return fields.every(f => (authority[f] ?? '') === (candidate[f] ?? ''));
-  };
+  const metaConsistent = (a, b) =>
+    ['name','display_name','picture','banner','nip05','lud16','lud06']
+      .every(f => (a[f] ?? '') === (b[f] ?? ''));
 
   const fetchNostrMeta = async (pubkey, relayHints) => {
     const others = [...new Set([
       ...relayHints.filter(r => r !== AUTHORITY_RELAY),
-      ...OPENVIBE_RELAYS,
-      ...EXTRA_RELAYS,
+      ...OPENVIBE_RELAYS, ...EXTRA_RELAYS,
     ])].filter(r => r !== AUTHORITY_RELAY);
 
     let authorityResult = null;
@@ -417,10 +460,7 @@ void (async () => {
       .catch(e => { console.warn('[relay] authority failed:', e.message); return null; });
 
     await new Promise(r => setTimeout(r, 200));
-    const otherPromises = others.map(url =>
-      fetchFromRelay(url, pubkey, 8000).catch(() => null)
-    );
-
+    const otherPromises = others.map(url => fetchFromRelay(url, pubkey, 8000).catch(() => null));
     await authorityPromise;
 
     if (authorityResult) {
@@ -436,7 +476,6 @@ void (async () => {
       });
       return authorityResult;
     }
-
     const fallback = await Promise.any(
       otherPromises.map(p => p.then(r => r ? r : Promise.reject()))
     ).catch(() => null);
@@ -445,7 +484,7 @@ void (async () => {
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // GRAVATAR — preserve raw array order, no filtering, no sorting
+  // GRAVATAR — preserve raw array order, no filtering
   // ═══════════════════════════════════════════════════════════════════════════
   const normaliseAccounts = (accts = []) =>
     accts
@@ -455,21 +494,58 @@ void (async () => {
         label:       a.service_label || a.display || a.shortname || '',
         serviceType: normaliseKey(a.service_type || a.shortname || ''),
       }));
-  // Note: no sort — Gravatar returns accounts in the user's chosen display order
 
-  const fetchGravatarAccounts = async () => {
+  const normalisePayments = (entry = {}) => {
+    // Legacy JSON: entry.urls (payment_links) or entry.accounts with payment types
+    // Also check entry.ims (instant messaging) for completeness
+    const payments = [];
+    // payment_links array (newer Gravatar profiles)
+    const pl = entry.payment_links || entry.paymentLinks || [];
+    for (const p of pl) {
+      const name = p.name || p.service_label || p.type || '';
+      const url  = p.url || p.link || '';
+      if (url) payments.push({ name, url });
+    }
+    // Fallback: scan accounts for known payment service types
+    if (!payments.length) {
+      const paymentKeys = new Set([
+        'paypal','venmo','cashapp','cash-app','patreon','ko-fi','kofi',
+        'buymeacoffee','liberapay','opencollective','bitcoin','ethereum',
+        'stripe','gofundme','zelle',
+      ]);
+      for (const a of (entry.accounts || [])) {
+        const key = normaliseKey(a.service_type || a.shortname || '');
+        if (paymentKeys.has(key)) {
+          payments.push({
+            name: a.service_label || a.display || a.shortname || key,
+            url:  (a.url || a.profile_url || '').trim(),
+          });
+        }
+      }
+    }
+    return payments.filter(p => p.url);
+  };
+
+  const fetchGravatarData = async () => {
     const legacyUrl = `https://gravatar.com/${GRAVATAR_SLUG}.json`;
+    let entry = null;
     try {
       const d = await fetchJSONP(legacyUrl);
-      const a = normaliseAccounts(d?.entry?.[0]?.accounts);
-      if (a.length) { console.log('[gravatar] jsonp ✓', a); return a; }
+      entry = d?.entry?.[0];
+      if (entry) console.log('[gravatar] jsonp ✓');
     } catch(e) { console.warn('[gravatar] jsonp:', e.message); }
-    try {
-      const d = await fetchJSON(legacyUrl, 6000);
-      const a = normaliseAccounts(d?.entry?.[0]?.accounts);
-      if (a.length) { console.log('[gravatar] direct ✓', a); return a; }
-    } catch(e) { console.warn('[gravatar] direct:', e.message); }
-    return [];
+    if (!entry) {
+      try {
+        const d = await fetchJSON(legacyUrl, 6000);
+        entry = d?.entry?.[0];
+        if (entry) console.log('[gravatar] direct ✓');
+      } catch(e) { console.warn('[gravatar] direct:', e.message); }
+    }
+    if (!entry) return { accounts: [], payments: [] };
+    return {
+      accounts: normaliseAccounts(entry.accounts),
+      payments: normalisePayments(entry),
+    };
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -491,7 +567,7 @@ void (async () => {
 
   // 2. Parallel: Nostr meta + Gravatar
   const metaPromise     = fetchNostrMeta(pubkey, relayHints);
-  const gravatarPromise = fetchGravatarAccounts();
+  const gravatarPromise = fetchGravatarData();
 
   // 3. Await Nostr meta
   let result;
@@ -512,7 +588,7 @@ void (async () => {
   const [
     dnsNostrOk, dnsLnOk, lnWellKnownOk,
     avatarMediaLevel, bannerMediaLevel,
-    gravatarAccounts,
+    gravatarData,
   ] = await Promise.all([
     (async () => {
       for (const name of [`_nostr.${DOMAIN}`, `_nip05.${DOMAIN}`, DOMAIN]) {
@@ -541,6 +617,8 @@ void (async () => {
     checkMediaHost(meta.banner  || ''),
     gravatarPromise,
   ]);
+
+  const { accounts: gravatarAccounts, payments: gravatarPayments } = gravatarData;
 
   // 5. Tick levels
   let handleTickLevel = 'green', handleTickTitle = 'Verified via relay';
@@ -581,8 +659,7 @@ void (async () => {
     img.src = meta.banner;
   }
   if (bannerMediaLevel) {
-    const bt = document.createElement('div');
-    bt.className = 'banner-tick';
+    const bt = document.createElement('div'); bt.className = 'banner-tick';
     bt.innerHTML = tickHtml(bannerMediaLevel, bannerTickTitle, true);
     bannerEl.appendChild(bt);
   }
@@ -606,68 +683,160 @@ void (async () => {
     avatarWrap.replaceChildren(fb);
   }
   if (avatarMediaLevel) {
-    const at = document.createElement('div');
-    at.className = 'avatar-tick';
+    const at = document.createElement('div'); at.className = 'avatar-tick';
     at.innerHTML = tickHtml(avatarMediaLevel, avatarTickTitle, true);
     avatarWrap.appendChild(at);
   }
 
-  // 9. Build social row — FA classes + SI slugs injected via JS post-render
-  const buildSocialRow = accounts => {
-    if (!accounts.length) return '';
-    const items = accounts.map(({ url, label, serviceType }) => {
-      const icon = resolveIcon(serviceType, url);
-      const tip = label || serviceType || (() => { try { return new URL(url).hostname; } catch { return url; } })();
-      // Store resolved icon info in data attributes; applied after innerHTML set
-      return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me"
-                 title="${esc(tip)}"
-                 data-fa="${esc(icon.fa || '')}"
-                 data-si="${esc(icon.si || '')}"><i></i></a>`;
-    }).join('');
-    return `<div class="section-title">Follow me on</div><div class="social-row">${items}</div>`;
+  // 9. Categorise accounts
+  // Preserve Gravatar order; split into messaging / git / social
+  const messagingAccounts = gravatarAccounts.filter(a => MESSAGING_KEYS.has(a.serviceType));
+  const gitAccounts       = gravatarAccounts.filter(a => GIT_KEYS.has(a.serviceType));
+  const socialAccounts    = gravatarAccounts.filter(a =>
+    !MESSAGING_KEYS.has(a.serviceType) && !GIT_KEYS.has(a.serviceType)
+  );
+
+  // Hardcoded Telegram entry for "Message me" (always shown)
+  const TELEGRAM_ENTRY = {
+    url: 'https://t.me/zsoltsb',
+    label: 'Telegram',
+    serviceType: 'telegram',
+  };
+  // Merge: hardcoded first, then any messaging accounts from Gravatar (deduped)
+  const allMessaging = [
+    TELEGRAM_ENTRY,
+    ...messagingAccounts.filter(a => a.serviceType !== 'telegram'),
+  ];
+
+  // 10. Build icon helper (returns HTML string; classes applied post-render)
+  let _iconIdx = 0;
+  const iconPlaceholder = (icon, extraClass = '') => {
+    const id = `_ic${_iconIdx++}`;
+    return `<i id="${id}" data-fa="${esc(icon.fa||'')}" data-si="${esc(icon.si||'')}" class="${esc(extraClass)}"></i>`;
   };
 
-  // 10. Render body
+  // 11. Build social row HTML
+  const buildSocialRow = accounts => accounts.map(({ url, label, serviceType }) => {
+    const icon = resolveIcon(serviceType, url);
+    const tip = label || serviceType || (() => { try { return new URL(url).hostname; } catch { return url; } })();
+    return `<a class="social-btn" href="${esc(url)}" target="_blank" rel="noopener me"
+               title="${esc(tip)}">${iconPlaceholder(icon)}</a>`;
+  }).join('');
+
+  // 12. Build dropdown HTML
+  const buildDropdown = (btnLabel, btnIconHtml, items) => {
+    if (!items.length) return '';
+    const itemsHtml = items.map(({ url, label, serviceType, iconHtml, sublabel }) =>
+      `<a class="dropdown-item" href="${esc(url)}" target="_blank" rel="noopener">
+         <span class="di-icon">${iconHtml}</span>
+         <span class="di-label">${esc(label)}${sublabel ? `<br><span class="di-sub">${esc(sublabel)}</span>` : ''}</span>
+       </a>`
+    ).join('');
+    return `<div class="dropdown">
+      <button class="dropdown-btn" type="button">
+        ${btnIconHtml} ${esc(btnLabel)} <span class="chevron">▾</span>
+      </button>
+      <div class="dropdown-menu">${itemsHtml}</div>
+    </div>`;
+  };
+
+  // Message me items
+  const msgItems = allMessaging.map(a => {
+    const icon = resolveIcon(a.serviceType, a.url);
+    return { url: a.url, label: a.label || a.serviceType, serviceType: a.serviceType,
+             iconHtml: iconPlaceholder(icon, 'di-icon-i'), sublabel: '' };
+  });
+
+  // Tip me items — from Gravatar payments
+  const tipItems = gravatarPayments.map(p => {
+    const resolved = resolvePaymentIcon(p.name, p.url);
+    const icon = { fa: resolved.fa || null, si: resolved.si || null };
+    return { url: p.url, label: resolved.label, serviceType: '',
+             iconHtml: iconPlaceholder(icon, 'di-icon-i'), sublabel: '' };
+  });
+
+  // 13. Render body
   const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
   const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
+  const msgDropdown = buildDropdown(
+    'Message me',
+    iconPlaceholder({ fa: 'fa-regular fa-comment', si: null }),
+    msgItems
+  );
+
+  const tipDropdown = tipItems.length
+    ? buildDropdown(
+        'Tip me',
+        iconPlaceholder({ fa: 'fa-solid fa-hand-holding-dollar', si: null }),
+        tipItems
+      )
+    : '';
+
+  const socialSection = socialAccounts.length
+    ? `<div class="section-title">Follow me on</div>
+       <div class="social-row">${buildSocialRow(socialAccounts)}</div>`
+    : '';
+
+  const gitSection = gitAccounts.length
+    ? `<div class="section-title">Git stuff</div>
+       <div class="social-row">${buildSocialRow(gitAccounts)}</div>`
+    : '';
+
   document.getElementById('body').innerHTML = `
     <div class="display-name">${esc(name)}</div>
-    <div class="pills">
+
+    <div class="pill-row">
       <a class="pill" href="${esc(nostrUri)}" title="Open in your Nostr client">
         @${esc(displayHandle)} ${tickHtml(handleTickLevel, handleTickTitle)}
       </a>
+      ${msgDropdown}
+    </div>
+
+    <div class="pill-row">
       <a class="pill" href="lightning:${esc(lightning)}" title="Pay via Lightning Network">
         ⚡ ${esc(lightning)} ${tickHtml(lnTickLevel, lnTickTitle)}
       </a>
+      ${tipDropdown}
     </div>
-    ${buildSocialRow(gravatarAccounts)}
+
+    ${socialSection}
+    ${gitSection}
+
     <a class="footer-link" href="${DITTO_URL}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
   `;
 
-  // 11. Apply icon classes AFTER DOM insertion
-  //     FA: set className on <i> directly (never in HTML source)
-  //     SI: prefer FA if available, fall back to Simple Icons CSS class
-  document.querySelectorAll('.social-btn[data-fa], .social-btn[data-si]').forEach(btn => {
-    const faClass = btn.dataset.fa;
-    const siSlug  = btn.dataset.si;
-    const icon    = btn.querySelector('i');
-    if (!icon) return;
-
-    if (faClass) {
-      // Use Font Awesome
-      icon.className = faClass;
-    } else if (siSlug) {
-      // Use Simple Icons CSS font: class "si si--{slug}"
-      icon.className = `si si--${siSlug}`;
+  // 14. Apply icon classes AFTER DOM insertion
+  document.querySelectorAll('i[data-fa], i[data-si]').forEach(el => {
+    const fa = el.dataset.fa;
+    const si = el.dataset.si;
+    if (fa) {
+      el.className = (el.className || '').replace(/\bdi-icon-i\b/, '').trim();
+      el.classList.add(...fa.split(' '));
+    } else if (si) {
+      el.className = (el.className || '').replace(/\bdi-icon-i\b/, '').trim();
+      el.classList.add('si', `si--${si}`);
     } else {
-      icon.className = 'fa-solid fa-link';
+      el.classList.add('fa-solid', 'fa-link');
     }
+    el.removeAttribute('data-fa');
+    el.removeAttribute('data-si');
+  });
 
-    btn.removeAttribute('data-fa');
-    btn.removeAttribute('data-si');
+  // 15. Dropdown toggle (close on outside click)
+  document.querySelectorAll('.dropdown-btn').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.stopPropagation();
+      const dd = btn.closest('.dropdown');
+      const wasOpen = dd.classList.contains('open');
+      document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+      if (!wasOpen) dd.classList.add('open');
+    });
+  });
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
   });
 
 })().catch(err => {
