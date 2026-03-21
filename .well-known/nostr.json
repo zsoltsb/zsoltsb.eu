@@ -46,7 +46,8 @@
       "wss://bookmarks.relays.land",
       "wss://relaypag.es",
       "wss://pyramid.fiatjaf.com",
-      "wss://purplepag.es"
+      "wss://purplepag.es",
+      "wss://relay.ngit.dev"
     ]
   }
 }
