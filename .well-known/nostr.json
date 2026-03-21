@@ -48,7 +48,8 @@
       "wss://pyramid.fiatjaf.com",
       "wss://purplepag.es",
       "wss://relay.ngit.dev",
-      "wss://git.shakespeare.diy"
+      "wss://git.shakespeare.diy",
+      "wss://gitnostr.com"
     ]
   }
 }
