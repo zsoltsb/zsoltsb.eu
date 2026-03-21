@@ -6,14 +6,14 @@
   <title>zsoltsb.eu</title>
   <link rel="me" href="https://ditto.pub/zsoltsb.eu" />
   <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
-  <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.bunny.net/css?family=ibm-plex-mono:400,500,600,700&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
       --bg: #0f0f0f; --surface: #1a1a1a; --border: #2a2a2a;
       --accent: #8b5cf6; --accent2: #a78bfa; --text: #e8e8e8;
       --muted: #888; --gold: #f59e0b; --green: #34d399;
-      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --font: 'IBM Plex Mono', 'Courier New', monospace;
     }
     body {
       background: var(--bg); color: var(--text); font-family: var(--font);
@@ -44,49 +44,51 @@
     .avatar-tick { position: absolute; bottom: 2px; right: 2px; }
     /* Body */
     .body { padding: 62px 24px 28px; }
-    .display-name { font-size: 1.35rem; font-weight: 700; }
+    .display-name { font-size: 1.25rem; font-weight: 700; }
     /* Pill rows */
     .pill-row { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
     .pill {
       display: inline-flex; align-items: center; gap: 7px;
       background: rgba(139,92,246,.10); border: 1px solid rgba(139,92,246,.28);
-      border-radius: 20px; padding: 6px 14px; font-size: .8rem;
-      color: var(--accent2); text-decoration: none; line-height: 1;
-      transition: background .18s, border-color .18s; white-space: nowrap;
+      border-radius: 20px; padding: 6px 14px; font-size: .78rem;
+      color: var(--accent2); text-decoration: none; font-family: inherit;
+      line-height: 1; transition: background .18s, border-color .18s; white-space: nowrap;
     }
     .pill:hover { background: rgba(139,92,246,.22); border-color: rgba(139,92,246,.55); }
     /* Dropdowns */
     .dropdown { position: relative; margin-left: auto; flex-shrink: 0; }
     .dropdown-btn {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,.05); border: 1px solid var(--border);
-      border-radius: 20px; padding: 6px 12px; font-size: .78rem;
-      color: var(--muted); font-family: inherit; cursor: pointer;
-      transition: background .15s, border-color .15s, color .15s;
+      border-radius: 20px; padding: 6px 12px; font-size: .75rem;
+      font-family: inherit; cursor: pointer;
+      transition: filter .15s, opacity .15s;
       white-space: nowrap; user-select: none;
+      /* color, background, border set dynamically via JS */
     }
-    .dropdown-btn:hover { background: rgba(255,255,255,.09); border-color: #444; color: var(--text); }
+    .dropdown-btn:hover { filter: brightness(1.15); }
     .dropdown-btn .chevron { font-size: .6rem; transition: transform .2s; }
     .dropdown.open .chevron { transform: rotate(180deg); }
     .dropdown-menu {
       display: none; position: absolute; right: 0; top: calc(100% + 6px);
-      background: #222; border: 1px solid var(--border); border-radius: 10px;
-      min-width: 200px; z-index: 100; overflow: hidden;
-      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      background: #1e1e1e; border: 1px solid var(--border); border-radius: 10px;
+      min-width: 210px; z-index: 100; overflow: hidden;
+      box-shadow: 0 8px 28px rgba(0,0,0,.6);
     }
     .dropdown.open .dropdown-menu { display: block; }
     .dropdown-item {
       display: flex; align-items: center; gap: 10px;
-      padding: 10px 14px; font-size: .82rem; color: var(--text);
-      text-decoration: none; transition: background .12s;
+      padding: 10px 14px; font-size: .78rem; color: var(--text);
+      text-decoration: none; transition: background .12s; font-family: inherit;
     }
-    .dropdown-item:hover { background: rgba(139,92,246,.12); }
+    .dropdown-item:hover { background: rgba(255,255,255,.06); }
     .di-icon {
-      width: 20px; height: 20px; flex-shrink: 0;
+      width: 24px; height: 24px; flex-shrink: 0;
       display: flex; align-items: center; justify-content: center;
-      color: var(--accent2);
+      border-radius: 6px;
+      /* background & color set per-item via inline style */
     }
-    .di-icon svg { width: 18px; height: 18px; fill: currentColor; }
+    .di-icon svg { width: 14px; height: 14px; fill: currentColor; }
+    .di-label { flex: 1; }
     /* Ticks */
     .tick {
       display: inline-flex; align-items: center; justify-content: center;
@@ -99,28 +101,25 @@
     .tick.lg svg { width: 11px; height: 11px; }
     /* Social */
     .section-title {
-      font-size: .68rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: .09em; color: var(--muted); margin-top: 24px; margin-bottom: 10px;
+      font-size: .65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--muted); margin-top: 24px; margin-bottom: 10px;
     }
     .social-row { display: flex; flex-wrap: wrap; gap: 10px; }
     .social-btn {
       display: inline-flex; align-items: center; justify-content: center;
       width: 44px; height: 44px; border-radius: 10px;
-      background: var(--bg); border: 1px solid var(--border);
-      color: var(--text); text-decoration: none;
-      transition: background .15s, border-color .15s, color .15s, transform .1s;
+      background: transparent; border: none;
+      color: var(--muted); text-decoration: none;
+      transition: color .15s, transform .1s;
     }
-    .social-btn:hover {
-      background: rgba(139,92,246,.10); border-color: var(--accent);
-      color: var(--accent2); transform: translateY(-2px);
-    }
+    .social-btn:hover { color: var(--text); transform: translateY(-2px); }
     .social-btn svg { width: 22px; height: 22px; fill: currentColor; }
-    /* Btn icons */
-    .btn-icon { width: 14px; height: 14px; fill: currentColor; flex-shrink: 0; }
+    /* Btn icon */
+    .btn-icon { width: 13px; height: 13px; fill: currentColor; flex-shrink: 0; }
     /* Footer */
     .footer-link {
       display: block; text-align: center; margin-top: 26px; padding-top: 18px;
-      border-top: 1px solid var(--border); font-size: .78rem;
+      border-top: 1px solid var(--border); font-size: .72rem;
       color: var(--muted); text-decoration: none;
     }
     .footer-link span { color: var(--accent2); }
@@ -132,7 +131,7 @@
     }
     @keyframes shimmer { 0%{background-position:200% 0}100%{background-position:-200% 0} }
     .error { padding: 28px; color: #f87171; font-size: .875rem; text-align: center; line-height: 1.7; }
-    .error code { display: block; margin-top: 8px; font-size: .72rem; color: var(--muted); word-break: break-all; }
+    .error code { display: block; margin-top: 8px; font-size: .68rem; color: var(--muted); word-break: break-all; }
   </style>
 </head>
 <body>
@@ -171,17 +170,107 @@ void (async () => {
     n => `https://dns.google/resolve?name=${encodeURIComponent(n)}&type=TXT`,
   ];
 
-  // Hardcoded social order: shortname → position (lower = earlier)
-  // Gravatar accounts not in this map are appended after in their original order
-  const SOCIAL_ORDER = { bluesky:0, mastodon:1, tumblr:2, threads:3, github:4, gitlab:5 };
+  // ── BRAND COLORS ─────────────────────────────────────────────────────────
+  // Primary brand color per service shortname/key
+  const BRAND_COLORS = {
+    'telegram':       '#0088CC',
+    'whatsapp':       '#25D366',
+    'signal':         '#3A76F0',
+    'discord':        '#5865F2',
+    'slack':          '#4A154B',
+    'skype':          '#00AFF0',
+    'matrix':         '#0DBD8B',
+    'paypal':         '#009CDE',
+    'paypalme':       '#009CDE',
+    'venmo':          '#3D95CE',
+    'cashapp':        '#00D64F',
+    'patreon':        '#FF424D',
+    'kofi':           '#FF5E5B',
+    'ko-fi':          '#FF5E5B',
+    'buymeacoffee':   '#FFDD00',
+    'liberapay':      '#F6C915',
+    'opencollective': '#7FADF2',
+    'bitcoin':        '#F7931A',
+    'ethereum':       '#627EEA',
+    'revolut':        '#7F84F6',
+    'sentz':          '#888888',
+    'bluesky':        '#0085FF',
+    'mastodon':       '#6364FF',
+    'tumblr':         '#35465C',
+    'threads':        '#AAAAAA',
+    'github':         '#6E8B9E',
+    'gitlab':         '#FC6D26',
+    'twitter':        '#1D9BF0',
+    'x':              '#E7E7E7',
+    'instagram':      '#E1306C',
+    'facebook':       '#1877F2',
+    'linkedin':       '#0A66C2',
+    'youtube':        '#FF0000',
+    'twitch':         '#9146FF',
+    'spotify':        '#1DB954',
+    'soundcloud':     '#FF5500',
+    'reddit':         '#FF4500',
+    'tiktok':         '#EE1D52',
+    'pinterest':      '#E60023',
+    'medium':         '#00AB6C',
+    'substack':       '#FF6719',
+    'strava':         '#FC4C02',
+    'steam':          '#1B2838',
+    'codepen':        '#47CF73',
+    'npm':            '#CB3837',
+    'docker':         '#2496ED',
+    '_default':       '#888888',
+  };
 
-  // Hardcoded git fallbacks shown only if NOT already in Gravatar accounts
+  const getBrandColor = (shortname, url) => {
+    const k = (shortname||'').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
+    if (BRAND_COLORS[k]) return BRAND_COLORS[k];
+    try {
+      const host = new URL(url).hostname.replace(/^www\./,'').replace(/\.[^.]+$/,'');
+      const hk = host.toLowerCase().replace(/[^a-z0-9-]/g,'');
+      if (BRAND_COLORS[hk]) return BRAND_COLORS[hk];
+      for (const [key, val] of Object.entries(BRAND_COLORS)) {
+        if (key !== '_default' && (hk.includes(key) || key.includes(hk))) return val;
+      }
+    } catch {}
+    return BRAND_COLORS['_default'];
+  };
+
+  // Parse hex color to [r,g,b]
+  const hexToRgb = hex => {
+    const h = hex.replace('#','');
+    return [
+      parseInt(h.slice(0,2),16),
+      parseInt(h.slice(2,4),16),
+      parseInt(h.slice(4,6),16),
+    ];
+  };
+
+  // Average multiple hex colors → hex string
+  const avgColors = hexArr => {
+    if (!hexArr.length) return '#444444';
+    const sum = hexArr.reduce((acc, h) => {
+      const [r,g,b] = hexToRgb(h);
+      return [acc[0]+r, acc[1]+g, acc[2]+b];
+    }, [0,0,0]);
+    return '#' + sum.map(v => Math.round(v/hexArr.length).toString(16).padStart(2,'0')).join('');
+  };
+
+  // Blend a hex color toward dark background at given opacity (for button bg)
+  const blendWithBg = (hex, alpha = 0.18) => {
+    const [r,g,b] = hexToRgb(hex);
+    const bg = 26; // #1a1a1a
+    return `rgb(${Math.round(bg+(r-bg)*alpha)},${Math.round(bg+(g-bg)*alpha)},${Math.round(bg+(b-bg)*alpha)})`;
+  };
+
+  // ── SOCIAL ORDER ─────────────────────────────────────────────────────────
+  const SOCIAL_ORDER = { bluesky:0, mastodon:1, tumblr:2, threads:3, github:4, gitlab:5 };
   const GIT_FALLBACKS = [
-    { shortname:'github',  url:'https://github.com/zsoltsb',  name:'GitHub' },
-    { shortname:'gitlab',  url:'https://gitlab.com/zsoltsb',  name:'GitLab' },
+    { shortname:'github', url:'https://github.com/zsoltsb',  name:'GitHub' },
+    { shortname:'gitlab', url:'https://gitlab.com/zsoltsb',  name:'GitLab' },
   ];
 
-  // Messaging shortnames → go into "Drop me a line" dropdown
+  // Messaging → "Drop me a line" dropdown only
   const MESSAGING_KEYS = new Set([
     'whatsapp','telegram','signal','messenger','wechat','line','viber',
     'skype','discord','slack','matrix','imessage','sms','kik','snapchat',
@@ -189,12 +278,22 @@ void (async () => {
     'rocketchat','mattermost','teams','hangouts','gchat',
   ]);
 
-  // Hardcoded Telegram entry (always first in messaging dropdown)
   const TELEGRAM_ENTRY = { shortname:'telegram', url:'https://t.me/zsoltsb', name:'Telegram' };
 
-  // ── ICONIFY inline SVG fetcher ────────────────────────────────────────────
-  // Uses api.iconify.design — no tracking, GDPR-safe, adblock-safe
-  // Returns SVG string or null
+  // Friendly payment labels
+  const PAYMENT_LABELS = {
+    'paypal':'PayPal','paypalme':'PayPal','venmo':'Venmo','cashapp':'Cash App',
+    'patreon':'Patreon','kofi':'Ko-fi','ko-fi':'Ko-fi',
+    'buymeacoffee':'Buy Me a Coffee','liberapay':'Liberapay',
+    'opencollective':'Open Collective','bitcoin':'Bitcoin','ethereum':'Ethereum',
+    'revolut':'Revolut','sentz':'Sentz','stripe':'Stripe','gofundme':'GoFundMe',
+  };
+  const friendlyPaymentName = (key, fallback) => {
+    const k = (key||'').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
+    return PAYMENT_LABELS[k] || fallback || key;
+  };
+
+  // ── ICONIFY SVG FETCHER ───────────────────────────────────────────────────
   const iconCache = new Map();
   const fetchIcon = async (collection, name) => {
     const key = `${collection}:${name}`;
@@ -205,20 +304,15 @@ void (async () => {
         { signal: AbortSignal.timeout(4000) }
       );
       if (!r.ok) throw new Error('not found');
-      const svg = await r.text();
-      // Strip width/height attrs so CSS controls size; ensure fill=currentColor
-      const clean = svg
-        .replace(/\s(width|height)="[^"]*"/g, '')
-        .replace(/<svg /, '<svg ');
-      iconCache.set(key, clean);
-      return clean;
+      const svg = (await r.text()).replace(/\s(width|height)="[^"]*"/g,'');
+      iconCache.set(key, svg);
+      return svg;
     } catch {
       iconCache.set(key, null);
       return null;
     }
   };
 
-  // Icon lookup table: shortname/key → [collection, icon-name] candidates (tried in order)
   const ICON_LOOKUP = {
     'bluesky':       [['fa6-brands','bluesky'],       ['simple-icons','bluesky']],
     'mastodon':      [['fa6-brands','mastodon'],       ['simple-icons','mastodon']],
@@ -246,6 +340,7 @@ void (async () => {
     'discord':       [['fa6-brands','discord'],        ['simple-icons','discord']],
     'slack':         [['fa6-brands','slack'],          ['simple-icons','slack']],
     'skype':         [['fa6-brands','skype'],          ['simple-icons','skype']],
+    'matrix':        [['simple-icons','matrix']],
     'paypal':        [['fa6-brands','paypal'],         ['simple-icons','paypal']],
     'paypalme':      [['fa6-brands','paypal'],         ['simple-icons','paypal']],
     'venmo':         [['simple-icons','venmo']],
@@ -259,31 +354,26 @@ void (async () => {
     'bitcoin':       [['fa6-brands','bitcoin'],        ['simple-icons','bitcoin']],
     'ethereum':      [['simple-icons','ethereum']],
     'revolut':       [['simple-icons','revolut']],
-    'sentz':         [['simple-icons','sentz']],
-    'farcaster':     [['simple-icons','farcaster']],
-    'nostr':         [['fa6-solid','bolt']],
+    'sentz':         [['fa6-solid','paper-plane'],     ['fa6-solid','money-bill']],
     'strava':        [['fa6-brands','strava'],         ['simple-icons','strava']],
     'steam':         [['fa6-brands','steam'],          ['simple-icons','steam']],
     'codepen':       [['fa6-brands','codepen'],        ['simple-icons','codepen']],
     'npm':           [['fa6-brands','npm'],            ['simple-icons','npm']],
     'docker':        [['fa6-brands','docker'],         ['simple-icons','docker']],
     '_link':         [['fa6-solid','link']],
-    '_comment':      [['fa6-regular','comment']],
-    '_dollar':       [['fa6-solid','hand-holding-dollar']],
+    '_plane':        [['fa6-solid','paper-plane']],
+    '_coin':         [['fa6-solid','coins']],
   };
 
   const resolveIconKey = (shortname, url) => {
-    const k = (shortname || '').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
+    const k = (shortname||'').toLowerCase().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
     if (ICON_LOOKUP[k]) return k;
-    // Try hostname
     try {
       const host = new URL(url).hostname.replace(/^www\./,'').replace(/\.[^.]+$/,'');
       const hk = host.toLowerCase().replace(/[^a-z0-9-]/g,'');
       if (ICON_LOOKUP[hk]) return hk;
       for (const key of Object.keys(ICON_LOOKUP)) {
-        if (key !== '_link' && key !== '_comment' && key !== '_dollar') {
-          if (hk.includes(key) || key.includes(hk)) return key;
-        }
+        if (!key.startsWith('_') && (hk.includes(key) || key.includes(hk))) return key;
       }
     } catch {}
     return '_link';
@@ -291,23 +381,18 @@ void (async () => {
 
   const getIcon = async (shortname, url) => {
     const key = resolveIconKey(shortname, url);
-    const candidates = ICON_LOOKUP[key] || ICON_LOOKUP['_link'];
-    for (const [col, name] of candidates) {
+    for (const [col, name] of (ICON_LOOKUP[key] || ICON_LOOKUP['_link'])) {
       const svg = await fetchIcon(col, name);
       if (svg) return svg;
     }
-    // Ultimate fallback: simple link SVG inline
-    return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-      <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
-      <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
-    </svg>`;
+    return `<svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
   };
 
   // ── HELPERS ───────────────────────────────────────────────────────────────
-  const esc = s => String(s ?? '')
+  const esc = s => String(s??'')
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 
-  const tickHtml = (level, title, large = false) => !level ? '' :
+  const tickHtml = (level, title, large=false) => !level ? '' :
     `<span class="tick${large?' lg':''} ${esc(level)}" title="${esc(title)}">
        <svg viewBox="0 0 10 10" fill="none" stroke="#0f0f0f" stroke-width="1.8"
             stroke-linecap="round" stroke-linejoin="round">
@@ -315,13 +400,13 @@ void (async () => {
        </svg>
      </span>`;
 
-  const fetchJSON = async (url, ms = 5000) => {
+  const fetchJSON = async (url, ms=5000) => {
     const r = await fetch(url, { signal: AbortSignal.timeout(ms) });
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     return r.json();
   };
 
-  const fetchJSONP = (url, cbParam = 'callback', ms = 8000) =>
+  const fetchJSONP = (url, cbParam='callback', ms=8000) =>
     new Promise((resolve, reject) => {
       const name = '__gjp_' + Math.random().toString(36).slice(2);
       const timer = setTimeout(() => { cleanup(); reject(new Error('jsonp-timeout')); }, ms);
@@ -337,9 +422,8 @@ void (async () => {
     for (const resolver of DOH_RESOLVERS) {
       try {
         const data = await fetchJSON(resolver(hostname), 4000);
-        const answers = (data?.Answer || []).filter(a => a.type === 16);
-        if (answers.length)
-          return answers.map(a => String(a.data).replace(/^"|"$/g,'').trim());
+        const answers = (data?.Answer||[]).filter(a => a.type===16);
+        if (answers.length) return answers.map(a => String(a.data).replace(/^"|"$/g,'').trim());
       } catch {}
     }
     return [];
@@ -362,79 +446,73 @@ void (async () => {
   const checkMediaHost = (() => {
     let p = null;
     const get = () => {
-      if (!p) p = fetchJSON(`https://${DOMAIN}/.well-known/media-servers.json`, 4000)
+      if (!p) p = fetchJSON(`https://${DOMAIN}/.well-known/media-servers.json`,4000)
         .then(j => {
-          const raw = Array.isArray(j) ? j : (j?.servers || j?.media_servers || []);
-          return raw.map(s => { try { return new URL(s).hostname.toLowerCase(); } catch { return null; } }).filter(Boolean);
-        }).catch(() => []);
+          const raw = Array.isArray(j)?j:(j?.servers||j?.media_servers||[]);
+          return raw.map(s=>{try{return new URL(s).hostname.toLowerCase();}catch{return null;}}).filter(Boolean);
+        }).catch(()=>[]);
       return p;
     };
     return async url => {
       if (!url) return null;
-      let h; try { h = new URL(url).hostname.toLowerCase(); } catch { return null; }
-      if (h === DOMAIN || h.endsWith(`.${DOMAIN}`)) return 'gold';
+      let h; try{h=new URL(url).hostname.toLowerCase();}catch{return null;}
+      if (h===DOMAIN||h.endsWith(`.${DOMAIN}`)) return 'gold';
       const t = await get();
-      if (t.some(x => h === x || h.endsWith(`.${x}`))) return 'green';
+      if (t.some(x=>h===x||h.endsWith(`.${x}`))) return 'green';
       return null;
     };
   })();
 
   // ── RELAY SYSTEM ──────────────────────────────────────────────────────────
-  const fetchFromRelay = (wsUrl, pubkey, timeoutMs = 8000) =>
+  const fetchFromRelay = (wsUrl, pubkey, timeoutMs=8000) =>
     new Promise((resolve, reject) => {
-      let done = false; let ws;
-      try { ws = new WebSocket(wsUrl); } catch(e) { return reject(e); }
-      const fail = r => { if (!done) { done = true; try { ws.close(); } catch {} reject(new Error(r)); } };
-      const timer = setTimeout(() => fail(`timeout:${wsUrl}`), timeoutMs);
-      ws.onopen = () => ws.send(JSON.stringify(['REQ','s',{kinds:[0],authors:[pubkey],limit:1}]));
-      ws.onmessage = e => {
-        try {
-          const m = JSON.parse(e.data);
-          if (m[0]==='EVENT' && m[1]==='s' && m[2]?.kind===0 && !done) {
-            done = true; clearTimeout(timer); try { ws.close(); } catch {}
-            resolve({ meta: JSON.parse(m[2].content), relay: wsUrl });
-          } else if (m[0]==='EOSE' && !done) { fail(`eose-empty:${wsUrl}`); }
-        } catch {}
+      let done=false; let ws;
+      try{ws=new WebSocket(wsUrl);}catch(e){return reject(e);}
+      const fail=r=>{if(!done){done=true;try{ws.close();}catch{}reject(new Error(r));}};
+      const timer=setTimeout(()=>fail(`timeout:${wsUrl}`),timeoutMs);
+      ws.onopen=()=>ws.send(JSON.stringify(['REQ','s',{kinds:[0],authors:[pubkey],limit:1}]));
+      ws.onmessage=e=>{
+        try{
+          const m=JSON.parse(e.data);
+          if(m[0]==='EVENT'&&m[1]==='s'&&m[2]?.kind===0&&!done){
+            done=true;clearTimeout(timer);try{ws.close();}catch{}
+            resolve({meta:JSON.parse(m[2].content),relay:wsUrl});
+          }else if(m[0]==='EOSE'&&!done){fail(`eose-empty:${wsUrl}`);}
+        }catch{}
       };
-      ws.onerror = () => fail(`ws-err:${wsUrl}`);
-      ws.onclose = () => { if (!done) fail(`ws-close:${wsUrl}`); };
+      ws.onerror=()=>fail(`ws-err:${wsUrl}`);
+      ws.onclose=()=>{if(!done)fail(`ws-close:${wsUrl}`);};
     });
 
   const fetchNostrMeta = async (pubkey, relayHints) => {
-    const others = [...new Set([
-      ...relayHints.filter(r => r !== AUTHORITY_RELAY),
-      ...OPENVIBE_RELAYS, ...EXTRA_RELAYS,
-    ])].filter(r => r !== AUTHORITY_RELAY);
-
-    let authorityResult = null;
-    const authorityPromise = fetchFromRelay(AUTHORITY_RELAY, pubkey, 9000)
-      .then(r => { authorityResult = r; return r; })
-      .catch(e => { console.warn('[relay] authority failed:', e.message); return null; });
-
-    await new Promise(r => setTimeout(r, 200));
-    const otherPromises = others.map(url => fetchFromRelay(url, pubkey, 8000).catch(() => null));
+    const others=[...new Set([
+      ...relayHints.filter(r=>r!==AUTHORITY_RELAY),
+      ...OPENVIBE_RELAYS,...EXTRA_RELAYS,
+    ])].filter(r=>r!==AUTHORITY_RELAY);
+    let authorityResult=null;
+    const authorityPromise=fetchFromRelay(AUTHORITY_RELAY,pubkey,9000)
+      .then(r=>{authorityResult=r;return r;})
+      .catch(e=>{console.warn('[relay] authority:',e.message);return null;});
+    await new Promise(r=>setTimeout(r,200));
+    const otherPromises=others.map(url=>fetchFromRelay(url,pubkey,8000).catch(()=>null));
     await authorityPromise;
-
-    if (authorityResult) return authorityResult;
-    const fallback = await Promise.any(
-      otherPromises.map(p => p.then(r => r ? r : Promise.reject()))
-    ).catch(() => null);
-    if (fallback) return fallback;
+    if(authorityResult) return authorityResult;
+    const fallback=await Promise.any(
+      otherPromises.map(p=>p.then(r=>r?r:Promise.reject()))
+    ).catch(()=>null);
+    if(fallback) return fallback;
     throw new Error('All relays failed');
   };
 
   // ── GRAVATAR ──────────────────────────────────────────────────────────────
-  // Actual JSON structure: entry[0].accounts[] + entry[0].payments{}
   const fetchGravatarData = async () => {
     const url = `https://gravatar.com/${GRAVATAR_SLUG}.json`;
     let entry = null;
-
     try {
       const d = await fetchJSONP(url);
       entry = d?.entry?.[0];
       if (entry) console.log('[gravatar] jsonp ✓');
     } catch(e) { console.warn('[gravatar] jsonp:', e.message); }
-
     if (!entry) {
       try {
         const d = await fetchJSON(url, 6000);
@@ -442,278 +520,267 @@ void (async () => {
         if (entry) console.log('[gravatar] direct ✓');
       } catch(e) { console.warn('[gravatar] direct:', e.message); }
     }
+    if (!entry) return { social:[], messaging:[], payments:[] };
 
-    if (!entry) return { social: [], messaging: [], payments: [] };
-
-    // accounts[] — each has: shortname, name, url, verified, is_hidden
-    const rawAccounts = (entry.accounts || [])
-      .filter(a => !a.is_hidden && a.verified && (a.url || '').trim())
+    const rawAccounts = (entry.accounts||[])
+      .filter(a => !a.is_hidden && a.verified && (a.url||'').trim())
       .map(a => ({
-        shortname: (a.shortname || '').toLowerCase(),
+        shortname: (a.shortname||'').toLowerCase(),
         name:      a.name || a.shortname || '',
-        url:       (a.url || '').trim(),
+        url:       (a.url||'').trim(),
       }));
 
     const social    = rawAccounts.filter(a => !MESSAGING_KEYS.has(a.shortname));
     const messaging = rawAccounts.filter(a =>  MESSAGING_KEYS.has(a.shortname));
 
-    // payments{} — plain object: key=provider, value=url
-    // e.g. {"paypalme":"https://paypal.me/zsoltsb","Revolut":"https://revolut.me/zsoltsb"}
+    // payments{} is a plain object: { "paypalme": "https://...", "Revolut": "https://..." }
     const paymentsObj = entry.payments || {};
-    const payments = Object.entries(paymentsObj).map(([key, url]) => ({
-      shortname: key.toLowerCase().replace(/\s+/g,'-'),
-      name:      key,
-      url:       String(url),
-    })).filter(p => p.url.startsWith('http'));
+    const payments = Object.entries(paymentsObj)
+      .map(([key, url]) => ({
+        shortname: key.toLowerCase().replace(/\s+/g,'-'),
+        name:      friendlyPaymentName(key, key),
+        url:       String(url),
+      }))
+      .filter(p => p.url.startsWith('http'));
 
-    console.log(`[gravatar] social:${social.length} messaging:${messaging.length} payments:${payments.length}`);
+    console.log(`[gravatar] social:${social.length} msg:${messaging.length} pay:${payments.length}`);
     return { social, messaging, payments };
   };
 
   // ── MAIN ──────────────────────────────────────────────────────────────────
 
-  // 1. Resolve pubkey
-  let pubkey = '', wellKnownNostrOk = false, relayHints = [];
+  // 1. Pubkey
+  let pubkey='', wellKnownNostrOk=false, relayHints=[];
   try {
-    const j = await fetchJSON(`https://${DOMAIN}/.well-known/nostr.json?name=_`, 4000);
-    const pk = j?.names?.['_'] || Object.values(j?.names || {})[0] || '';
-    if (pk) { pubkey = pk; wellKnownNostrOk = true; relayHints = j?.relays?.[pk] || []; }
+    const j = await fetchJSON(`https://${DOMAIN}/.well-known/nostr.json?name=_`,4000);
+    const pk = j?.names?.['_']||Object.values(j?.names||{})[0]||'';
+    if(pk){pubkey=pk;wellKnownNostrOk=true;relayHints=j?.relays?.[pk]||[];}
   } catch {}
-  if (!pubkey) {
-    document.getElementById('body').innerHTML =
-      '<div class="error">⚠️ Could not resolve pubkey from NIP-05.</div>';
+  if(!pubkey){
+    document.getElementById('body').innerHTML='<div class="error">⚠️ Could not resolve pubkey from NIP-05.</div>';
     return;
   }
 
-  // 2. Parallel: Nostr + Gravatar
+  // 2. Parallel fetch
   const metaPromise     = fetchNostrMeta(pubkey, relayHints);
   const gravatarPromise = fetchGravatarData();
 
   // 3. Nostr meta
   let result;
-  try { result = await metaPromise; }
-  catch(e) {
-    document.getElementById('body').innerHTML =
+  try{result=await metaPromise;}
+  catch(e){
+    document.getElementById('body').innerHTML=
       `<div class="error">⚠️ All relays failed.<code>${esc(e.message)}</code></div>`;
     return;
   }
 
-  const { meta } = result;
-  const npub        = hexToNpub(pubkey);
-  const nip05       = meta.nip05 || `_@${DOMAIN}`;
-  const nip05Domain = nip05.includes('@') ? nip05.split('@')[1] : '';
-  const displayHandle = nip05.startsWith('_@') ? nip05.slice(2) : nip05;
+  const {meta} = result;
+  const npub          = hexToNpub(pubkey);
+  const nip05         = meta.nip05||`_@${DOMAIN}`;
+  const nip05Domain   = nip05.includes('@')?nip05.split('@')[1]:'';
+  const displayHandle = nip05.startsWith('_@')?nip05.slice(2):nip05;
 
-  // 4. Verification + Gravatar
+  // 4. Parallel verification + gravatar
   const [
     dnsNostrOk, dnsLnOk, lnWellKnownOk,
     avatarMediaLevel, bannerMediaLevel,
     gravatarData,
   ] = await Promise.all([
-    (async () => {
-      for (const name of [`_nostr.${DOMAIN}`, `_nip05.${DOMAIN}`, DOMAIN]) {
-        try {
-          const txts = await dohTxtLookup(name);
-          if (txts.some(t => t.includes(pubkey) || (npub && t.includes(npub)))) return true;
-        } catch {}
+    (async()=>{
+      for(const name of[`_nostr.${DOMAIN}`,`_nip05.${DOMAIN}`,DOMAIN]){
+        try{
+          const txts=await dohTxtLookup(name);
+          if(txts.some(t=>t.includes(pubkey)||(npub&&t.includes(npub))))return true;
+        }catch{}
       }
       return false;
     })(),
-    (async () => {
-      try {
-        const txts = await dohTxtLookup(`_lnurlp.${LN_DOMAIN}`);
-        return txts.some(t =>
-          t.includes(LN_USER) || t.toLowerCase().includes('lnurlp') || t.toLowerCase().includes('lightning')
-        );
-      } catch { return false; }
+    (async()=>{
+      try{
+        const txts=await dohTxtLookup(`_lnurlp.${LN_DOMAIN}`);
+        return txts.some(t=>t.includes(LN_USER)||t.toLowerCase().includes('lnurlp')||t.toLowerCase().includes('lightning'));
+      }catch{return false;}
     })(),
-    (async () => {
-      try {
-        const j = await fetchJSON(`https://${LN_DOMAIN}/.well-known/lnurlp/${LN_USER}`, 5000);
-        return j?.tag === 'payRequest' && !!j?.callback;
-      } catch { return false; }
+    (async()=>{
+      try{
+        const j=await fetchJSON(`https://${LN_DOMAIN}/.well-known/lnurlp/${LN_USER}`,5000);
+        return j?.tag==='payRequest'&&!!j?.callback;
+      }catch{return false;}
     })(),
-    checkMediaHost(meta.picture || ''),
-    checkMediaHost(meta.banner  || ''),
+    checkMediaHost(meta.picture||''),
+    checkMediaHost(meta.banner||''),
     gravatarPromise,
   ]);
 
-  const { social: socialRaw, messaging: messagingRaw, payments } = gravatarData;
+  const {social:socialRaw, messaging:messagingRaw, payments} = gravatarData;
 
-  // 5. Build final social list with hardcoded order
-  // Merge Gravatar social + git fallbacks (only if not already in Gravatar)
-  const gravatarShortnames = new Set(socialRaw.map(a => a.shortname));
-  const gitToAdd = GIT_FALLBACKS.filter(g => !gravatarShortnames.has(g.shortname));
+  // 5. Build social list with hardcoded order + git fallbacks
+  const gravatarShortnames = new Set(socialRaw.map(a=>a.shortname));
+  const gitToAdd = GIT_FALLBACKS.filter(g=>!gravatarShortnames.has(g.shortname));
   const allSocial = [...socialRaw, ...gitToAdd];
-
-  // Sort by SOCIAL_ORDER; items not in map go to end in original order
   const maxOrder = Object.keys(SOCIAL_ORDER).length;
-  allSocial.sort((a, b) => {
-    const oa = SOCIAL_ORDER[a.shortname] ?? (maxOrder + allSocial.indexOf(a));
-    const ob = SOCIAL_ORDER[b.shortname] ?? (maxOrder + allSocial.indexOf(b));
-    return oa - ob;
+  allSocial.sort((a,b)=>{
+    const oa = SOCIAL_ORDER[a.shortname]??maxOrder+allSocial.indexOf(a);
+    const ob = SOCIAL_ORDER[b.shortname]??maxOrder+allSocial.indexOf(b);
+    return oa-ob;
   });
 
-  // Messaging: hardcoded Telegram first, then Gravatar messaging (deduped)
+  // Messaging: hardcoded Telegram first
   const allMessaging = [
     TELEGRAM_ENTRY,
-    ...messagingRaw.filter(a => a.shortname !== 'telegram'),
+    ...messagingRaw.filter(a=>a.shortname!=='telegram'),
   ];
 
-  // 6. Tick levels
-  let handleTickLevel = 'green', handleTickTitle = 'Verified via relay';
-  if (wellKnownNostrOk && nip05Domain === DOMAIN) {
-    handleTickLevel = 'gold';
-    handleTickTitle = '/.well-known/nostr.json ✓' + (dnsNostrOk ? ' · DNS TXT ✓' : '');
-  } else if (wellKnownNostrOk) {
-    handleTickLevel = 'gold';
-    handleTickTitle = 'Verified: pubkey in /.well-known/nostr.json ✓';
+  // 6. Ticks
+  let handleTickLevel='green', handleTickTitle='Verified via relay';
+  if(wellKnownNostrOk&&nip05Domain===DOMAIN){
+    handleTickLevel='gold';
+    handleTickTitle='/.well-known/nostr.json ✓'+(dnsNostrOk?' · DNS TXT ✓':'');
+  }else if(wellKnownNostrOk){
+    handleTickLevel='gold';
+    handleTickTitle='Verified: pubkey in /.well-known/nostr.json ✓';
   }
-  let lnTickLevel = null, lnTickTitle = '';
-  if (lnWellKnownOk) {
-    lnTickLevel = 'gold';
-    lnTickTitle = '/.well-known/lnurlp ✓' + (dnsLnOk ? ' · DNS TXT _lnurlp ✓' : '');
+  let lnTickLevel=null, lnTickTitle='';
+  if(lnWellKnownOk){
+    lnTickLevel='gold';
+    lnTickTitle='/.well-known/lnurlp ✓'+(dnsLnOk?' · DNS TXT _lnurlp ✓':'');
   }
-  const avatarTickTitle = avatarMediaLevel === 'gold' ? `Avatar hosted on ${DOMAIN} ✓`
-    : avatarMediaLevel === 'green' ? 'Avatar on trusted media server ✓' : '';
-  const bannerTickTitle = bannerMediaLevel === 'gold' ? `Banner hosted on ${DOMAIN} ✓`
-    : bannerMediaLevel === 'green' ? 'Banner on trusted media server ✓' : '';
+  const avatarTickTitle = avatarMediaLevel==='gold'?`Avatar hosted on ${DOMAIN} ✓`
+    :avatarMediaLevel==='green'?'Avatar on trusted media server ✓':'';
+  const bannerTickTitle = bannerMediaLevel==='gold'?`Banner hosted on ${DOMAIN} ✓`
+    :bannerMediaLevel==='green'?'Banner on trusted media server ✓':'';
 
   // 7. rel=me
-  if (npub) {
-    const l = document.createElement('link'); l.rel='me';
-    l.href=`https://njump.me/${npub}`; document.head.appendChild(l);
-  }
-  for (const { url } of allSocial) {
-    const l = document.createElement('link'); l.rel='me'; l.href=url;
-    document.head.appendChild(l);
-  }
+  if(npub){const l=document.createElement('link');l.rel='me';l.href=`https://njump.me/${npub}`;document.head.appendChild(l);}
+  for(const{url}of allSocial){const l=document.createElement('link');l.rel='me';l.href=url;document.head.appendChild(l);}
 
   // 8. Banner
-  const bannerEl = document.getElementById('banner');
-  if (meta.banner) {
-    const img = new Image();
-    img.onload = () => { bannerEl.style.backgroundImage = `url(${meta.banner})`; };
-    img.src = meta.banner;
-  }
-  if (bannerMediaLevel) {
-    const bt = document.createElement('div'); bt.className='banner-tick';
-    bt.innerHTML = tickHtml(bannerMediaLevel, bannerTickTitle, true);
-    bannerEl.appendChild(bt);
-  }
+  const bannerEl=document.getElementById('banner');
+  if(meta.banner){const img=new Image();img.onload=()=>{bannerEl.style.backgroundImage=`url(${meta.banner})`;};img.src=meta.banner;}
+  if(bannerMediaLevel){const bt=document.createElement('div');bt.className='banner-tick';bt.innerHTML=tickHtml(bannerMediaLevel,bannerTickTitle,true);bannerEl.appendChild(bt);}
 
   // 9. Avatar
-  const name = meta.display_name || meta.name || DOMAIN;
-  const avatarWrap = document.getElementById('avatarWrap');
-  if (meta.picture) {
-    const img = document.createElement('img');
-    img.className='avatar-img'; img.alt=name;
-    img.onerror = () => {
-      const fb = document.createElement('div');
-      fb.className='avatar-fb'; fb.textContent=(name||'?')[0].toUpperCase();
-      img.replaceWith(fb);
-    };
-    img.src = meta.picture;
-    avatarWrap.replaceChildren(img);
-  } else {
-    const fb = document.createElement('div');
-    fb.className='avatar-fb'; fb.textContent=(name||'?')[0].toUpperCase();
-    avatarWrap.replaceChildren(fb);
+  const name=meta.display_name||meta.name||DOMAIN;
+  const avatarWrap=document.getElementById('avatarWrap');
+  if(meta.picture){
+    const img=document.createElement('img');img.className='avatar-img';img.alt=name;
+    img.onerror=()=>{const fb=document.createElement('div');fb.className='avatar-fb';fb.textContent=(name||'?')[0].toUpperCase();img.replaceWith(fb);};
+    img.src=meta.picture;avatarWrap.replaceChildren(img);
+  }else{
+    const fb=document.createElement('div');fb.className='avatar-fb';fb.textContent=(name||'?')[0].toUpperCase();avatarWrap.replaceChildren(fb);
   }
-  if (avatarMediaLevel) {
-    const at = document.createElement('div'); at.className='avatar-tick';
-    at.innerHTML = tickHtml(avatarMediaLevel, avatarTickTitle, true);
-    avatarWrap.appendChild(at);
-  }
+  if(avatarMediaLevel){const at=document.createElement('div');at.className='avatar-tick';at.innerHTML=tickHtml(avatarMediaLevel,avatarTickTitle,true);avatarWrap.appendChild(at);}
 
-  // 10. Fetch all icons in parallel before rendering
-  const nostrUri  = npub ? `nostr:${npub}` : `https://njump.me/${nip05}`;
+  // 10. Pre-fetch all icons concurrently
+  const nostrUri  = npub?`nostr:${npub}`:`https://njump.me/${nip05}`;
   const lightning = `${LN_USER}@${LN_DOMAIN}`;
 
-  // Pre-fetch all needed icons concurrently
   const [
-    iconComment, iconDollar,
+    iconPlane, iconCoin,
     socialIcons, messagingIcons, paymentIcons,
   ] = await Promise.all([
-    getIcon('_comment', ''),
-    getIcon('_dollar', ''),
-    Promise.all(allSocial.map(a => getIcon(a.shortname, a.url))),
-    Promise.all(allMessaging.map(a => getIcon(a.shortname, a.url))),
-    Promise.all(payments.map(p => getIcon(p.shortname, p.url))),
+    getIcon('_plane',''),
+    getIcon('_coin',''),
+    Promise.all(allSocial.map(a=>getIcon(a.shortname,a.url))),
+    Promise.all(allMessaging.map(a=>getIcon(a.shortname,a.url))),
+    Promise.all(payments.map(p=>getIcon(p.shortname,p.url))),
   ]);
 
-  // 11. Build HTML
-  const buildSocialRow = () => allSocial.map((a, i) =>
+  // 11. Compute button styles from brand colors
+  const msgColors   = allMessaging.map(a=>getBrandColor(a.shortname,a.url));
+  const tipColors   = payments.map(p=>getBrandColor(p.shortname,p.url));
+  const msgAvgColor = avgColors(msgColors);
+  const tipAvgColor = avgColors(tipColors);
+
+  const btnStyle = (avgHex) => {
+    const bg = blendWithBg(avgHex, 0.20);
+    return `background:${bg};border:1px solid ${avgHex}55;color:${avgHex};`;
+  };
+
+  // 12. Build HTML
+  const buildSocialRow = () => allSocial.map((a,i)=>
     `<a class="social-btn" href="${esc(a.url)}" target="_blank" rel="noopener me" title="${esc(a.name)}">
-       ${socialIcons[i] || ''}
+       ${socialIcons[i]||''}
      </a>`
   ).join('');
 
-  const buildDropdown = (btnLabel, btnIconSvg, items, icons) => {
-    if (!items.length) return '';
-    const itemsHtml = items.map((item, i) =>
-      `<a class="dropdown-item" href="${esc(item.url)}" target="_blank" rel="noopener">
-         <span class="di-icon">${icons[i] || ''}</span>
-         <span>${esc(item.name)}</span>
-       </a>`
-    ).join('');
+  const buildDropdown = (btnLabel, btnIconSvg, btnStyle_, items, icons, colors) => {
+    if(!items.length) return '';
+    const itemsHtml = items.map((item,i)=>{
+      const color = colors[i]||'#888';
+      const iconBg = blendWithBg(color, 0.25);
+      return `<a class="dropdown-item" href="${esc(item.url)}" target="_blank" rel="noopener">
+         <span class="di-icon" style="background:${iconBg};color:${color};">${icons[i]||''}</span>
+         <span class="di-label">${esc(item.name)}</span>
+       </a>`;
+    }).join('');
     return `<div class="dropdown">
-      <button class="dropdown-btn" type="button">
-        <span class="btn-icon">${btnIconSvg || ''}</span>
+      <button class="dropdown-btn" type="button" style="${btnStyle_}">
+        <svg class="btn-icon" viewBox="0 0 24 24">${btnIconSvg}</svg>
         ${esc(btnLabel)} <span class="chevron">▾</span>
       </button>
       <div class="dropdown-menu">${itemsHtml}</div>
     </div>`;
   };
 
-  const msgDropdown = buildDropdown('Drop me a line', iconComment, allMessaging, messagingIcons);
-  const tipDropdown = buildDropdown('Drop me a dime', iconDollar, payments, paymentIcons);
+  // Inline SVG paths for button icons (no external fetch needed)
+  const PLANE_PATH = `<path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>`;
+  const COIN_PATH  = `<path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+<path fill="currentColor" d="M11.5 6C9.57 6 8 7.57 8 9.5h2c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 1.5-2.25 1.31-2.25 3.75h2.25c0-1.69 2.25-1.88 2.25-3.75C15.25 7.57 13.43 6 11.5 6z"/>`;
+
+  const msgDropdown = buildDropdown(
+    'Drop me a line', PLANE_PATH, btnStyle(msgAvgColor),
+    allMessaging, messagingIcons, msgColors
+  );
+  const tipDropdown = buildDropdown(
+    'Drop me a dime', COIN_PATH, btnStyle(tipAvgColor),
+    payments, paymentIcons, tipColors
+  );
 
   document.getElementById('body').innerHTML = `
     <div class="display-name">${esc(name)}</div>
 
     <div class="pill-row">
       <a class="pill" href="${esc(nostrUri)}" title="Open in your Nostr client">
-        @${esc(displayHandle)} ${tickHtml(handleTickLevel, handleTickTitle)}
+        @${esc(displayHandle)} ${tickHtml(handleTickLevel,handleTickTitle)}
       </a>
       ${msgDropdown}
     </div>
 
     <div class="pill-row">
       <a class="pill" href="lightning:${esc(lightning)}" title="Pay via Lightning Network">
-        ⚡ ${esc(lightning)} ${tickHtml(lnTickLevel, lnTickTitle)}
+        ⚡ ${esc(lightning)} ${tickHtml(lnTickLevel,lnTickTitle)}
       </a>
       ${tipDropdown}
     </div>
 
-    ${allSocial.length ? `
+    ${allSocial.length?`
       <div class="section-title">Follow me on</div>
       <div class="social-row">${buildSocialRow()}</div>
-    ` : ''}
+    `:''}
 
     <a class="footer-link" href="${DITTO_URL}/${esc(DOMAIN)}" target="_blank" rel="noopener">
       View full profile on <span>ditto.pub</span>
     </a>
   `;
 
-  // 12. Dropdown toggle
-  document.querySelectorAll('.dropdown-btn').forEach(btn => {
-    btn.addEventListener('click', e => {
+  // 13. Dropdown toggle
+  document.querySelectorAll('.dropdown-btn').forEach(btn=>{
+    btn.addEventListener('click',e=>{
       e.stopPropagation();
-      const dd = btn.closest('.dropdown');
-      const wasOpen = dd.classList.contains('open');
-      document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
-      if (!wasOpen) dd.classList.add('open');
+      const dd=btn.closest('.dropdown');
+      const wasOpen=dd.classList.contains('open');
+      document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
+      if(!wasOpen) dd.classList.add('open');
     });
   });
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.dropdown.open').forEach(d => d.classList.remove('open'));
+  document.addEventListener('click',()=>{
+    document.querySelectorAll('.dropdown.open').forEach(d=>d.classList.remove('open'));
   });
 
-})().catch(err => {
-  const b = document.getElementById('body');
-  if (b) b.innerHTML =
-    `<div class="error">⚠️ Unexpected error.<code>${String(err?.message ?? err)}</code></div>`;
+})().catch(err=>{
+  const b=document.getElementById('body');
+  if(b) b.innerHTML=`<div class="error">⚠️ Unexpected error.<code>${String(err?.message??err)}</code></div>`;
 });
 </script>
 </body>
